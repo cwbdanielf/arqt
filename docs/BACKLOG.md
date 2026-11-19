@@ -51,7 +51,7 @@ Publicado em https://github.com/cwbdanielf/arqt. Pendentes: 1.2 (assinatura), 1.
 
 Rodar o `/arqt` em 5 repositórios open source de stacks diferentes e corrigir o que aparecer em análise, layout e textos.
 
-**Próximo passo:** 2.6 (feedback dos colegas) depende das issues da 1.6 — ainda não há; enquanto isso, frente 3 (teste A/B), começando pela rúbrica (3.1).
+**Próximo passo:** 2.6 (feedback dos colegas) depende das issues da 1.6 — ainda não há; frente 3: gerar a doc A dos 3 repositórios numa sessão limpa (3.3), montar os pacotes e enviar aos colegas (3.4).
 
 | # | Item | Pronto quando |
 |---|---|---|
@@ -94,15 +94,16 @@ Rodar o `/arqt` em 5 repositórios open source de stacks diferentes e corrigir o
 - Rótulos abreviados (2.8): setas em corredor entre colunas vizinhas não tinham espaço reservado e rótulos folgados
   ocupavam o lugar dos apertados → reserva no vão de saída, rótulos mais apertados escolhem primeiro e trecho vertical antes
   de abreviar. Em 1.500 grafos aleatórios: de 67 para 1 abreviado, sem aumentar a largura dos diagramas dos modelos.
+- Resumo do build com plural errado ("1 fluxos") → singular.
 - Playbook sem monorepo TS (apps × pacotes × tooling, catálogo do pnpm, tRPC montado dentro do app, Drizzle) → incluído.
 
 ### 3. Teste A/B formal — rúbrica cega (v1.2)
 
 | # | Item | Pronto quando |
 |---|---|---|
-| 3.1 | Definir a rúbrica (precisão, clareza, utilidade, tempo de leitura; escala 1–5) e o roteiro do avaliador | `docs/ab/rubrica.md` |
-| 3.2 | Escolher 3 repositórios (pequeno, médio, monorepo) entre os da frente 2 | lista fechada |
-| 3.3 | Produzir, para cada repo, a doc **A** (Claude sem o skill, mesmo pedido) e a **B** (arqT), anonimizadas como "Doc 1/Doc 2" em ordem aleatória | 6 pacotes prontos |
+| 3.1 | ~~Definir a rúbrica (precisão, clareza, utilidade, tempo de leitura; escala 1–5) e o roteiro do avaliador~~ (feito: `docs/ab/rubrica.md`, planilha `docs/ab/notas.csv`) | `docs/ab/rubrica.md` |
+| 3.2 | ~~Escolher 3 repositórios (pequeno, médio, monorepo) entre os da frente 2~~ (feito: spring-petclinic, eShop, create-t3-turbo) | lista fechada |
+| 3.3 | Produzir, para cada repo, a doc **A** (Claude sem o skill, mesmo pedido) e a **B** (arqT), anonimizadas como "Doc 1/Doc 2" em ordem aleatória — **em andamento:** docs B e `tools/ab-pacotes.mjs` prontos (pacotes em `.ab/`, fora do git); falta a doc A, que exige uma sessão nova do Claude **sem** o skill | 6 pacotes prontos |
 | 3.4 | Colegas avaliam sem saber qual é qual (mínimo 3 avaliadores por repo) | planilha de notas |
 | 3.5 | Consolidar resultados e transformar os pontos fracos do arqT em itens deste backlog | `docs/ab/resultado.md` |
 

@@ -159,3 +159,12 @@ test('manual de sustentação omite bibliotecas sem nada de operação', () => {
   assert.ok(!doc.includes('**Pacote de interface**') && !doc.includes('### Pacote de interface'), 'biblioteca sem operação não tem linha nem seção');
   assert.ok(doc.includes('### Pacote de login'), 'biblioteca com variáveis de configuração tem seção');
 });
+
+test('resumo do build usa singular com 1 item', () => {
+  const m = loja();
+  m.flows = m.flows.slice(0, 1);
+  const dir = lojaProject(m);
+  const r = run(dir, '--now', NOW, '--no-history');
+  assert.equal(r.code, 0, r.out);
+  assert.match(r.out, / 1 fluxo · /);
+});

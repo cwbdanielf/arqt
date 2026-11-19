@@ -1,0 +1,100 @@
+{
+  "meta": { "schemaVersion": 1, "language": "pt-BR", "scope": ".", "analyzedFiles": 66 },
+  "system": {
+    "name": "Spring PetClinic",
+    "purpose": "Sistema de clínica veterinária para cadastrar donos, pets e visitas e consultar os veterinários.",
+    "summary": "Monólito Spring Boot com páginas Thymeleaf renderizadas no servidor (MVC). Módulos por domínio (donos/pets/visitas, veterinários) acessam o banco por Spring Data JPA; H2 em memória por padrão, MySQL ou PostgreSQL por perfil.",
+    "businessCapabilities": ["Cadastro de donos", "Cadastro de pets", "Registro de visitas", "Consulta de veterinários"],
+    "stack": ["Java 17", "Spring Boot 4.1", "Spring MVC · Thymeleaf", "Spring Data JPA", "H2 / MySQL 9.7 / PostgreSQL 18", "JCache"],
+    "qualityGoals": [
+      { "name": "Desempenho", "description": "Lista de veterinários em cache (JCache).", "confidence": "verified" }
+    ]
+  },
+  "actors": [
+    { "id": "recepcao", "name": "Recepção da clínica", "kind": "person", "description": "Cadastra donos, pets e visitas.", "confidence": "inferred" },
+    { "id": "monitoramento", "name": "Monitoramento", "kind": "external-system", "tech": "HTTP (Actuator)", "description": "Consulta saúde e métricas da aplicação.", "sources": [{ "path": "src/main/resources/application.properties", "line": 21 }], "confidence": "inferred" }
+  ],
+  "boundaries": [
+    { "id": "app", "name": "Aplicação", "kind": "layer" },
+    { "id": "dados", "name": "Dados", "kind": "layer" }
+  ],
+  "components": [
+    { "id": "petclinic", "name": "PetClinic", "kind": "service", "boundary": "app", "tech": "Spring Boot 4.1 · MVC", "responsibility": "Telas e regras de cadastro de donos, pets, visitas e consulta de veterinários.", "sources": [{ "path": "src/main/java/org/springframework/samples/petclinic/PetClinicApplication.java", "line": 28 }], "ops": { "start": "./mvnw spring-boot:run", "build": "./mvnw -B verify", "test": "./mvnw test", "config": ["database", "spring.datasource.url", "POSTGRES_URL", "POSTGRES_USER", "POSTGRES_PASS", "spring.profiles.active"], "ports": [8080], "logs": "stdout (Spring Boot / Logback)", "health": "/livez e /readyz (Actuator)", "tests": "detected" }, "confidence": "verified" },
+    { "id": "owner", "name": "Donos, pets e visitas", "parent": "petclinic", "kind": "service", "responsibility": "Busca, cadastro e edição de donos, pets e registro de visitas.", "sources": [{ "path": "src/main/java/org/springframework/samples/petclinic/owner/OwnerController.java", "line": 49 }, { "path": "src/main/java/org/springframework/samples/petclinic/owner/VisitController.java", "line": 43 }], "confidence": "verified" },
+    { "id": "vet", "name": "Veterinários", "parent": "petclinic", "kind": "service", "responsibility": "Lista veterinários e especialidades em HTML e JSON.", "sources": [{ "path": "src/main/java/org/springframework/samples/petclinic/vet/VetController.java", "line": 37 }], "confidence": "verified" },
+    { "id": "system", "name": "Sistema", "parent": "petclinic", "kind": "lib", "responsibility": "Página inicial, página de erro de teste, cache e configuração web.", "sources": [{ "path": "src/main/java/org/springframework/samples/petclinic/system/WelcomeController.java", "line": 23 }], "confidence": "verified" },
+    { "id": "cache", "name": "Cache de veterinários", "parent": "petclinic", "kind": "cache", "responsibility": "Guarda a lista de veterinários em memória (JCache).", "sources": [{ "path": "src/main/java/org/springframework/samples/petclinic/system/CacheConfiguration.java", "line": 32 }], "confidence": "verified" },
+    { "id": "views", "name": "Páginas Thymeleaf", "parent": "petclinic", "kind": "ui", "responsibility": "Templates HTML de donos, pets, visitas e veterinários.", "sources": [{ "path": "src/main/resources/templates/owners/ownerDetails.html", "line": 1 }], "confidence": "verified" },
+    { "id": "db", "name": "Banco da clínica", "kind": "db", "boundary": "dados", "tech": "H2 · MySQL · PostgreSQL", "responsibility": "Donos, pets, tipos, visitas, veterinários e especialidades.", "sources": [{ "path": "src/main/resources/application.properties", "line": 2 }, { "path": "docker-compose.yml", "line": 14 }], "confidence": "verified" }
+  ],
+  "relations": [
+    { "from": "recepcao", "to": "views", "label": "Usa as telas", "protocol": "HTTPS", "confidence": "inferred" },
+    { "from": "views", "to": "owner", "label": "Envia formulários", "protocol": "HTTP (MVC)", "sources": [{ "path": "src/main/java/org/springframework/samples/petclinic/owner/OwnerController.java", "line": 77 }], "confidence": "verified" },
+    { "from": "views", "to": "vet", "label": "Lista veterinários", "protocol": "HTTP (MVC)", "sources": [{ "path": "src/main/java/org/springframework/samples/petclinic/vet/VetController.java", "line": 45 }], "confidence": "verified" },
+    { "from": "views", "to": "system", "label": "Abre página inicial", "protocol": "HTTP (MVC)", "sources": [{ "path": "src/main/java/org/springframework/samples/petclinic/system/WelcomeController.java", "line": 25 }], "confidence": "verified" },
+    { "from": "owner", "to": "db", "label": "Grava donos e visitas", "protocol": "JPA/SQL", "sources": [{ "path": "src/main/java/org/springframework/samples/petclinic/owner/OwnerRepository.java", "line": 36 }], "confidence": "verified" },
+    { "from": "vet", "to": "cache", "label": "Lê lista em cache", "protocol": "chamada local", "sources": [{ "path": "src/main/java/org/springframework/samples/petclinic/vet/VetRepository.java", "line": 45 }], "confidence": "verified" },
+    { "from": "vet", "to": "db", "label": "Lê veterinários", "protocol": "JPA/SQL", "sources": [{ "path": "src/main/java/org/springframework/samples/petclinic/vet/VetRepository.java", "line": 38 }], "confidence": "verified" },
+    { "from": "monitoramento", "to": "system", "label": "Consulta saúde", "protocol": "HTTP", "sources": [{ "path": "k8s/petclinic.yml", "line": 49 }], "confidence": "inferred" }
+  ],
+  "flows": [
+    {
+      "id": "visita", "name": "Registrar visita", "description": "Recepção registra a visita de um pet.",
+      "steps": [
+        { "from": "recepcao", "to": "views", "label": "Abre o dono e escolhe o pet" },
+        { "from": "views", "to": "owner", "label": "POST /owners/{id}/pets/{id}/visits/new" },
+        { "from": "owner", "to": "db", "label": "Salva o dono com a nova visita" },
+        { "from": "owner", "to": "views", "label": "Redireciona para o dono", "reply": true }
+      ],
+      "sources": [{ "path": "src/main/java/org/springframework/samples/petclinic/owner/VisitController.java", "line": 109 }],
+      "confidence": "verified"
+    }
+  ],
+  "deployment": [
+    {
+      "id": "k8s", "environment": "Kubernetes", "description": "Deployment da aplicação (1 réplica) e do PostgreSQL com Secret de conexão.",
+      "nodes": [
+        { "id": "k8s-app", "name": "Deployment petclinic", "kind": "pod", "hosts": ["petclinic"] },
+        { "id": "k8s-db", "name": "Deployment postgres", "kind": "pod", "hosts": ["db"] }
+      ],
+      "sources": [{ "path": "k8s/petclinic.yml", "line": 16 }, { "path": "k8s/db.yml", "line": 29 }],
+      "confidence": "verified"
+    }
+  ],
+  "data": [
+    { "id": "d-owner", "name": "Dono", "store": "db", "fields": ["first_name", "last_name", "address", "city", "telephone"], "description": "Tutor dos pets.", "sources": [{ "path": "src/main/resources/db/h2/schema.sql", "line": 36 }], "confidence": "verified" },
+    { "id": "d-pet", "name": "Pet", "store": "db", "fields": ["name", "birth_date", "type_id", "owner_id"], "description": "Animal de um dono.", "sources": [{ "path": "src/main/resources/db/h2/schema.sql", "line": 46 }], "confidence": "verified" },
+    { "id": "d-visit", "name": "Visita", "store": "db", "fields": ["pet_id", "visit_date", "description"], "description": "Atendimento de um pet.", "sources": [{ "path": "src/main/resources/db/h2/schema.sql", "line": 58 }], "confidence": "verified" },
+    { "id": "d-vet", "name": "Veterinário", "store": "db", "fields": ["first_name", "last_name", "specialties"], "description": "Profissional e especialidades.", "sources": [{ "path": "src/main/resources/db/h2/schema.sql", "line": 10 }], "confidence": "verified" }
+  ],
+  "constraints": [
+    { "kind": "technical", "text": "Java 17 ou superior (pom.xml).", "confidence": "verified" }
+  ],
+  "decisions": [
+    { "id": "adr-1", "title": "Monólito MVC com páginas no servidor", "context": "Aplicação de referência simples.", "decision": "Spring MVC + Thymeleaf, sem API separada.", "consequences": "Simples de subir; front-end acoplado ao back-end.", "evidence": "src/main/resources/templates", "confidence": "inferred" },
+    { "id": "adr-2", "title": "Banco trocável por perfil", "context": "Rodar sem instalar nada e também com bancos reais.", "decision": "H2 por padrão; perfis mysql e postgres com scripts próprios.", "consequences": "Três conjuntos de SQL para manter.", "evidence": "src/main/resources/db", "confidence": "verified" }
+  ],
+  "risks": [
+    { "id": "r-actuator", "title": "Todos os endpoints do Actuator expostos", "component": "petclinic", "impact": 3, "likelihood": 2, "evidence": "management.endpoints.web.exposure.include=* (comentário: não usar em produção).", "recommendation": "Expor só health e info em produção.", "confidence": "verified" },
+    { "id": "r-h2", "title": "Banco em memória por padrão", "component": "db", "impact": 2, "likelihood": 2, "evidence": "database=h2 em application.properties.", "recommendation": "Ativar perfil postgres ou mysql fora do desenvolvimento.", "confidence": "verified" },
+    { "id": "r-replica", "title": "Uma réplica no Kubernetes", "component": "petclinic", "impact": 2, "likelihood": 1, "evidence": "replicas: 1 em k8s/petclinic.yml.", "recommendation": "Aumentar réplicas se houver uso real.", "confidence": "verified" }
+  ],
+  "inventory": {
+    "languages": [{ "name": "Java", "share": 76 }, { "name": "HTML", "share": 18 }, { "name": "SCSS/CSS", "share": 6 }],
+    "frameworks": ["Spring Boot 4.1", "Spring MVC", "Thymeleaf", "Spring Data JPA", "JCache"],
+    "dependencies": [
+      { "name": "spring-boot-starter-parent", "version": "4.1.0", "pinned": true, "scope": "runtime", "source": "pom.xml" },
+      { "name": "spring-boot-starter-data-jpa", "version": "(gerenciada pelo Boot)", "pinned": true, "scope": "runtime", "source": "pom.xml" },
+      { "name": "spring-boot-starter-thymeleaf", "version": "(gerenciada pelo Boot)", "pinned": true, "scope": "runtime", "source": "pom.xml" },
+      { "name": "spring-boot-starter-actuator", "version": "(gerenciada pelo Boot)", "pinned": true, "scope": "runtime", "source": "pom.xml" },
+      { "name": "spring-boot-starter-cache", "version": "(gerenciada pelo Boot)", "pinned": true, "scope": "runtime", "source": "pom.xml" }
+    ]
+  },
+  "glossary": [
+    { "term": "Owner (dono)", "definition": "Tutor responsável por um ou mais pets." },
+    { "term": "Visit (visita)", "definition": "Atendimento registrado para um pet numa data." },
+    { "term": "Specialty", "definition": "Especialidade de um veterinário (ex.: cirurgia)." },
+    { "term": "Perfil", "definition": "Configuração do Spring que troca o banco (mysql, postgres)." }
+  ],
+  "openQuestions": ["Qual banco é usado em produção, se houver?"]
+}
