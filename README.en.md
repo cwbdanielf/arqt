@@ -86,7 +86,7 @@ exist; anything without evidence becomes *inferred* or *to confirm* and is liste
 certain without proof.
 
 ```text
-✓ arqT 1.0.0: planta e documentos gerados para "eShop (AdventureWorks)"
+✓ arqT 1.1.0: planta e documentos gerados para "eShop (AdventureWorks)"
   14 contêineres · 9 outros componentes · 40 relações · 2 fluxos · 6 riscos
   confiança: 75 verificadas · 12 inferidas · 0 a confirmar · evidências válidas 84/84
 ```

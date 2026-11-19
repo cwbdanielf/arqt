@@ -2,14 +2,14 @@
 
 Estado atual, como desenvolver e o que vem a seguir. Atualizar este arquivo a cada item concluído.
 
-## Estado atual — 1.0.0 + não lançado (ver CHANGELOG)
+## Estado atual — 1.1.0
 
 - `/arqt` analisa o repositório, escreve um modelo JSON validado (com evidências `arquivo:linha`) e gera a planta
   interativa offline (`planta.html`) e os documentos em HTML A4 e Markdown.
 - Princípios que não mudam: **zero rede**, **zero dependências npm** (runtime e dev), escrita restrita ao diretório de
   saída, varredura de segredos com falha fechada, saída determinística, integridade por `CHECKSUMS.txt`.
 - Layout próprio (camadas, fronteiras, roteamento ortogonal), fontes do sistema, templates JS com escape por padrão.
-- Também: `/arqt docx` e `/arqt pptx` (OOXML próprio, diagramas em formas nativas), página inicial com imagens geradas
+- Desde a 1.1.0: `/arqt docx` e `/arqt pptx` (OOXML próprio, diagramas em formas nativas), página inicial com imagens geradas
   pelo próprio skill e demo ao vivo em https://cwbdanielf.github.io/arqt/.
 - Node ≥ 20 para usar o skill; ≥ 22 para rodar os testes (padrão `*` no `--test`). CI em 22/24/26.
 
@@ -55,7 +55,7 @@ Publicado em https://github.com/cwbdanielf/arqt. Pendentes: 1.2 (assinatura), 1.
 
 Rodar o `/arqt` em 5 repositórios open source de stacks diferentes e corrigir o que aparecer em análise, layout e textos.
 
-**Próximo passo:** desenvolvimento planejado concluído; resta divulgar. Pendências do usuário: enviar `docs/img/social-preview.png` em Settings → Social preview; 1.2 (assinatura das tags) antes de uma tag v1.1.0; frente 3 e 2.6 adiadas.
+**Próximo passo:** 1.1.0 publicada (tag sem assinatura, como a 1.0.0); resta divulgar. Pendências do usuário: enviar `docs/img/social-preview.png` em Settings → Social preview; 1.2 (assinatura) para as próximas tags; frente 3 e 2.6 adiadas.
 
 | # | Item | Pronto quando |
 |---|---|---|

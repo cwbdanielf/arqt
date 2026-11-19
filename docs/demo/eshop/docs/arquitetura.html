@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src data:; base-uri 'none'; form-action 'none'">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="generator" content="arqT 1.0.0">
+<meta name="generator" content="arqT 1.1.0">
 <title>Documento de arquitetura — eShop (AdventureWorks)</title>
 <style>/* arqT — design tokens e estilos de diagrama (compartilhado por planta e documentos) */
 :root {
@@ -242,7 +242,7 @@ footer.foot { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--l
     <p>Evidência: catalogdb, identitydb, orderingdb e webhooksdb no mesmo servidor.</p><p><b>Recomendação:</b> Separar ou usar serviço gerenciado com alta disponibilidade.</p></div><div class="risk-card" style="--sev:var(--ok)"><b>Carrinho sem persistência</b> <span class="c inferred">Inferido</span>
     <p>Impacto: Baixo · Probabilidade: Médio · Onde: Redis</p>
     <p>Evidência: Redis sem volume nem persistência declarados no AppHost.</p><p><b>Recomendação:</b> Ativar persistência ou aceitar perda de carrinhos.</p></div></section><section id="s11"><h2><span class="num">11</span>Glossário</h2><table class="t"><tr><td style="width:200px"><b>AppHost</b></td><td>Projeto do Aspire que declara e sobe todos os serviços e recursos.</td></tr><tr><td style="width:200px"><b>Evento de integração</b></td><td>Mensagem publicada no RabbitMQ para avisar outros serviços de uma mudança.</td></tr><tr><td style="width:200px"><b>Outbox</b></td><td>Tabela onde o evento é gravado junto com a transação antes de ser publicado.</td></tr><tr><td style="width:200px"><b>Período de carência</b></td><td>Tempo após o pedido em que o cliente ainda pode cancelar antes da validação de estoque.</td></tr><tr><td style="width:200px"><b>BFF</b></td><td>Back-end for front-end: proxy dedicado ao app móvel.</td></tr><tr><td style="width:200px"><b>Busca semântica</b></td><td>Busca por significado usando embeddings guardados no pgvector.</td></tr></table></section><section id="s12"><h2><span class="num">12</span>Itens a confirmar</h2><div class="callout warn">Gerado pelo arqT a partir do código-fonte. Afirmações marcadas como inferidas ou a confirmar devem ser revisadas.</div><ul><li>ADR-4: Carrinho em Redis via gRPC</li><li>Existe um provedor de pagamento real previsto ou o processador sempre simula?</li><li>Qual ambiente de produção é usado além do Azure Container Apps?</li><li>Há política de retenção para a tabela de log de eventos de integração?</li></ul></section></main>
-  <footer class="foot"><span>Gerado pelo arqT a partir do código-fonte. Afirmações marcadas como inferidas ou a confirmar devem ser revisadas.</span><span>arqT 1.0.0</span></footer>
+  <footer class="foot"><span>Gerado pelo arqT a partir do código-fonte. Afirmações marcadas como inferidas ou a confirmar devem ser revisadas.</span><span>arqT 1.1.0</span></footer>
 </div>
 </body>
 </html>
