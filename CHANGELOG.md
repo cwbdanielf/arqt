@@ -1,5 +1,9 @@
 # Changelog
 
+## Não lançado
+
+- Instalador: aceita o caminho do projeto com o ">" do prompt, aspas ou espaços colados, e explica quando a pasta não existe.
+
 ## 1.1.0 — 2026-11-19
 
 - Página inicial nova (README em português e inglês) ilustrada só com imagens geradas pelo próprio arqT; demo ao vivo no GitHub Pages.

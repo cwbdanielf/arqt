@@ -173,8 +173,9 @@ git clone https://github.com/cwbdanielf/arqt.git; .\arqt\install\install.ps1
 git clone https://github.com/cwbdanielf/arqt.git && sh arqt/install/install.sh
 ```
 
-The installer only copies the skill folder to `~/.claude/skills/arqt` and checks its integrity. For a single project:
-`install.ps1 -Projeto C:\path` or `install.sh /path`. As a plugin: `/plugin marketplace add cwbdanielf/arqt` and
+The installer only copies the skill folder to `~/.claude/skills/arqt` and checks its integrity. For a single project,
+run from the project folder `.\arqt\install\install.ps1 -Projeto .` (or `sh arqt/install/install.sh .`); you can then
+delete the cloned `arqt/` folder. As a plugin: `/plugin marketplace add cwbdanielf/arqt` and
 `/plugin install arqt@arqt` (the command may show up as `/arqt:arqt`).
 
 ## Quick answers
