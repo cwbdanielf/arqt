@@ -23,6 +23,7 @@ import { computeMetrics } from './lib/metrics.mjs';
 import { diffModels } from './lib/diff.mjs';
 import { renderPlanta } from '../templates/planta.mjs';
 import { renderDocs } from '../templates/docs.mjs';
+import { renderDocx } from './lib/docx.mjs';
 
 const VERSION = '1.0.0';
 const SKILL_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -107,8 +108,10 @@ function main() {
   if (args.positional[0] === 'publicar' || args.positional[0] === 'publish') return publish(root, guard);
 
   const warnings = [];
-  const unknownArgs = args.positional.filter((p) => !AUD[p]);
-  if (unknownArgs.length || args.unknown) warnings.push(`argumento(s) ignorado(s): ${[...unknownArgs, ...(args.unknown || [])].join(' ')} (aceitos: diretoria, sustentacao, desenvolvimento, publicar)`);
+  const FORMATS = ['docx'];
+  const formats = args.positional.filter((p) => FORMATS.includes(p));
+  const unknownArgs = args.positional.filter((p) => !AUD[p] && !FORMATS.includes(p));
+  if (unknownArgs.length || args.unknown) warnings.push(`argumento(s) ignorado(s): ${[...unknownArgs, ...(args.unknown || [])].join(' ')} (aceitos: diretoria, sustentacao, desenvolvimento, docx, publicar)`);
   const audience = AUD[args.positional.find((p) => AUD[p])] || 'dev';
 
   const modelFile = path.join(outDir, 'model.json');
@@ -174,10 +177,21 @@ function main() {
 
   const outputs = [[`${OUT}/planta.html`, planta]];
   for (const d of docs) { outputs.push([`${OUT}/docs/${d.slug}.html`, d.html]); outputs.push([`${OUT}/docs/${d.slug}.md`, d.md]); }
+  // formatos formais (OOXML próprio): varre-se o XML do documento antes de compactar
+  const binaries = []; const scanOnly = [];
+  if (formats.includes('docx')) {
+    const date = m.meta.generatedAt.replace(/\.\d+Z$/, 'Z');
+    const diagramNote = m.meta.language === 'en' ? 'Diagram available in the interactive map (planta.html).' : 'Diagrama disponível na planta interativa (planta.html).';
+    for (const d of docs.filter((x) => ['executivo', 'arquitetura', 'sustentacao'].includes(x.slug))) {
+      const { buffer, xml } = renderDocx({ markdown: d.md, title: `${d.title} — ${m.system.name}`, language: m.meta.language, date, diagramNote });
+      scanOnly.push([`${OUT}/docs/${d.slug}.docx`, xml]);
+      binaries.push([`${OUT}/docs/${d.slug}.docx`, buffer]);
+    }
+  }
 
   // 6. varredura das saídas (falha fechada)
   const outHits = [];
-  for (const [file, content] of outputs) {
+  for (const [file, content] of [...outputs, ...scanOnly]) {
     const hit = scanOutput(content);
     if (hit) outHits.push(`${file}: ${hit.kind}`);
   }
@@ -185,6 +199,7 @@ function main() {
 
   // 7. gravação atômica
   for (const [file, content] of outputs) guard.write(file, content.replace(/\r\n/g, '\n'));
+  for (const [file, buffer] of binaries) guard.write(file, buffer);
   if (args.history) {
     const stamp = m.meta.generatedAt.replace(/[-:]/g, '').replace(/\.\d+/, '').slice(0, 16);
     guard.write(`${histDir}/${stamp}.json`, JSON.stringify(m, null, 2) + '\n');
@@ -203,7 +218,7 @@ function main() {
   if (diff) line(`  mudanças desde a última execução: ${diff.empty ? 'nenhuma estrutural' : `+${diff.added.length + diff.relAdded.length} −${diff.removed.length + diff.relRemoved.length} ~${diff.changed.length + diff.relChanged.length}`}`);
   line('');
   line(`  planta:      ${path.join(OUT, 'planta.html')}`);
-  for (const d of docs) line(`  documento:   ${path.join(OUT, 'docs', d.slug + '.html')}  (+ .md)`);
+  for (const d of docs) line(`  documento:   ${path.join(OUT, 'docs', d.slug + '.html')}  (+ .md${binaries.some(([f]) => f.endsWith(`/${d.slug}.docx`)) ? ' + .docx' : ''})`);
   if (warnings.length) {
     line(`\n⚠ ${warnings.length} aviso(s):`);
     for (const w of warnings.slice(0, 40)) line(`  - ${w}`);
@@ -216,6 +231,7 @@ function publish(root, guard) {
   const files = ['model.json', ...['executivo', 'arquitetura', 'sustentacao', 'inventario', 'mudancas'].flatMap((s) => [`docs/${s}.html`, `docs/${s}.md`])];
   const missing = files.filter((f) => !fs.existsSync(path.join(src, f)));
   if (missing.length) fail(EXIT.usage, 'Nada para publicar ainda', missing.map((f) => `${OUT}/${f} ausente`), 'Rode /arqt antes de publicar.');
+  files.push(...['executivo', 'arquitetura', 'sustentacao'].map((s) => `docs/${s}.docx`).filter((f) => fs.existsSync(path.join(src, f))));
   for (const f of files) guard.write(`docs/arquitetura/${f}`, fs.readFileSync(path.join(src, f)));
   guard.write('docs/arquitetura/planta.html', fs.readFileSync(path.join(src, 'planta.html')));
   line(`✓ ${files.length + 1} arquivos publicados em docs/arquitetura/ (versione-os junto com o código).`);

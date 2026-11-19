@@ -51,6 +51,7 @@ gerador e responde com os caminhos. Abra `.arqt/planta.html` no navegador.
 | `/arqt` | Análise completa; planta abre na camada Desenvolvimento |
 | `/arqt diretoria` · `/arqt sustentacao` | Mesmo resultado, abrindo na camada escolhida |
 | `/arqt publicar` | Copia planta, documentos e modelo para `docs/arquitetura/` (para versionar com o código) |
+| `/arqt docx` | Também gera resumo executivo, arquitetura e sustentação em Word (`.docx`), sem instalar nada |
 
 PDF: abra um documento e use **Imprimir → Salvar como PDF** (A4).
 
