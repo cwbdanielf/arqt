@@ -40,6 +40,7 @@ Publicado em https://github.com/cwbdanielf/arqt. Pendentes: 1.2 (assinatura), 1.
 | 1.3 | ~~Repositório público e primeiro push~~ (feito) | repositório visível |
 | 1.4 | ~~Tag `v1.0.0` (sem assinatura) e release com o CHANGELOG~~ (feito) | release publicada; CI verde |
 | 1.5 | ~~README com a URL real~~ (feito); testar `/plugin marketplace add cwbdanielf/arqt` numa máquina limpa | instalação em 2 passos funciona |
+| 1.7 | Atualizar as actions do CI (checkout, setup-node) para versões que não usam Node 20, fixando o novo SHA | CI sem aviso de obsolescência |
 | 1.6 | ~~Modelo de issue para feedback~~ (feito: `.github/ISSUE_TEMPLATE/feedback.md`); compartilhar com colegas após o push | colegas com acesso |
 
 ### 2. Qualidade da planta (v1.1)
