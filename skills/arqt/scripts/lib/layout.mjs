@@ -9,6 +9,7 @@ const DEFAULTS = {
   minGap: 132, outerGap: 28, laneSp: 12, laneMargin: 18,
   rowGap: 34, bandPadTop: 38, bandPadBottom: 18, bandPadX: 18, bandGap: 30,
   margin: 24,
+  labelMax: 150, labelCharW: 6.4, labelPad: 16,
 };
 
 const mean = (a) => a.reduce((s, x) => s + x, 0) / a.length;
@@ -333,7 +334,22 @@ function layoutCore(graph, options = {}) {
 
   // ---- 9. coordenadas ----
   const laneSpan = (L) => (L > 0 ? 2 * o.laneMargin + (L - 1) * o.laneSp : 0);
-  const gapW = gapLanes.map((L, g) => (g === 0 || g === C ? Math.max(o.outerGap, laneSpan(L)) : Math.max(o.minGap, laneSpan(L))));
+  // espaço para rótulos: num vão com rótulos, os canais verticais vão para a direita e o trecho horizontal
+  // que sai da origem fica livre para o maior rótulo (limitado a o.labelMax; acima disso o texto é abreviado
+  // e aparece inteiro no painel/tooltip). Arestas entre colunas distantes já têm trechos longos.
+  const labelNeed = new Array(C + 1).fill(0);
+  const lw = (r) => (r.e.label ? Math.min(o.labelMax, o.labelCharW * r.e.label.length + o.labelPad) : 0);
+  for (const r of routes) {
+    const w = lw(r);
+    if (!w) continue;
+    if (!r.segs.length) { if (r.t.c === r.s.c + 1) labelNeed[r.t.c] = Math.max(labelNeed[r.t.c], w + 28); }
+    else if (r.type === 'lout' || r.type === 'lin') {
+      labelNeed[r.vgap] = Math.max(labelNeed[r.vgap], w + 34);
+    }
+  }
+  const gapW = gapLanes.map((L, g) => (g === 0 || g === C
+    ? Math.max(o.outerGap, laneSpan(L))
+    : Math.max(o.minGap, laneSpan(L) + labelNeed[g])));
   const colX = [];
   let x = o.margin;
   for (let c = 0; c < C; c++) { x += gapW[c]; colX.push(x); x += W; }
@@ -373,6 +389,8 @@ function layoutCore(graph, options = {}) {
   const laneX = (g, lane) => {
     const [l, r] = gapRegion(g);
     const L = gapLanes[g];
+    const span = (L - 1) * o.laneSp;
+    if (labelNeed[g]) return r - o.laneMargin - span + lane * o.laneSp;
     return (l + r) / 2 + (lane - (L - 1) / 2) * o.laneSp;
   };
   const laneY = (k, lane) => {

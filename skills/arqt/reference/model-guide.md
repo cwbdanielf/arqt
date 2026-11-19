@@ -46,7 +46,8 @@ Não preencha `generatedAt`, `commit`, `branch` nem `arqtVersion`: o build faz i
 - `summary`: 2–4 frases com o estilo arquitetural (monólito modular, microsserviços, serverless, SPA + API, CLI…) e o fluxo principal.
 - `businessCapabilities`: 3–8 capacidades ("Faturamento", "Catálogo"…).
 - `stack`: 4–10 itens principais com versão quando o manifesto informar ("Node.js 22", "PostgreSQL 16").
-- `qualityGoals`: 0–4, só se houver indício (SLA, cache, filas, testes de carga, requisitos no README).
+- `qualityGoals`: 0–4 objetos `{ "name", "description", "confidence" }`, só se houver indício (SLA, cache, filas, testes de
+  carga, requisitos no README). Ex.: `{ "name": "Desempenho", "description": "Catálogo servido de cache Redis." }`.
 
 ### actors
 `{ "id", "name", "kind": "person" | "external-system", "description", "tech", "sources", "confidence" }`
@@ -63,13 +64,15 @@ Não preencha `generatedAt`, `commit`, `branch` nem `arqtVersion`: o build faz i
 - `sources`: 1–3 evidências fortes (ponto de entrada, `listen()`, registro de rotas, serviço no compose, `Dockerfile`).
 - `ops` (só contêineres executáveis):
   - `start`/`build`/`test`: comandos reais de `package.json` scripts, Makefile, README, Dockerfile, compose (`docker compose up api`).
-  - `config`: **nomes** de variáveis lidas no código (`process.env.X`, `os.environ["X"]`, `@Value("${x}")`, `config.get("x")`).
+  - `config`: **só nomes** de variáveis/propriedades lidas no código (`process.env.X`, `os.environ["X"]`, `@Value("${x}")`,
+    `config.get("x")`). Cada item casa com `^[A-Za-z_][A-Za-z0-9_.]*$`: sem espaços, parênteses ou valores possíveis.
   - `ports`: do código ou do compose/Dockerfile (`EXPOSE`).
   - `logs`: como/onde loga ("stdout JSON via pino", "arquivo logs/app.log").
   - `health`: endpoint ou comando de health check, se existir.
   - `schedule`: para jobs/cron ("a cada 5 min", expressão cron).
   - `tests`: `detected` (há testes para ele), `absent` (procurou e não há) ou `unknown`.
-  - `failureModes`: 0–4 falhas plausíveis **com base no código** (dependência crítica, timeout, fila parada) e a ação de diagnóstico.
+  - `failureModes`: 0–4 objetos `{ "symptom", "probableCause", "action" }` — falhas plausíveis **com base no código**
+    (dependência crítica, timeout, fila parada). Ex.: `{ "symptom": "Pedidos não saem", "probableCause": "Fila parada", "action": "Ver o contêiner rabbitmq" }`.
 
 ### relations
 `{ "from", "to", "label", "protocol", "async", "sources", "confidence" }`
@@ -81,7 +84,8 @@ Não preencha `generatedAt`, `commit`, `branch` nem `arqtVersion`: o build faz i
 - Inclua pessoas → interfaces (ex.: Cliente → Web).
 
 ### flows (1–3)
-`{ "id", "name", "description", "steps": [{ "from", "to", "label", "async"?, "reply"?, "note"? }], "confidence" }`
+`{ "id", "name", "description", "steps": [{ "from", "to", "label", "async"?, "reply"?, "note"? }], "sources", "confidence" }`
+- `sources`: 1–3 arquivos que comprovam o fluxo (rota de entrada, serviço que orquestra); sem eles o fluxo fica `inferred`.
 - Os fluxos mais importantes do negócio (checkout, login, importação…), 4–12 passos, `from`/`to` são ids existentes.
 
 ### deployment (se houver evidência)

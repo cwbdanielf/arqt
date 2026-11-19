@@ -63,3 +63,20 @@ test('grafo sem arestas vira grade compacta', () => {
   const lay = layoutGraph(g);
   assert.ok(lay.cols >= 3 && lay.cols <= 5, `colunas: ${lay.cols}`);
 });
+
+test('rótulos de até ~20 caracteres cabem inteiros entre colunas vizinhas', async () => {
+  const { placeLabels } = await import('../../skills/arqt/scripts/lib/layout.mjs');
+  const nodes = ['a', 'b', 'c', 'd'].map((id) => ({ id }));
+  const edges = [
+    { id: 'e1', from: 'a', to: 'c', label: 'Cadastra tutores (+2)' },
+    { id: 'e2', from: 'b', to: 'c', label: 'Consulta saúde do app' },
+    { id: 'e3', from: 'c', to: 'd', label: 'Grava tutores (+3)' },
+  ];
+  const lay = layoutGraph({ nodes, edges });
+  assertInvariants(lay, 'rótulos');
+  const placed = placeLabels(lay, Object.fromEntries(edges.map((e) => [e.id, e.label])));
+  for (const e of edges) {
+    assert.ok(placed[e.id], `${e.id}: rótulo não posicionado`);
+    assert.equal(placed[e.id].truncated, false, `${e.id}: rótulo abreviado`);
+  }
+});
