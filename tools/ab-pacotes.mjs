@@ -2,7 +2,7 @@
 // Uso: node tools/ab-pacotes.mjs <pasta-A> <pasta-B> <saída>
 //   <pasta-A>/<repo>.md  documento do Claude sem o skill
 //   <pasta-B>/<repo>.md  .arqt/docs/arquitetura.md do mesmo repositório
-// Grava <saída>/<repo>/Doc 1.md e Doc 2.md (ordem sorteada), a ficha do avaliador e <saída>/chave.json
+// Grava <saída>/<repo>/Doc 1.md e Doc 2.md (ordem sorteada), a ficha, <saída>/instrucoes.md e <saída>/chave.json
 // (quem é quem — fica só com quem organiza; não distribuir).
 import fs from 'node:fs';
 import path from 'node:path';
@@ -10,7 +10,8 @@ import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 
 // Linhas que denunciam a origem (assinaturas de ferramenta/modelo) saem do documento.
-const SIGNATURE = /\barqt\b|\bclaude\b|\banthropic\b|gerad[oa] (?:pelo|por|com)|generated (?:by|with)/i;
+// Só assinaturas: frases técnicas como "gerado pelo Hibernate" ficam.
+const SIGNATURE = /\barqt\b|\bclaude\b|\banthropic\b|generated (?:by|with) (?:an? )?(?:ai|assistant|tool)\b/i;
 
 export function anonymize(text) {
   return text.replace(/^﻿/, '').split(/\r?\n/).filter((l) => !SIGNATURE.test(l)).join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n';
@@ -21,8 +22,17 @@ export function assign(rnd = () => crypto.randomInt(2)) {
   return rnd() === 0 ? { 'Doc 1': 'A', 'Doc 2': 'B' } : { 'Doc 1': 'B', 'Doc 2': 'A' };
 }
 
+// Instruções do avaliador: só o roteiro em diante da rúbrica (a parte de produção diz qual doc é de qual origem).
+export function instructions(rubrica) {
+  const i = rubrica.indexOf('## Roteiro do avaliador');
+  if (i < 0) throw new Error('rubrica sem a seção "## Roteiro do avaliador"');
+  const text = '# Teste cego de documentação — instruções\n\n' + rubrica.slice(i).replace(/\[`notas\.csv`\]\(notas\.csv\)/, '`notas.csv`');
+  if (SIGNATURE.test(text)) throw new Error('as instruções do avaliador citam a origem dos documentos');
+  return text;
+}
+
 function ficha(repo) {
-  return `# Ficha do avaliador — ${repo}\n\nSiga o roteiro e a rúbrica de docs/ab/rubrica.md.\n\n` +
+  return `# Ficha do avaliador — ${repo}\n\nSiga o roteiro e a rúbrica de instrucoes.md.\n\n` +
     '- Código do avaliador (A1, A2…):\n- Li primeiro: Doc 1 / Doc 2\n\n' +
     '| | Doc 1 | Doc 2 |\n|---|---|---|\n| Precisão (1–5) | | |\n| Clareza (1–5) | | |\n| Utilidade (1–5) | | |\n' +
     '| Tempo para entender (1–5) | | |\n| Minutos nas tarefas | | |\n| Tarefas certas (de 3) | | |\n| Afirmações certas (de 3) | | |\n\n' +
@@ -47,6 +57,8 @@ export function buildPackages(dirA, dirB, out, rnd) {
     fs.writeFileSync(path.join(dir, 'ficha.md'), ficha(repo));
   }
   fs.writeFileSync(path.join(out, 'chave.json'), JSON.stringify(key, null, 2) + '\n');
+  const rubrica = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'docs', 'ab', 'rubrica.md');
+  fs.writeFileSync(path.join(out, 'instrucoes.md'), instructions(fs.readFileSync(rubrica, 'utf8')));
   return key;
 }
 

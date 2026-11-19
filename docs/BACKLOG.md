@@ -51,7 +51,7 @@ Publicado em https://github.com/cwbdanielf/arqt. Pendentes: 1.2 (assinatura), 1.
 
 Rodar o `/arqt` em 5 repositórios open source de stacks diferentes e corrigir o que aparecer em análise, layout e textos.
 
-**Próximo passo:** 2.6 (feedback dos colegas) depende das issues da 1.6 — ainda não há; frente 3: gerar a doc A dos 3 repositórios numa sessão limpa (3.3), montar os pacotes e enviar aos colegas (3.4).
+**Próximo passo:** 2.6 (feedback dos colegas) depende das issues da 1.6 — ainda não há; 3.4 — enviar `.ab/teste-ab.zip` (instruções, fichas, planilha e os 6 documentos; sem a chave) a pelo menos 3 colegas que não conheçam o arqT e recolher as fichas. Depende do usuário. Observação: as docs A ficaram 2,5–4× mais longas que as do arqT (o critério "tempo para entender" vai medir o efeito).
 
 | # | Item | Pronto quando |
 |---|---|---|
@@ -103,7 +103,7 @@ Rodar o `/arqt` em 5 repositórios open source de stacks diferentes e corrigir o
 |---|---|---|
 | 3.1 | ~~Definir a rúbrica (precisão, clareza, utilidade, tempo de leitura; escala 1–5) e o roteiro do avaliador~~ (feito: `docs/ab/rubrica.md`, planilha `docs/ab/notas.csv`) | `docs/ab/rubrica.md` |
 | 3.2 | ~~Escolher 3 repositórios (pequeno, médio, monorepo) entre os da frente 2~~ (feito: spring-petclinic, eShop, create-t3-turbo) | lista fechada |
-| 3.3 | Produzir, para cada repo, a doc **A** (Claude sem o skill, mesmo pedido) e a **B** (arqT), anonimizadas como "Doc 1/Doc 2" em ordem aleatória — **em andamento:** docs B e `tools/ab-pacotes.mjs` prontos (pacotes em `.ab/`, fora do git); falta a doc A, que exige uma sessão nova do Claude **sem** o skill | 6 pacotes prontos |
+| 3.3 | Produzir, para cada repo, a doc **A** (Claude sem o skill, mesmo pedido) e a **B** (arqT), anonimizadas como "Doc 1/Doc 2" em ordem aleatória~~ (feito: doc A escrita por sessões novas do Claude sem o skill, com o pedido fixo da rúbrica; pacotes e `teste-ab.zip` em `.ab/`, fora do git; a chave fica em `.ab/pacotes/chave.json`) | 6 pacotes prontos |
 | 3.4 | Colegas avaliam sem saber qual é qual (mínimo 3 avaliadores por repo) | planilha de notas |
 | 3.5 | Consolidar resultados e transformar os pontos fracos do arqT em itens deste backlog | `docs/ab/resultado.md` |
 
