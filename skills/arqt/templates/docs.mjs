@@ -74,7 +74,7 @@ const mdTable = (headers, rows) => (rows.length ? [`| ${headers.map(md).join(' |
 const srcText = (s) => s.map((x) => `${x.path}${x.line ? ':' + x.line : ''}`).join(', ');
 
 function mermaidFlowchart(view) {
-  const lines = ['```mermaid', 'flowchart LR'];
+  const lines = ['```mermaid', 'flowchart LR', `  %% arqt:view=${view.id}`];
   const id = (x) => 'n_' + x.replace(/[^a-zA-Z0-9_]/g, '_');
   const shape = (n) => {
     const l = mermaidLabel(n.name);
@@ -100,7 +100,7 @@ function mermaidFlowchart(view) {
 }
 
 function mermaidSequence(flow, nameOf) {
-  const lines = ['```mermaid', 'sequenceDiagram'];
+  const lines = ['```mermaid', 'sequenceDiagram', `  %% arqt:flow=${flow.id}`];
   const ids = [];
   for (const s of flow.steps) for (const p of [s.from, s.to]) if (!ids.includes(p)) ids.push(p);
   const pid = (x) => 'p_' + x.replace(/[^a-zA-Z0-9_]/g, '_');

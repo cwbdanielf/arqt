@@ -78,3 +78,16 @@ test('/arqt pptx: capa, resumo, uma vista por slide e riscos; determinístico e 
   assert.match(all, /<a:custGeom>/, 'setas como formas nativas');
   assert.ok(!fs.existsSync(path.join(a, '.arqt', 'docs', 'arquitetura.docx')), 'pptx não gera docx');
 });
+
+test('/arqt docx: diagramas da arquitetura viram formas nativas do Word, com ids únicos', () => {
+  const dir = lojaProject();
+  execFileSync(process.execPath, [BUILD, 'docx', '--now', NOW, '--no-history'], { cwd: dir, encoding: 'utf8' });
+  const mdText = fs.readFileSync(path.join(dir, '.arqt', 'docs', 'arquitetura.md'), 'utf8');
+  const blocks = (mdText.match(/```mermaid/g) || []).length;
+  const doc = unzip(fs.readFileSync(path.join(dir, '.arqt', 'docs', 'arquitetura.docx')))['word/document.xml'].toString();
+  assert.ok(blocks > 0);
+  assert.equal((doc.match(/<wpg:wgp>/g) || []).length, blocks, 'um desenho por diagrama');
+  assert.ok(!doc.includes('Diagrama disponível'), 'sem aviso no lugar do desenho');
+  const ids = [...doc.matchAll(/<(?:wps:cNvPr|wp:docPr) id="(\d+)"/g)].map((x) => x[1]);
+  assert.equal(new Set(ids).size, ids.length, 'ids repetidos confundem o Word');
+});
