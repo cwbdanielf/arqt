@@ -44,14 +44,14 @@ Publicado em https://github.com/cwbdanielf/arqt. Pendentes: 1.2 (assinatura), 1.
 | 1.3 | ~~Repositório público e primeiro push~~ (feito) | repositório visível |
 | 1.4 | ~~Tag `v1.0.0` (sem assinatura) e release com o CHANGELOG~~ (feito) | release publicada; CI verde |
 | 1.5 | ~~README com a URL real~~ (feito); testar `/plugin marketplace add cwbdanielf/arqt` numa máquina limpa | instalação em 2 passos funciona |
-| 1.7 | Atualizar as actions do CI (checkout, setup-node) para versões que não usam Node 20, fixando o novo SHA | CI sem aviso de obsolescência |
+| 1.7 | ~~Atualizar as actions do CI (checkout, setup-node) para versões que não usam Node 20, fixando o novo SHA~~ (feito: checkout v7.0.1 e setup-node v7.1.0, ambas em Node 24) | CI sem aviso de obsolescência |
 | 1.6 | ~~Modelo de issue para feedback~~ (feito: `.github/ISSUE_TEMPLATE/feedback.md`); compartilhar com colegas após o push | colegas com acesso |
 
 ### 2. Qualidade da planta (v1.1)
 
 Rodar o `/arqt` em 5 repositórios open source de stacks diferentes e corrigir o que aparecer em análise, layout e textos.
 
-**Próximo passo:** 2.6 (feedback dos colegas) depende das issues da 1.6 — ainda não há; enquanto isso, 1.7 (actions do CI) e depois a frente 3.
+**Próximo passo:** 2.6 (feedback dos colegas) depende das issues da 1.6 — ainda não há; enquanto isso, frente 3 (teste A/B), começando pela rúbrica (3.1).
 
 | # | Item | Pronto quando |
 |---|---|---|
