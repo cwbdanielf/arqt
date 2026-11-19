@@ -51,7 +51,7 @@ Publicado em https://github.com/cwbdanielf/arqt. Pendentes: 1.2 (assinatura), 1.
 
 Rodar o `/arqt` em 5 repositórios open source de stacks diferentes e corrigir o que aparecer em análise, layout e textos.
 
-**Próximo passo:** 2.6 (feedback dos colegas) depende das issues da 1.6 — ainda não há; 3.4 — enviar `.ab/teste-ab.zip` (instruções, fichas, planilha e os 6 documentos; sem a chave) a pelo menos 3 colegas que não conheçam o arqT e recolher as fichas. Depende do usuário. Observação: as docs A ficaram 2,5–4× mais longas que as do arqT (o critério "tempo para entender" vai medir o efeito).
+**Próximo passo:** frente 4 — 4.3 (`/arqt pptx`), depois 4.2b, 4.4 e 4.5. Frente 3 (avaliação pelos colegas) e 2.6 adiadas por decisão do usuário.
 
 | # | Item | Pronto quando |
 |---|---|---|
@@ -60,7 +60,7 @@ Rodar o `/arqt` em 5 repositórios open source de stacks diferentes e corrigir o
 | 2.3 | ~~Corrigir os problemas, com teste de regressão para cada defeito de layout/validação~~ (feito) | testes novos passando |
 | 2.4 | ~~Ampliar o playbook por stack no `SKILL.md`/`reference/` com o que faltou~~ (feito: Java, Python, Go, .NET/Aspire, monorepo TS) | stacks cobertas no guia |
 | 2.5 | ~~Versionar 1–2 modelos de exemplo (licença permissiva) em `tests/models/` e gerar uma planta de demonstração~~ (feito: `eshop.json` e `create-t3-turbo.json`, demo em `docs/demo/`) | demo citada no README |
-| 2.6 | Incorporar o feedback dos colegas (issues da 1.6) | issues triadas e fechadas ou adiadas |
+| 2.6 | **Adiado** (depende de colegas) — incorporar o feedback dos colegas (issues da 1.6) | issues triadas e fechadas ou adiadas |
 | 2.7 | ~~Diagramas com cadeias longas ficam largos e abrem com zoom baixo~~ (feito: colunas por faixa contam só arestas internas; diagramas abrem com zoom mínimo de 60%, alinhados à esquerda; "Ajustar à tela" mostra tudo) | vista de componentes legível sem zoom manual |
 | 2.8 | ~~Caso isolado: rótulo de seta longa entre colunas distantes ainda abreviado em 2 letras~~ (feito; resta 1 caso em ~20 mil rótulos aleatórios, com outro rótulo encostado) | nenhum rótulo ≤ 24 caracteres abreviado |
 
@@ -104,8 +104,8 @@ Rodar o `/arqt` em 5 repositórios open source de stacks diferentes e corrigir o
 | 3.1 | ~~Definir a rúbrica (precisão, clareza, utilidade, tempo de leitura; escala 1–5) e o roteiro do avaliador~~ (feito: `docs/ab/rubrica.md`, planilha `docs/ab/notas.csv`) | `docs/ab/rubrica.md` |
 | 3.2 | ~~Escolher 3 repositórios (pequeno, médio, monorepo) entre os da frente 2~~ (feito: spring-petclinic, eShop, create-t3-turbo) | lista fechada |
 | 3.3 | Produzir, para cada repo, a doc **A** (Claude sem o skill, mesmo pedido) e a **B** (arqT), anonimizadas como "Doc 1/Doc 2" em ordem aleatória~~ (feito: doc A escrita por sessões novas do Claude sem o skill, com o pedido fixo da rúbrica; pacotes e `teste-ab.zip` em `.ab/`, fora do git; a chave fica em `.ab/pacotes/chave.json`) | 6 pacotes prontos |
-| 3.4 | Colegas avaliam sem saber qual é qual (mínimo 3 avaliadores por repo) | planilha de notas |
-| 3.5 | Consolidar resultados e transformar os pontos fracos do arqT em itens deste backlog | `docs/ab/resultado.md` |
+| 3.4 | ~~Colegas avaliam sem saber qual é qual (mínimo 3 avaliadores por repo)~~ **adiado** (decisão do usuário: complexo demais agora; pacotes prontos em `.ab/`) | planilha de notas |
+| 3.5 | **Adiado** com a 3.4 — consolidar resultados e transformar os pontos fracos do arqT em itens deste backlog | `docs/ab/resultado.md` |
 
 ### 4. Formatos formais — DOCX e PPTX (v1.3)
 
@@ -113,8 +113,9 @@ Gerados por OOXML próprio (XML + zip via `node:zlib`), sem dependências e sem 
 
 | # | Item | Pronto quando |
 |---|---|---|
-| 4.1 | `scripts/lib/ooxml.mjs`: escritor de zip (store/deflate) e partes OOXML mínimas | teste de zip válido |
-| 4.2 | `/arqt docx`: resumo executivo, arquitetura e sustentação, com tabelas e títulos navegáveis | abre sem aviso no Word e no LibreOffice |
+| 4.1 | ~~`scripts/lib/ooxml.mjs`: escritor de zip (store/deflate) e partes OOXML mínimas~~ (feito, com leitor para testes) | teste de zip válido |
+| 4.2 | ~~`/arqt docx`: resumo executivo, arquitetura e sustentação, com tabelas e títulos navegáveis~~ (feito: convertido do Markdown gerado; abre sem aviso no Word 16 — LibreOffice não disponível aqui, conferir na 5.6) | abre sem aviso no Word e no LibreOffice |
+| 4.2b | Diagramas dentro do DOCX como formas nativas (reaproveitar o desenho da 4.3); hoje há um aviso apontando para a planta | diagramas visíveis no Word |
 | 4.3 | `/arqt pptx`: resumo executivo, 1 slide por vista (contexto, contêineres, componentes) e mapa de riscos; diagramas como formas nativas a partir das coordenadas do motor de layout | abre sem aviso no PowerPoint e no LibreOffice |
 | 4.4 | Testes de determinismo (bytes idênticos com `--now` fixo) e de segurança (escape de texto do modelo em XML) | testes passando |
 | 4.5 | Documentar no README e no `SKILL.md` | comandos documentados |

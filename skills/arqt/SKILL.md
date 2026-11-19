@@ -1,7 +1,7 @@
 ---
 name: arqt
 description: Analisa o projeto atual inteiro e gera a planta arquitetural interativa (HTML offline, com camadas para Diretoria, Sustentação e Desenvolvimento) e a documentação padronizada (resumo executivo, documento de arquitetura arc42, manual de sustentação, inventário e mudanças) em .arqt/. Use quando o usuário invocar /arqt.
-argument-hint: "[diretoria|sustentacao|desenvolvimento|publicar]"
+argument-hint: "[diretoria|sustentacao|desenvolvimento|docx|publicar]"
 disable-model-invocation: true
 allowed-tools: Read, Glob, Grep, Agent, Write(.arqt/**), Bash(node ${CLAUDE_SKILL_DIR}/scripts/build.mjs *), Bash(node "${CLAUDE_SKILL_DIR}/scripts/build.mjs" *)
 ---
@@ -78,7 +78,8 @@ Argumentos recebidos: `$ARGUMENTS`
 - 2–4 linhas com o que você encontrou: estilo arquitetural, principais contêineres e integrações, os riscos mais altos.
 - Quantos itens ficaram "a confirmar" e onde vê-los (Visão geral da planta e fim de cada documento).
 - Se houve execução anterior: o resumo de mudanças que o build imprimiu.
-- Dica: `/arqt publicar` copia a documentação para `docs/arquitetura/` para versionar.
+- Se pediu `docx`: diga que o resumo executivo, a arquitetura e a sustentação também saíram em `.arqt/docs/*.docx`.
+- Dica: `/arqt publicar` copia a documentação para `docs/arquitetura/` para versionar; `/arqt docx` gera também versões Word.
 - Não cole o JSON nem o HTML na resposta.
 
 ## Prompt de subagente (Explore, só leitura)
