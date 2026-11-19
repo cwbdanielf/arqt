@@ -1,0 +1,191 @@
+{
+  "meta": { "schemaVersion": 1, "language": "pt-BR", "scope": ".", "analyzedFiles": 636 },
+  "system": {
+    "name": "eShop (AdventureWorks)",
+    "purpose": "Loja virtual de referência onde clientes navegam pelo catálogo, montam o carrinho e fazem pedidos pela web ou pelo celular.",
+    "summary": "Microsserviços .NET orquestrados pelo Aspire. A loja web (Blazor) e o app móvel consomem APIs de catálogo, carrinho e pedidos; o processamento do pedido (estoque, carência, pagamento) é coreografado por eventos de integração no RabbitMQ, com outbox em PostgreSQL. Identidade centralizada via OpenID Connect.",
+    "businessCapabilities": ["Catálogo de produtos", "Carrinho de compras", "Pedidos", "Pagamento", "Identidade e login", "Webhooks para parceiros", "Busca semântica e assistente"],
+    "stack": [".NET 11", "Aspire 13.6", "ASP.NET Core · Blazor", ".NET MAUI", "PostgreSQL + pgvector", "Redis", "RabbitMQ", "Duende IdentityServer 8", "YARP"],
+    "qualityGoals": [
+      { "name": "Resiliência", "description": "Eventos gravados em outbox na mesma transação do banco antes de publicar no RabbitMQ.", "confidence": "verified" },
+      { "name": "Observabilidade", "description": "OpenTelemetry e health checks padronizados em todos os serviços (ServiceDefaults).", "confidence": "inferred" }
+    ]
+  },
+  "actors": [
+    { "id": "cliente", "name": "Cliente", "kind": "person", "description": "Navega no catálogo, compra e acompanha pedidos.", "confidence": "inferred" },
+    { "id": "parceiro", "name": "Parceiro de webhooks", "kind": "person", "description": "Assina notificações de pedidos pagos e enviados.", "confidence": "inferred" },
+    { "id": "provedor-ia", "name": "Provedor de IA (Foundry/OpenAI)", "kind": "external-system", "tech": "API REST", "description": "Modelos de chat e de embeddings; opcional, ligado por configuração.", "sources": [{ "path": "src/eShop.AppHost/Extensions.cs", "line": 55 }], "confidence": "verified" }
+  ],
+  "boundaries": [
+    { "id": "clientes", "name": "Clientes", "kind": "layer" },
+    { "id": "servicos", "name": "Serviços", "kind": "layer" },
+    { "id": "infra", "name": "Infraestrutura", "kind": "layer" }
+  ],
+  "components": [
+    { "id": "webapp", "name": "Loja web", "kind": "ui", "boundary": "clientes", "tech": "Blazor Server", "responsibility": "Vitrine, carrinho, checkout, histórico de pedidos e assistente de compras para o cliente.", "sources": [{ "path": "src/WebApp/Program.cs", "line": 30 }, { "path": "src/eShop.AppHost/AppHost.cs", "line": 71 }], "ops": { "start": "aspire run", "config": ["IdentityUrl", "CallBackUrl"], "logs": "OpenTelemetry (ServiceDefaults)", "health": "/health", "tests": "detected" }, "confidence": "verified" },
+    { "id": "client-app", "name": "App móvel", "kind": "ui", "boundary": "clientes", "tech": ".NET MAUI", "responsibility": "Apps Android, iOS e desktop (nativo e híbrido) que consultam catálogo e pedidos pelo BFF.", "sources": [{ "path": "src/ClientApp/MauiProgram.cs", "line": 22 }, { "path": "src/HybridApp/MauiProgram.cs", "line": 30 }], "ops": { "tests": "detected" }, "confidence": "verified" },
+    { "id": "webhooks-client", "name": "Cliente de webhooks", "kind": "ui", "boundary": "clientes", "tech": "Blazor Server", "responsibility": "App de exemplo para parceiros cadastrarem webhooks e receberem notificações.", "sources": [{ "path": "src/WebhookClient/Program.cs", "line": 29 }, { "path": "src/eShop.AppHost/AppHost.cs", "line": 67 }], "ops": { "start": "aspire run", "config": ["IdentityUrl", "CallBackUrl"], "tests": "absent" }, "confidence": "verified" },
+    { "id": "mobile-bff", "name": "BFF móvel", "kind": "gateway", "boundary": "servicos", "tech": "YARP", "responsibility": "Proxy reverso que expõe ao app móvel só as rotas de catálogo, pedidos e identidade.", "sources": [{ "path": "src/eShop.AppHost/AppHost.cs", "line": 62 }, { "path": "src/eShop.AppHost/Extensions.cs", "line": 88 }], "ops": { "start": "aspire run", "tests": "absent" }, "confidence": "verified" },
+    { "id": "identity-api", "name": "Identidade", "kind": "service", "boundary": "servicos", "tech": "Duende IdentityServer 8", "responsibility": "Login, cadastro de usuários e emissão de tokens OpenID Connect para apps e APIs.", "sources": [{ "path": "src/Identity.API/Program.cs", "line": 18 }, { "path": "src/eShop.AppHost/AppHost.cs", "line": 25 }], "ops": { "start": "aspire run", "config": ["ConnectionStrings.identitydb", "BasketApiClient", "OrderingApiClient", "WebAppClient"], "health": "/health", "tests": "absent", "failureModes": [{ "symptom": "Ninguém consegue entrar", "probableCause": "Identidade fora do ar ou banco identitydb indisponível", "action": "Ver o health /health da identity-api e o Postgres" }] }, "confidence": "verified" },
+    { "id": "catalog-api", "name": "API de catálogo", "kind": "service", "boundary": "servicos", "tech": "ASP.NET Core · EF Core", "responsibility": "Produtos, marcas, tipos, fotos e busca semântica; valida estoque dos pedidos.", "sources": [{ "path": "src/Catalog.API/Program.cs", "line": 26 }, { "path": "src/eShop.AppHost/AppHost.cs", "line": 38 }], "ops": { "start": "aspire run", "config": ["ConnectionStrings.catalogdb", "ConnectionStrings.eventbus"], "health": "/health", "tests": "detected" }, "confidence": "verified" },
+    { "id": "catalog-endpoints", "name": "Endpoints do catálogo", "parent": "catalog-api", "kind": "service", "responsibility": "Rotas REST versionadas (v1/v2) de consulta, cadastro e fotos de produtos.", "sources": [{ "path": "src/Catalog.API/Apis/CatalogApi.cs", "line": 22 }], "confidence": "verified" },
+    { "id": "catalog-ai", "name": "Busca semântica", "parent": "catalog-api", "kind": "service", "responsibility": "Gera embeddings dos produtos para busca por relevância.", "sources": [{ "path": "src/Catalog.API/Services/CatalogAI.cs", "line": 7 }], "confidence": "verified" },
+    { "id": "catalog-events", "name": "Eventos do catálogo", "parent": "catalog-api", "kind": "service", "responsibility": "Grava e publica mudança de preço e resultado da validação de estoque.", "sources": [{ "path": "src/Catalog.API/IntegrationEvents/CatalogIntegrationEventService.cs", "line": 28 }], "confidence": "verified" },
+    { "id": "catalog-data", "name": "Dados do catálogo", "parent": "catalog-api", "kind": "lib", "responsibility": "Contexto EF Core com produtos, marcas, tipos e vetores pgvector.", "sources": [{ "path": "src/Catalog.API/Infrastructure/CatalogContext.cs", "line": 8 }], "confidence": "verified" },
+    { "id": "basket-api", "name": "API de carrinho", "kind": "service", "boundary": "servicos", "tech": "ASP.NET Core · gRPC", "responsibility": "Guarda o carrinho de cada cliente e o apaga quando o pedido começa.", "sources": [{ "path": "src/Basket.API/Program.cs", "line": 12 }, { "path": "src/eShop.AppHost/AppHost.cs", "line": 32 }], "ops": { "start": "aspire run", "config": ["ConnectionStrings.redis", "ConnectionStrings.eventbus", "Identity__Url"], "tests": "detected", "failureModes": [{ "symptom": "Carrinhos somem", "probableCause": "Redis reiniciado sem persistência", "action": "Ver o contêiner redis" }] }, "confidence": "verified" },
+    { "id": "ordering-api", "name": "API de pedidos", "kind": "service", "boundary": "servicos", "tech": "ASP.NET Core · MediatR", "responsibility": "Cria, cancela e envia pedidos; mantém o ciclo de vida do pedido (DDD + CQRS).", "sources": [{ "path": "src/Ordering.API/Program.cs", "line": 21 }, { "path": "src/eShop.AppHost/AppHost.cs", "line": 42 }], "ops": { "start": "aspire run", "config": ["ConnectionStrings.orderingdb", "ConnectionStrings.eventbus", "Identity__Url"], "health": "/health", "tests": "detected", "failureModes": [{ "symptom": "Pedidos parados em um status", "probableCause": "RabbitMQ indisponível ou evento não publicado do outbox", "action": "Ver a tabela de log de eventos e o contêiner eventbus" }] }, "confidence": "verified" },
+    { "id": "ordering-endpoints", "name": "Endpoints de pedidos", "parent": "ordering-api", "kind": "service", "responsibility": "Rotas REST autenticadas para criar, cancelar, enviar e consultar pedidos.", "sources": [{ "path": "src/Ordering.API/Apis/OrdersApi.cs", "line": 17 }], "confidence": "verified" },
+    { "id": "ordering-commands", "name": "Casos de uso", "parent": "ordering-api", "kind": "service", "responsibility": "Comandos e consultas via MediatR, com validação e idempotência.", "sources": [{ "path": "src/Ordering.API/Application/Commands/CreateOrderCommandHandler.cs", "line": 33 }, { "path": "src/Ordering.API/Extensions/Extensions.cs", "line": 37 }], "confidence": "verified" },
+    { "id": "ordering-domain", "name": "Domínio de pedidos", "parent": "ordering-api", "kind": "lib", "tech": "Ordering.Domain", "responsibility": "Agregados Pedido e Comprador com regras de status e eventos de domínio.", "sources": [{ "path": "src/Ordering.Domain/AggregatesModel/OrderAggregate/Order.cs", "line": 5 }, { "path": "src/Ordering.Domain/AggregatesModel/BuyerAggregate/Buyer.cs", "line": 5 }], "confidence": "verified" },
+    { "id": "ordering-infra", "name": "Persistência de pedidos", "parent": "ordering-api", "kind": "lib", "tech": "Ordering.Infrastructure", "responsibility": "Contexto EF Core, repositórios e unidade de trabalho do banco de pedidos.", "sources": [{ "path": "src/Ordering.Infrastructure/OrderingContext.cs", "line": 10 }], "confidence": "verified" },
+    { "id": "ordering-outbox", "name": "Outbox de eventos", "parent": "ordering-api", "kind": "lib", "tech": "IntegrationEventLogEF", "responsibility": "Grava eventos de integração na transação e publica os pendentes no barramento.", "sources": [{ "path": "src/Ordering.API/Application/IntegrationEvents/OrderingIntegrationEventService.cs", "line": 24 }, { "path": "src/IntegrationEventLogEF/Services/IntegrationEventLogService.cs", "line": 19 }], "confidence": "verified" },
+    { "id": "order-processor", "name": "Processador de pedidos", "kind": "job", "boundary": "servicos", "tech": ".NET BackgroundService", "responsibility": "Encerra o período de carência dos pedidos novos e avisa que podem seguir.", "sources": [{ "path": "src/OrderProcessor/Extensions/Extensions.cs", "line": 19 }, { "path": "src/eShop.AppHost/AppHost.cs", "line": 48 }], "ops": { "start": "aspire run", "config": ["ConnectionStrings.orderingdb", "BackgroundTaskOptions.GracePeriodTime", "BackgroundTaskOptions.CheckUpdateTime"], "schedule": "a cada CheckUpdateTime segundos", "tests": "absent" }, "confidence": "verified" },
+    { "id": "payment-processor", "name": "Processador de pagamento", "kind": "job", "boundary": "servicos", "tech": ".NET · consumidor", "responsibility": "Simula o pagamento dos pedidos com estoque confirmado e publica o resultado.", "sources": [{ "path": "src/PaymentProcessor/Program.cs", "line": 5 }, { "path": "src/eShop.AppHost/AppHost.cs", "line": 53 }], "ops": { "start": "aspire run", "config": ["PaymentOptions.PaymentSucceeded"], "schedule": "contínuo (fila)", "tests": "absent" }, "confidence": "verified" },
+    { "id": "webhooks-api", "name": "API de webhooks", "kind": "service", "boundary": "servicos", "tech": "ASP.NET Core · EF Core", "responsibility": "Cadastra assinaturas de webhooks e notifica parceiros sobre preço, pagamento e envio.", "sources": [{ "path": "src/Webhooks.API/Program.cs", "line": 20 }, { "path": "src/eShop.AppHost/AppHost.cs", "line": 56 }], "ops": { "start": "aspire run", "config": ["ConnectionStrings.webhooksdb", "ConnectionStrings.eventbus", "Identity__Url"], "health": "/health", "tests": "detected" }, "confidence": "verified" },
+    { "id": "postgres", "name": "PostgreSQL", "kind": "db", "boundary": "infra", "tech": "PostgreSQL · pgvector", "responsibility": "Quatro bancos: catálogo (com vetores), identidade, pedidos e webhooks.", "sources": [{ "path": "src/eShop.AppHost/AppHost.cs", "line": 12 }], "confidence": "verified" },
+    { "id": "redis", "name": "Redis", "kind": "cache", "boundary": "infra", "tech": "Redis", "responsibility": "Armazena os carrinhos dos clientes como JSON por comprador.", "sources": [{ "path": "src/eShop.AppHost/AppHost.cs", "line": 9 }], "confidence": "verified" },
+    { "id": "eventbus", "name": "Barramento de eventos", "kind": "queue", "boundary": "infra", "tech": "RabbitMQ", "responsibility": "Distribui eventos de integração entre os serviços (pedido iniciado, estoque, pagamento…).", "sources": [{ "path": "src/eShop.AppHost/AppHost.cs", "line": 10 }], "confidence": "verified" }
+  ],
+  "relations": [
+    { "from": "cliente", "to": "webapp", "label": "Compra pela web", "protocol": "HTTPS", "confidence": "inferred" },
+    { "from": "cliente", "to": "client-app", "label": "Compra pelo celular", "confidence": "inferred" },
+    { "from": "parceiro", "to": "webhooks-client", "label": "Cadastra webhooks", "protocol": "HTTPS", "confidence": "inferred" },
+    { "from": "client-app", "to": "mobile-bff", "label": "Consulta catálogo", "protocol": "HTTPS/REST", "sources": [{ "path": "src/HybridApp/MauiProgram.cs", "line": 30 }], "confidence": "verified" },
+    { "from": "mobile-bff", "to": "catalog-endpoints", "label": "Encaminha catálogo", "protocol": "HTTP", "sources": [{ "path": "src/eShop.AppHost/Extensions.cs", "line": 97 }], "confidence": "verified" },
+    { "from": "mobile-bff", "to": "ordering-endpoints", "label": "Encaminha pedidos", "protocol": "HTTP", "sources": [{ "path": "src/eShop.AppHost/AppHost.cs", "line": 64 }], "confidence": "verified" },
+    { "from": "webapp", "to": "basket-api", "label": "Atualiza carrinho", "protocol": "gRPC", "sources": [{ "path": "src/WebApp/Extensions/Extensions.cs", "line": 31 }], "confidence": "verified" },
+    { "from": "webapp", "to": "catalog-endpoints", "label": "Lista produtos", "protocol": "HTTPS/REST", "sources": [{ "path": "src/WebApp/Extensions/Extensions.cs", "line": 34 }], "confidence": "verified" },
+    { "from": "webapp", "to": "ordering-endpoints", "label": "Cria pedidos", "protocol": "HTTPS/REST", "sources": [{ "path": "src/WebApp/Extensions/Extensions.cs", "line": 38 }], "confidence": "verified" },
+    { "from": "webapp", "to": "identity-api", "label": "Autentica cliente", "protocol": "OpenID Connect", "sources": [{ "path": "src/WebApp/Extensions/Extensions.cs", "line": 72 }], "confidence": "verified" },
+    { "from": "webapp", "to": "provedor-ia", "label": "Conversa no chat", "protocol": "HTTPS", "sources": [{ "path": "src/WebApp/Extensions/Extensions.cs", "line": 104 }], "confidence": "verified" },
+    { "from": "webhooks-client", "to": "webhooks-api", "label": "Gerencia assinaturas", "protocol": "HTTP/REST", "sources": [{ "path": "src/WebhookClient/Extensions/Extensions.cs", "line": 19 }], "confidence": "verified" },
+    { "from": "webhooks-client", "to": "identity-api", "label": "Autentica parceiro", "protocol": "OpenID Connect", "sources": [{ "path": "src/WebhookClient/Extensions/Extensions.cs", "line": 48 }], "confidence": "verified" },
+    { "from": "webhooks-api", "to": "webhooks-client", "label": "Envia webhook", "protocol": "HTTPS", "async": true, "sources": [{ "path": "src/Webhooks.API/Services/WebhooksSender.cs", "line": 32 }], "confidence": "verified" },
+    { "from": "basket-api", "to": "identity-api", "label": "Valida tokens", "protocol": "JWT", "sources": [{ "path": "src/eShop.ServiceDefaults/AuthenticationExtensions.cs", "line": 33 }], "confidence": "inferred" },
+    { "from": "ordering-endpoints", "to": "identity-api", "label": "Valida tokens", "protocol": "JWT", "sources": [{ "path": "src/eShop.ServiceDefaults/AuthenticationExtensions.cs", "line": 33 }], "confidence": "inferred" },
+    { "from": "basket-api", "to": "redis", "label": "Grava carrinho", "protocol": "Redis", "sources": [{ "path": "src/Basket.API/Repositories/RedisBasketRepository.cs", "line": 37 }], "confidence": "verified" },
+    { "from": "catalog-endpoints", "to": "catalog-ai", "label": "Gera embeddings", "protocol": "chamada local", "sources": [{ "path": "src/Catalog.API/Apis/CatalogApi.cs", "line": 300 }], "confidence": "verified" },
+    { "from": "catalog-endpoints", "to": "catalog-events", "label": "Registra mudança de preço", "protocol": "chamada local", "sources": [{ "path": "src/Catalog.API/Apis/CatalogApi.cs", "line": 402 }], "confidence": "verified" },
+    { "from": "catalog-ai", "to": "provedor-ia", "label": "Pede embeddings", "protocol": "HTTPS", "sources": [{ "path": "src/Catalog.API/Extensions/Extensions.cs", "line": 45 }], "confidence": "verified" },
+    { "from": "catalog-data", "to": "postgres", "label": "Lê e grava produtos", "protocol": "SQL", "sources": [{ "path": "src/Catalog.API/Extensions/Extensions.cs", "line": 15 }], "confidence": "verified" },
+    { "from": "catalog-endpoints", "to": "catalog-data", "label": "Consulta produtos", "protocol": "chamada local", "confidence": "inferred" },
+    { "from": "catalog-events", "to": "eventbus", "label": "Publica estoque e preço", "protocol": "AMQP", "async": true, "sources": [{ "path": "src/Catalog.API/IntegrationEvents/CatalogIntegrationEventService.cs", "line": 18 }], "confidence": "verified" },
+    { "from": "eventbus", "to": "catalog-events", "label": "Entrega pedidos a validar", "protocol": "AMQP", "async": true, "sources": [{ "path": "src/Catalog.API/Extensions/Extensions.cs", "line": 32 }], "confidence": "verified" },
+    { "from": "identity-api", "to": "postgres", "label": "Guarda usuários", "protocol": "SQL", "sources": [{ "path": "src/Identity.API/Program.cs", "line": 7 }], "confidence": "verified" },
+    { "from": "ordering-endpoints", "to": "ordering-commands", "label": "Envia comandos", "protocol": "MediatR", "sources": [{ "path": "src/Ordering.API/Apis/OrdersApi.cs", "line": 115 }], "confidence": "verified" },
+    { "from": "ordering-commands", "to": "ordering-domain", "label": "Aplica regras", "protocol": "chamada local", "sources": [{ "path": "src/Ordering.Domain/AggregatesModel/OrderAggregate/Order.cs", "line": 52 }], "confidence": "inferred" },
+    { "from": "ordering-commands", "to": "ordering-infra", "label": "Salva pedidos", "protocol": "chamada local", "sources": [{ "path": "src/Ordering.API/Extensions/Extensions.cs", "line": 51 }], "confidence": "verified" },
+    { "from": "ordering-commands", "to": "ordering-outbox", "label": "Registra eventos", "protocol": "chamada local", "sources": [{ "path": "src/Ordering.API/Application/Commands/CreateOrderCommandHandler.cs", "line": 33 }], "confidence": "verified" },
+    { "from": "ordering-infra", "to": "postgres", "label": "Grava pedidos", "protocol": "SQL", "sources": [{ "path": "src/Ordering.API/Extensions/Extensions.cs", "line": 15 }], "confidence": "verified" },
+    { "from": "ordering-outbox", "to": "eventbus", "label": "Publica status do pedido", "protocol": "AMQP", "async": true, "sources": [{ "path": "src/Ordering.API/Application/IntegrationEvents/OrderingIntegrationEventService.cs", "line": 24 }], "confidence": "verified" },
+    { "from": "eventbus", "to": "ordering-commands", "label": "Entrega estoque e pagamento", "protocol": "AMQP", "async": true, "sources": [{ "path": "src/Ordering.API/Extensions/Extensions.cs", "line": 57 }], "confidence": "verified" },
+    { "from": "order-processor", "to": "postgres", "label": "Busca pedidos em carência", "protocol": "SQL", "sources": [{ "path": "src/OrderProcessor/Extensions/Extensions.cs", "line": 13 }], "confidence": "verified" },
+    { "from": "order-processor", "to": "eventbus", "label": "Publica fim da carência", "protocol": "AMQP", "async": true, "sources": [{ "path": "src/OrderProcessor/Services/GracePeriodManagerService.cs", "line": 60 }], "confidence": "verified" },
+    { "from": "eventbus", "to": "payment-processor", "label": "Entrega pedidos confirmados", "protocol": "AMQP", "async": true, "sources": [{ "path": "src/PaymentProcessor/Program.cs", "line": 6 }], "confidence": "verified" },
+    { "from": "payment-processor", "to": "eventbus", "label": "Publica resultado do pagamento", "protocol": "AMQP", "async": true, "sources": [{ "path": "src/PaymentProcessor/IntegrationEvents/EventHandling/OrderStatusChangedToStockConfirmedIntegrationEventHandler.cs", "line": 32 }], "confidence": "verified" },
+    { "from": "eventbus", "to": "basket-api", "label": "Entrega pedido iniciado", "protocol": "AMQP", "async": true, "sources": [{ "path": "src/Basket.API/Extensions/Extensions.cs", "line": 19 }], "confidence": "verified" },
+    { "from": "eventbus", "to": "webhooks-api", "label": "Entrega pago e enviado", "protocol": "AMQP", "async": true, "sources": [{ "path": "src/Webhooks.API/Extensions/Extensions.cs", "line": 21 }], "confidence": "verified" },
+    { "from": "eventbus", "to": "webapp", "label": "Entrega status do pedido", "protocol": "AMQP", "async": true, "sources": [{ "path": "src/WebApp/Extensions/Extensions.cs", "line": 45 }], "confidence": "verified" },
+    { "from": "webhooks-api", "to": "postgres", "label": "Guarda assinaturas", "protocol": "SQL", "sources": [{ "path": "src/Webhooks.API/Extensions/Extensions.cs", "line": 10 }], "confidence": "verified" }
+  ],
+  "flows": [
+    {
+      "id": "checkout", "name": "Compra pela loja web", "description": "Do carrinho ao pedido pago, coreografado por eventos.",
+      "steps": [
+        { "from": "cliente", "to": "webapp", "label": "Finaliza o checkout" },
+        { "from": "webapp", "to": "ordering-endpoints", "label": "POST /api/orders" },
+        { "from": "ordering-commands", "to": "ordering-outbox", "label": "Grava OrderStarted na transação" },
+        { "from": "webapp", "to": "basket-api", "label": "Apaga o carrinho" },
+        { "from": "ordering-outbox", "to": "eventbus", "label": "Publica pedido iniciado", "async": true },
+        { "from": "order-processor", "to": "eventbus", "label": "Carência encerrada", "async": true, "note": "após GracePeriodTime minutos" },
+        { "from": "eventbus", "to": "catalog-events", "label": "Valida estoque", "async": true },
+        { "from": "catalog-events", "to": "eventbus", "label": "Estoque confirmado", "async": true },
+        { "from": "eventbus", "to": "payment-processor", "label": "Cobra o pedido", "async": true },
+        { "from": "payment-processor", "to": "eventbus", "label": "Pagamento aprovado", "async": true },
+        { "from": "eventbus", "to": "webapp", "label": "Atualiza status na tela", "async": true }
+      ],
+      "sources": [{ "path": "src/WebApp/Services/BasketState.cs", "line": 107 }, { "path": "src/OrderProcessor/Services/GracePeriodManagerService.cs", "line": 60 }],
+      "confidence": "verified"
+    },
+    {
+      "id": "webhook", "name": "Notificação a parceiro", "description": "Parceiro recebe aviso quando um pedido é pago.",
+      "steps": [
+        { "from": "parceiro", "to": "webhooks-client", "label": "Cadastra URL de retorno" },
+        { "from": "webhooks-client", "to": "webhooks-api", "label": "POST /api/webhooks" },
+        { "from": "eventbus", "to": "webhooks-api", "label": "Pedido pago", "async": true },
+        { "from": "webhooks-api", "to": "webhooks-client", "label": "POST na URL cadastrada", "async": true }
+      ],
+      "sources": [{ "path": "src/Webhooks.API/IntegrationEvents/OrderStatusChangedToPaidIntegrationEventHandler.cs", "line": 16 }],
+      "confidence": "verified"
+    }
+  ],
+  "deployment": [
+    {
+      "id": "aca", "environment": "Azure Container Apps", "description": "O AppHost do Aspire publica cada projeto e recurso como contêiner num ambiente ACA.",
+      "nodes": [
+        { "id": "aca-apps", "name": "Container Apps (serviços)", "kind": "container", "hosts": ["webapp", "webhooks-client", "mobile-bff", "identity-api", "catalog-api", "basket-api", "ordering-api", "order-processor", "payment-processor", "webhooks-api"] },
+        { "id": "aca-infra", "name": "Contêineres de infraestrutura", "kind": "container", "hosts": ["postgres", "redis", "eventbus"] }
+      ],
+      "sources": [{ "path": "src/eShop.AppHost/AppHost.cs", "line": 7 }],
+      "confidence": "inferred"
+    }
+  ],
+  "data": [
+    { "id": "d-catalog-item", "name": "Produto", "store": "postgres", "fields": ["Name", "Price", "AvailableStock", "CatalogBrand", "CatalogType", "Embedding"], "description": "Item do catálogo com vetor para busca semântica.", "sources": [{ "path": "src/Catalog.API/Model/CatalogItem.cs", "line": 7 }], "confidence": "verified" },
+    { "id": "d-order", "name": "Pedido", "store": "postgres", "fields": ["OrderStatus", "Address", "OrderItems", "BuyerId", "PaymentId"], "description": "Agregado de pedido com itens e status.", "sources": [{ "path": "src/Ordering.Infrastructure/OrderingContext.cs", "line": 12 }], "confidence": "verified" },
+    { "id": "d-buyer", "name": "Comprador", "store": "postgres", "fields": ["IdentityGuid", "Name", "PaymentMethods"], "description": "Comprador e seus meios de pagamento.", "sources": [{ "path": "src/Ordering.Infrastructure/OrderingContext.cs", "line": 15 }], "confidence": "verified" },
+    { "id": "d-basket", "name": "Carrinho", "store": "redis", "fields": ["BuyerId", "Items"], "description": "Carrinho serializado em JSON por comprador.", "sources": [{ "path": "src/Basket.API/Model/CustomerBasket.cs", "line": 3 }], "confidence": "verified" },
+    { "id": "d-user", "name": "Usuário", "store": "postgres", "fields": ["UserName", "Email", "Endereço", "Cartão"], "description": "Conta do ASP.NET Identity.", "sources": [{ "path": "src/Identity.API/Models/ApplicationUser.cs", "line": 4 }], "confidence": "verified" },
+    { "id": "d-webhook", "name": "Assinatura de webhook", "store": "postgres", "fields": ["Type", "DestUrl", "Token", "UserId"], "description": "URL de retorno cadastrada pelo parceiro.", "sources": [{ "path": "src/Webhooks.API/Model/WebhookSubscription.cs", "line": 3 }], "confidence": "verified" }
+  ],
+  "constraints": [
+    { "kind": "technical", "text": "SDK .NET 11 (global.json) e Aspire CLI com Docker ou Podman para rodar localmente.", "confidence": "verified" },
+    { "kind": "technical", "text": "PostgreSQL precisa da extensão pgvector (imagem ankane/pgvector).", "confidence": "verified" }
+  ],
+  "decisions": [
+    { "id": "adr-1", "title": "Orquestração local e deploy com Aspire", "context": "Muitos serviços e recursos para subir juntos.", "decision": "Um AppHost declara serviços, bancos, fila e referências entre eles.", "consequences": "Sobe tudo com um comando; o deploy fica atrelado ao modelo do Aspire.", "evidence": "src/eShop.AppHost/AppHost.cs", "confidence": "verified" },
+    { "id": "adr-2", "title": "Coreografia por eventos com outbox", "context": "Pedido envolve estoque, pagamento e notificação em serviços diferentes.", "decision": "Eventos de integração no RabbitMQ, gravados antes num log transacional.", "consequences": "Consistência eventual; exige monitorar eventos pendentes.", "evidence": "src/IntegrationEventLogEF", "confidence": "verified" },
+    { "id": "adr-3", "title": "DDD e CQRS no serviço de pedidos", "context": "Regras de status do pedido são as mais complexas.", "decision": "Domínio separado (Ordering.Domain), comandos via MediatR e consultas diretas.", "consequences": "Mais camadas, porém regras isoladas e testáveis.", "evidence": "src/Ordering.Domain, src/Ordering.API/Application", "confidence": "verified" },
+    { "id": "adr-4", "title": "Carrinho em Redis via gRPC", "context": "Carrinho muda muito e é por usuário.", "decision": "Basket.API expõe gRPC e grava JSON no Redis.", "consequences": "Rápido, mas sem durabilidade garantida.", "evidence": "src/Basket.API/Grpc", "confidence": "inferred" }
+  ],
+  "risks": [
+    { "id": "r-signing", "title": "Chave de assinatura de desenvolvimento", "component": "identity-api", "impact": 3, "likelihood": 2, "evidence": "Identity.API/Program.cs usa AddDeveloperSigningCredential e desliga KeyManagement (com TODO).", "recommendation": "Usar chave gerenciada (Key Vault) antes de produção.", "confidence": "verified" },
+    { "id": "r-pg-latest", "title": "Imagem do Postgres sem versão fixa", "component": "postgres", "impact": 2, "likelihood": 2, "evidence": "AppHost usa ankane/pgvector com tag latest.", "recommendation": "Fixar a tag da imagem.", "confidence": "verified" },
+    { "id": "r-single-pg", "title": "Um único Postgres para quatro bancos", "component": "postgres", "impact": 3, "likelihood": 1, "evidence": "catalogdb, identitydb, orderingdb e webhooksdb no mesmo servidor.", "recommendation": "Separar ou usar serviço gerenciado com alta disponibilidade.", "confidence": "verified" },
+    { "id": "r-auto-migrate", "title": "Migração automática na subida", "component": "identity-api", "impact": 2, "likelihood": 2, "evidence": "AddMigration aplica migrations ao iniciar (comentário diz não recomendado em produção).", "recommendation": "Gerar scripts SQL e aplicar no pipeline.", "confidence": "verified" },
+    { "id": "r-redis-volatil", "title": "Carrinho sem persistência", "component": "redis", "impact": 1, "likelihood": 2, "evidence": "Redis sem volume nem persistência declarados no AppHost.", "recommendation": "Ativar persistência ou aceitar perda de carrinhos.", "confidence": "inferred" },
+    { "id": "r-prerelease", "title": "Dependências em versão prévia", "component": "catalog-api", "impact": 2, "likelihood": 2, "evidence": "EF Core/Npgsql 11 rc e Aspire.Azure.AI.OpenAI preview em Directory.Packages.props.", "recommendation": "Atualizar para versões estáveis quando saírem.", "confidence": "verified" }
+  ],
+  "inventory": {
+    "languages": [{ "name": "C#", "share": 86 }, { "name": "Razor", "share": 6 }, { "name": "CSS", "share": 5 }, { "name": "JavaScript/TypeScript", "share": 3 }],
+    "frameworks": ["ASP.NET Core 11", "Blazor", ".NET MAUI", "Aspire 13.6", "EF Core 11", "MediatR 13", "Duende IdentityServer 8", "gRPC", "YARP", "FluentValidation 12", "Microsoft.Extensions.AI", "Playwright"],
+    "dependencies": [
+      { "name": "Aspire.Hosting.RabbitMQ", "version": "13.6.5", "pinned": true, "scope": "runtime", "source": "Directory.Packages.props" },
+      { "name": "Aspire.Npgsql.EntityFrameworkCore.PostgreSQL", "version": "13.6.5", "pinned": true, "scope": "runtime", "source": "Directory.Packages.props" },
+      { "name": "Aspire.StackExchange.Redis", "version": "13.6.5", "pinned": true, "scope": "runtime", "source": "Directory.Packages.props" },
+      { "name": "Aspire.Azure.AI.OpenAI", "version": "13.6.0-preview.1.26479.8", "pinned": true, "scope": "runtime", "source": "Directory.Packages.props" },
+      { "name": "Npgsql.EntityFrameworkCore.PostgreSQL", "version": "11.0.0-rc.3", "pinned": true, "scope": "runtime", "source": "Directory.Packages.props" },
+      { "name": "Pgvector.EntityFrameworkCore", "version": "0.3.0", "pinned": true, "scope": "runtime", "source": "Directory.Packages.props" },
+      { "name": "Duende.IdentityServer", "version": "8.0.11", "pinned": true, "scope": "runtime", "source": "Directory.Packages.props" },
+      { "name": "Grpc.AspNetCore", "version": "2.85.0", "pinned": true, "scope": "runtime", "source": "Directory.Packages.props" },
+      { "name": "MediatR", "version": "13.1.0", "pinned": true, "scope": "runtime", "source": "Directory.Packages.props" },
+      { "name": "FluentValidation", "version": "12.2.0", "pinned": true, "scope": "runtime", "source": "Directory.Packages.props" },
+      { "name": "Asp.Versioning.Http", "version": "10.2.3", "pinned": true, "scope": "runtime", "source": "Directory.Packages.props" },
+      { "name": "IdentityModel", "version": "7.0.0", "pinned": true, "scope": "runtime", "source": "Directory.Packages.props" },
+      { "name": "@playwright/test", "version": "^1.62.1", "pinned": false, "scope": "dev", "source": "package.json" }
+    ]
+  },
+  "glossary": [
+    { "term": "AppHost", "definition": "Projeto do Aspire que declara e sobe todos os serviços e recursos." },
+    { "term": "Evento de integração", "definition": "Mensagem publicada no RabbitMQ para avisar outros serviços de uma mudança." },
+    { "term": "Outbox", "definition": "Tabela onde o evento é gravado junto com a transação antes de ser publicado." },
+    { "term": "Período de carência", "definition": "Tempo após o pedido em que o cliente ainda pode cancelar antes da validação de estoque." },
+    { "term": "BFF", "definition": "Back-end for front-end: proxy dedicado ao app móvel." },
+    { "term": "Busca semântica", "definition": "Busca por significado usando embeddings guardados no pgvector." }
+  ],
+  "openQuestions": [
+    "Existe um provedor de pagamento real previsto ou o processador sempre simula?",
+    "Qual ambiente de produção é usado além do Azure Container Apps?",
+    "Há política de retenção para a tabela de log de eventos de integração?"
+  ]
+}

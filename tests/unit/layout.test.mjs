@@ -99,3 +99,19 @@ test('faixa sem arestas internas ocupa uma coluna só, mesmo com cadeia longa em
   assert.equal(new Set(['db', 'cache', 'fila'].map(col)).size, 1, 'recursos sem relação entre si ficam na mesma coluna');
   assert.equal(lay.cols, 1 + 4 + 1, 'pessoa + cadeia de 4 serviços + 1 coluna de dados');
 });
+
+test('modelos de exemplo open source: garantias de layout, rótulos inteiros e largura contida', async () => {
+  const fs = await import('node:fs');
+  const { REPO } = await import('../helpers.mjs');
+  for (const n of ['eshop', 'create-t3-turbo']) {
+    const m = normalize(JSON.parse(fs.readFileSync(`${REPO}/tests/models/${n}.json`, 'utf8')));
+    for (const v of buildViews(m, strings('pt-BR'))) {
+      assertInvariants(v.layout, `${n} ${v.id}`);
+      for (const e of v.edges.filter((x) => x.label)) {
+        const p = v.layout.labels[e.id];
+        assert.ok(p && !p.truncated, `${n} ${v.id}: rótulo "${e.label}" sem lugar ou abreviado`);
+      }
+      assert.ok(v.layout.cols <= 8, `${n} ${v.id}: ${v.layout.cols} colunas`);
+    }
+  }
+});

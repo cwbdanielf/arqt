@@ -18,6 +18,10 @@ Estado atual, como desenvolver e o que vem a seguir. Atualizar este arquivo a ca
 - `sh tools/rebuild-preview.sh [projeto]` — checksums + build + cópia para `.preview/` (projeto padrão: `tests/projects/loja`).
 - Prévia no navegador: configuração `preview` em `.claude/launch.json` (porta 4321).
 - Modelos de projetos privados usados em teste **não** são versionados; só as correções que eles motivarem.
+- Modelos de projetos open source com licença permissiva ficam em `tests/models/` e entram nos testes de validade e layout.
+- Demo: regenerar com `node <skill>/scripts/build.mjs --now 2026-11-19T12:00:00Z --no-history` na cópia rasa do eShop
+  (commit da tabela 2.1) e copiar `planta.html` e `docs/` para `docs/demo/eshop/`. Decisão: sem GitHub Pages por enquanto
+  (mudaria configuração do repositório); a planta abre baixando a pasta.
 
 ## Regras do repositório
 
@@ -47,7 +51,7 @@ Publicado em https://github.com/cwbdanielf/arqt. Pendentes: 1.2 (assinatura), 1.
 
 Rodar o `/arqt` em 5 repositórios open source de stacks diferentes e corrigir o que aparecer em análise, layout e textos.
 
-**Próximo passo:** 2.5 (versionar 1–2 modelos de exemplo; eShop e create-t3-turbo são MIT), depois 2.8 e 2.6.
+**Próximo passo:** 2.8 (rótulo abreviado), depois 2.6 (feedback dos colegas, depende das issues da 1.6).
 
 | # | Item | Pronto quando |
 |---|---|---|
@@ -55,7 +59,7 @@ Rodar o `/arqt` em 5 repositórios open source de stacks diferentes e corrigir o
 | 2.2 | ~~Rodar a análise em cada um seguindo o `SKILL.md`; registrar problemas por categoria (análise, layout, texto, desempenho)~~ (feito nos 5) | lista de problemas por repo |
 | 2.3 | ~~Corrigir os problemas, com teste de regressão para cada defeito de layout/validação~~ (feito) | testes novos passando |
 | 2.4 | ~~Ampliar o playbook por stack no `SKILL.md`/`reference/` com o que faltou~~ (feito: Java, Python, Go, .NET/Aspire, monorepo TS) | stacks cobertas no guia |
-| 2.5 | Versionar 1–2 modelos de exemplo (licença permissiva) em `tests/models/` e gerar uma planta de demonstração | demo citada no README |
+| 2.5 | ~~Versionar 1–2 modelos de exemplo (licença permissiva) em `tests/models/` e gerar uma planta de demonstração~~ (feito: `eshop.json` e `create-t3-turbo.json`, demo em `docs/demo/`) | demo citada no README |
 | 2.6 | Incorporar o feedback dos colegas (issues da 1.6) | issues triadas e fechadas ou adiadas |
 | 2.7 | ~~Diagramas com cadeias longas ficam largos e abrem com zoom baixo~~ (feito: colunas por faixa contam só arestas internas; diagramas abrem com zoom mínimo de 60%, alinhados à esquerda; "Ajustar à tela" mostra tudo) | vista de componentes legível sem zoom manual |
 | 2.8 | Caso isolado: rótulo de seta longa entre colunas distantes ainda abreviado em 2 letras | nenhum rótulo ≤ 24 caracteres abreviado |

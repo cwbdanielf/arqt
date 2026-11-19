@@ -1,0 +1,157 @@
+{
+  "meta": { "schemaVersion": 1, "language": "pt-BR", "scope": ".", "analyzedFiles": 80 },
+  "system": {
+    "name": "create-t3-turbo",
+    "purpose": "Modelo inicial para equipes criarem apps web e móvel que compartilham a mesma API tipada, login e banco.",
+    "summary": "Monorepo Turborepo/pnpm. Dois apps web (Next.js e TanStack Start) hospedam a mesma API tRPC e as rotas de login (Better Auth) a partir de pacotes compartilhados; o app Expo consome essa API por HTTP. Dados em Postgres via Drizzle.",
+    "businessCapabilities": ["Publicações (posts)", "Login social", "App móvel", "Componentes de interface compartilhados"],
+    "stack": ["TypeScript 5.9", "Next.js 16", "TanStack Start 1.135", "Expo 54 · React Native 0.81", "tRPC 11", "Better Auth 1.4 beta", "Drizzle ORM 0.44", "PostgreSQL (Vercel/Supabase)", "Turborepo 2.5 · pnpm 10"],
+    "qualityGoals": [
+      { "name": "Segurança de tipos", "description": "Tipos da API (AppRouter) compartilhados de ponta a ponta entre servidor e apps.", "confidence": "verified" }
+    ]
+  },
+  "actors": [
+    { "id": "usuario", "name": "Usuário", "kind": "person", "description": "Lê, cria e apaga publicações após entrar com Discord.", "confidence": "inferred" },
+    { "id": "discord", "name": "Discord", "kind": "external-system", "tech": "OAuth 2", "description": "Provedor de login social.", "sources": [{ "path": "packages/auth/src/index.ts", "line": 34 }], "confidence": "verified" }
+  ],
+  "boundaries": [
+    { "id": "apps", "name": "Apps", "kind": "layer" },
+    { "id": "pacotes", "name": "Pacotes compartilhados", "kind": "layer" },
+    { "id": "dados", "name": "Dados", "kind": "layer" }
+  ],
+  "components": [
+    { "id": "nextjs", "name": "App Next.js", "kind": "ui", "boundary": "apps", "tech": "Next.js 16", "responsibility": "Site principal; hospeda a API tRPC e as rotas de login usadas também pelo app móvel.", "sources": [{ "path": "apps/nextjs/src/app/api/trpc/[trpc]/route.ts", "line": 28 }, { "path": "apps/nextjs/package.json", "line": 2 }], "ops": { "start": "pnpm dev:next", "build": "pnpm build", "config": ["POSTGRES_URL", "AUTH_SECRET", "AUTH_DISCORD_ID", "AUTH_DISCORD_SECRET", "VERCEL_ENV", "VERCEL_PROJECT_PRODUCTION_URL"], "ports": [3000], "logs": "console (stdout)", "tests": "absent" }, "confidence": "verified" },
+    { "id": "nextjs-pages", "name": "Páginas", "parent": "nextjs", "kind": "ui", "responsibility": "Tela inicial com login e lista de publicações (React Server Components + React Query).", "sources": [{ "path": "apps/nextjs/src/app/page.tsx", "line": 12 }], "confidence": "verified" },
+    { "id": "nextjs-trpc-client", "name": "Cliente tRPC", "parent": "nextjs", "kind": "lib", "responsibility": "Chama a API tRPC do navegador por HTTP em lote (streaming).", "sources": [{ "path": "apps/nextjs/src/trpc/react.tsx", "line": 43 }], "confidence": "verified" },
+    { "id": "nextjs-trpc-route", "name": "Rota /api/trpc", "parent": "nextjs", "kind": "service", "responsibility": "Expõe o roteador tRPC compartilhado por HTTP, com CORS aberto.", "sources": [{ "path": "apps/nextjs/src/app/api/trpc/[trpc]/route.ts", "line": 28 }], "confidence": "verified" },
+    { "id": "nextjs-auth-route", "name": "Rota /api/auth", "parent": "nextjs", "kind": "service", "responsibility": "Entrega as rotas de login e sessão do Better Auth.", "sources": [{ "path": "apps/nextjs/src/app/api/auth/[...all]/route.ts", "line": 3 }], "confidence": "verified" },
+    { "id": "tanstack-start", "name": "App TanStack Start", "kind": "ui", "boundary": "apps", "tech": "TanStack Start · Vite", "responsibility": "Alternativa ao app Next.js com as mesmas telas, API tRPC e login.", "sources": [{ "path": "apps/tanstack-start/src/routes/api/trpc.$.ts", "line": 23 }, { "path": "apps/tanstack-start/package.json", "line": 2 }], "ops": { "start": "pnpm -F @acme/tanstack-start dev", "build": "pnpm build", "config": ["AUTH_SECRET", "AUTH_DISCORD_ID", "AUTH_DISCORD_SECRET", "VERCEL_ENV", "VERCEL_PROJECT_PRODUCTION_URL"], "logs": "console (stdout)", "tests": "absent" }, "confidence": "verified" },
+    { "id": "expo", "name": "App móvel", "kind": "ui", "boundary": "apps", "tech": "Expo 54 · React Native", "responsibility": "App iOS/Android que lista e cria publicações usando a API e o login do app Next.js.", "sources": [{ "path": "apps/expo/src/utils/api.tsx", "line": 22 }, { "path": "apps/expo/app.config.ts", "line": 3 }], "ops": { "start": "pnpm -F @acme/expo dev", "tests": "absent", "failureModes": [{ "symptom": "App móvel não carrega dados", "probableCause": "URL base aponta para localhost:3000 do computador de desenvolvimento", "action": "Configurar a URL de produção em base-url.ts" }] }, "confidence": "verified" },
+    { "id": "api", "name": "Pacote api", "kind": "lib", "boundary": "pacotes", "tech": "tRPC 11", "responsibility": "Roteador tRPC com procedimentos públicos e protegidos de publicações e sessão.", "sources": [{ "path": "packages/api/src/root.ts", "line": 5 }], "confidence": "verified" },
+    { "id": "trpc-core", "name": "Contexto e procedimentos", "parent": "api", "kind": "lib", "responsibility": "Cria o contexto (sessão + banco) e os procedimentos público e protegido.", "sources": [{ "path": "packages/api/src/trpc.ts", "line": 29 }, { "path": "packages/api/src/trpc.ts", "line": 116 }], "confidence": "verified" },
+    { "id": "post-router", "name": "Roteador de publicações", "parent": "api", "kind": "service", "responsibility": "Lista, busca, cria e apaga publicações.", "sources": [{ "path": "packages/api/src/router/post.ts", "line": 9 }], "confidence": "verified" },
+    { "id": "auth-router", "name": "Roteador de sessão", "parent": "api", "kind": "service", "responsibility": "Devolve a sessão atual e uma mensagem protegida de exemplo.", "sources": [{ "path": "packages/api/src/router/auth.ts", "line": 5 }], "confidence": "verified" },
+    { "id": "auth", "name": "Pacote auth", "kind": "lib", "boundary": "pacotes", "tech": "Better Auth 1.4 beta", "responsibility": "Configura login social Discord, proxy OAuth e suporte a Expo, gravando sessões no banco.", "sources": [{ "path": "packages/auth/src/index.ts", "line": 9 }], "ops": { "config": ["AUTH_SECRET", "AUTH_DISCORD_ID", "AUTH_DISCORD_SECRET"] }, "confidence": "verified" },
+    { "id": "db", "name": "Pacote db", "kind": "lib", "boundary": "pacotes", "tech": "Drizzle ORM", "responsibility": "Esquema das tabelas e cliente do banco para API e autenticação.", "sources": [{ "path": "packages/db/src/client.ts", "line": 6 }], "ops": { "start": "pnpm db:push", "config": ["POSTGRES_URL"] }, "confidence": "verified" },
+    { "id": "ui", "name": "Pacote ui", "kind": "lib", "boundary": "pacotes", "tech": "shadcn/ui · Radix", "responsibility": "Botões, campos, menus, tema e avisos compartilhados pelos apps web.", "sources": [{ "path": "packages/ui/src/index.ts", "line": 1 }], "confidence": "verified" },
+    { "id": "validators", "name": "Pacote validators", "kind": "lib", "boundary": "pacotes", "tech": "Zod 4", "responsibility": "Reservado para validações compartilhadas; hoje sem uso.", "sources": [{ "path": "packages/validators/src/index.ts", "line": 3 }], "confidence": "verified" },
+    { "id": "postgres", "name": "Banco Postgres", "kind": "db", "boundary": "dados", "tech": "Postgres (Vercel/Supabase)", "responsibility": "Publicações, usuários, sessões e contas de login.", "sources": [{ "path": "packages/db/drizzle.config.ts", "line": 7 }], "confidence": "verified" }
+  ],
+  "relations": [
+    { "from": "usuario", "to": "nextjs-pages", "label": "Usa o site", "protocol": "HTTPS", "confidence": "inferred" },
+    { "from": "usuario", "to": "tanstack-start", "label": "Usa o site", "protocol": "HTTPS", "confidence": "inferred" },
+    { "from": "usuario", "to": "expo", "label": "Usa o app", "confidence": "inferred" },
+    { "from": "nextjs-pages", "to": "nextjs-trpc-client", "label": "Consulta publicações", "protocol": "chamada local", "sources": [{ "path": "apps/nextjs/src/app/_components/posts.tsx", "line": 122 }], "confidence": "verified" },
+    { "from": "nextjs-pages", "to": "ui", "label": "Usa componentes", "protocol": "import", "sources": [{ "path": "apps/nextjs/src/app/layout.tsx", "line": 4 }], "confidence": "verified" },
+    { "from": "nextjs-pages", "to": "nextjs-auth-route", "label": "Inicia login", "protocol": "chamada local", "sources": [{ "path": "apps/nextjs/src/app/_components/auth-showcase.tsx", "line": 18 }], "confidence": "inferred" },
+    { "from": "nextjs-trpc-client", "to": "nextjs-trpc-route", "label": "Chama a API", "protocol": "HTTP/tRPC", "sources": [{ "path": "apps/nextjs/src/trpc/react.tsx", "line": 45 }], "confidence": "verified" },
+    { "from": "nextjs-trpc-route", "to": "trpc-core", "label": "Executa procedimentos", "protocol": "import", "sources": [{ "path": "apps/nextjs/src/app/api/trpc/[trpc]/route.ts", "line": 30 }], "confidence": "verified" },
+    { "from": "nextjs-auth-route", "to": "auth", "label": "Delega login", "protocol": "import", "sources": [{ "path": "apps/nextjs/src/auth/server.ts", "line": 18 }], "confidence": "verified" },
+    { "from": "tanstack-start", "to": "trpc-core", "label": "Executa procedimentos", "protocol": "import", "sources": [{ "path": "apps/tanstack-start/src/routes/api/trpc.$.ts", "line": 10 }], "confidence": "verified" },
+    { "from": "tanstack-start", "to": "auth", "label": "Delega login", "protocol": "import", "sources": [{ "path": "apps/tanstack-start/src/auth/server.ts", "line": 8 }], "confidence": "verified" },
+    { "from": "tanstack-start", "to": "ui", "label": "Usa componentes", "protocol": "import", "sources": [{ "path": "apps/tanstack-start/package.json", "line": 19 }], "confidence": "inferred" },
+    { "from": "expo", "to": "nextjs-trpc-route", "label": "Chama a API", "protocol": "HTTP/tRPC", "sources": [{ "path": "apps/expo/src/utils/api.tsx", "line": 33 }], "confidence": "verified" },
+    { "from": "expo", "to": "nextjs-auth-route", "label": "Faz login", "protocol": "HTTP", "sources": [{ "path": "apps/expo/src/utils/auth.ts", "line": 8 }], "confidence": "verified" },
+    { "from": "trpc-core", "to": "post-router", "label": "Roteia publicações", "protocol": "chamada local", "sources": [{ "path": "packages/api/src/root.ts", "line": 7 }], "confidence": "verified" },
+    { "from": "trpc-core", "to": "auth-router", "label": "Roteia sessão", "protocol": "chamada local", "sources": [{ "path": "packages/api/src/root.ts", "line": 6 }], "confidence": "verified" },
+    { "from": "trpc-core", "to": "auth", "label": "Lê a sessão", "protocol": "chamada local", "sources": [{ "path": "packages/api/src/trpc.ts", "line": 34 }], "confidence": "verified" },
+    { "from": "trpc-core", "to": "validators", "label": "Depende de", "protocol": "import", "sources": [{ "path": "packages/api/package.json", "line": 23 }], "confidence": "inferred" },
+    { "from": "post-router", "to": "db", "label": "Lê e grava posts", "protocol": "Drizzle", "sources": [{ "path": "packages/api/src/router/post.ts", "line": 11 }], "confidence": "verified" },
+    { "from": "auth", "to": "db", "label": "Guarda sessões", "protocol": "Drizzle", "sources": [{ "path": "packages/auth/src/index.ts", "line": 21 }], "confidence": "verified" },
+    { "from": "auth", "to": "discord", "label": "Autentica usuário", "protocol": "OAuth 2", "sources": [{ "path": "packages/auth/src/index.ts", "line": 34 }], "confidence": "verified" },
+    { "from": "db", "to": "postgres", "label": "Executa SQL", "protocol": "SQL (HTTP edge)", "sources": [{ "path": "packages/db/src/client.ts", "line": 6 }], "confidence": "verified" }
+  ],
+  "flows": [
+    {
+      "id": "criar-post", "name": "Criar publicação no app móvel", "description": "Usuário logado cria um post pelo celular.",
+      "steps": [
+        { "from": "usuario", "to": "expo", "label": "Preenche título e texto" },
+        { "from": "expo", "to": "nextjs-trpc-route", "label": "post.create (cookie de sessão)" },
+        { "from": "nextjs-trpc-route", "to": "trpc-core", "label": "Cria contexto" },
+        { "from": "trpc-core", "to": "auth", "label": "Valida sessão" },
+        { "from": "trpc-core", "to": "post-router", "label": "Procedimento protegido" },
+        { "from": "post-router", "to": "db", "label": "insert(Post)" },
+        { "from": "db", "to": "postgres", "label": "INSERT" },
+        { "from": "nextjs-trpc-route", "to": "expo", "label": "Resposta", "reply": true }
+      ],
+      "sources": [{ "path": "apps/expo/src/utils/api.tsx", "line": 33 }, { "path": "packages/api/src/router/post.ts", "line": 25 }],
+      "confidence": "verified"
+    },
+    {
+      "id": "login", "name": "Login com Discord", "description": "Entrada pelo site com proxy OAuth.",
+      "steps": [
+        { "from": "usuario", "to": "nextjs-pages", "label": "Clica em entrar" },
+        { "from": "nextjs-pages", "to": "nextjs-auth-route", "label": "signInSocial" },
+        { "from": "nextjs-auth-route", "to": "auth", "label": "Monta redirecionamento" },
+        { "from": "auth", "to": "discord", "label": "OAuth" },
+        { "from": "discord", "to": "nextjs-auth-route", "label": "Callback", "reply": true },
+        { "from": "auth", "to": "db", "label": "Grava sessão" }
+      ],
+      "sources": [{ "path": "apps/nextjs/src/app/_components/auth-showcase.tsx", "line": 18 }],
+      "confidence": "inferred"
+    }
+  ],
+  "deployment": [
+    {
+      "id": "vercel", "environment": "Vercel", "description": "Apps web em Vercel (variáveis VERCEL_*), banco Postgres gerenciado; app móvel via EAS.",
+      "nodes": [
+        { "id": "vercel-web", "name": "Vercel (apps web)", "kind": "serverless", "hosts": ["nextjs", "tanstack-start"] },
+        { "id": "pg-gerenciado", "name": "Postgres gerenciado", "kind": "database", "hosts": ["postgres"] },
+        { "id": "lojas", "name": "Lojas de apps (EAS)", "kind": "mobile", "hosts": ["expo"] }
+      ],
+      "sources": [{ "path": "apps/nextjs/src/auth/server.ts", "line": 12 }, { "path": "apps/expo/eas.json", "line": 1 }],
+      "confidence": "inferred"
+    }
+  ],
+  "data": [
+    { "id": "d-post", "name": "Publicação", "store": "postgres", "fields": ["id", "title", "content", "createdAt", "updatedAt"], "description": "Post criado pelos usuários.", "sources": [{ "path": "packages/db/src/schema.ts", "line": 6 }], "confidence": "verified" },
+    { "id": "d-user", "name": "Usuário", "store": "postgres", "fields": ["id", "name", "email", "emailVerified", "image"], "description": "Conta do Better Auth.", "sources": [{ "path": "packages/db/src/auth-schema.ts", "line": 3 }], "confidence": "verified" },
+    { "id": "d-session", "name": "Sessão", "store": "postgres", "fields": ["token", "expiresAt", "ipAddress", "userAgent", "userId"], "description": "Sessão ativa do usuário.", "sources": [{ "path": "packages/db/src/auth-schema.ts", "line": 13 }], "confidence": "verified" },
+    { "id": "d-account", "name": "Conta de login", "store": "postgres", "fields": ["providerId", "accountId", "accessToken", "refreshToken", "userId"], "description": "Vínculo com o provedor (Discord).", "sources": [{ "path": "packages/db/src/auth-schema.ts", "line": 27 }], "confidence": "verified" }
+  ],
+  "constraints": [
+    { "kind": "technical", "text": "Node ^22.21 e pnpm ^10.19 (engines do package.json raiz).", "confidence": "verified" },
+    { "kind": "technical", "text": "Cliente @vercel/postgres exige banco acessível por HTTP na borda (Vercel/Supabase).", "confidence": "inferred" }
+  ],
+  "decisions": [
+    { "id": "adr-1", "title": "Monorepo com Turborepo e pnpm", "context": "Vários apps compartilham API, login, banco e interface.", "decision": "Workspaces apps/, packages/ e tooling/ com catálogo de versões.", "consequences": "Uma versão de cada dependência; builds em cache; acoplamento entre pacotes.", "evidence": "pnpm-workspace.yaml, turbo.json", "confidence": "verified" },
+    { "id": "adr-2", "title": "API tRPC como pacote hospedado pelos apps web", "context": "Tipos compartilhados sem gerar cliente.", "decision": "packages/api é montado em /api/trpc pelo Next.js e pelo TanStack Start.", "consequences": "Sem serviço de API separado; o app móvel depende do site estar no ar.", "evidence": "apps/nextjs/src/app/api/trpc/[trpc]/route.ts", "confidence": "verified" },
+    { "id": "adr-3", "title": "Better Auth com proxy OAuth", "context": "Login funcionando em previews e no Expo.", "decision": "Better Auth com plugins oAuthProxy e expo, sessões no Postgres.", "consequences": "Dependência de versão beta.", "evidence": "packages/auth/src/index.ts", "confidence": "verified" }
+  ],
+  "risks": [
+    { "id": "r-cors", "title": "CORS aberto na API", "component": "nextjs", "impact": 2, "likelihood": 2, "evidence": "route.ts define Access-Control-Allow-Origin \"*\".", "recommendation": "Restringir origens permitidas em produção.", "confidence": "verified" },
+    { "id": "r-beta", "title": "Login em versão beta", "component": "auth", "impact": 2, "likelihood": 2, "evidence": "better-auth 1.4.0-beta.9 no catálogo do pnpm.", "recommendation": "Fixar e migrar para versão estável.", "confidence": "verified" },
+    { "id": "r-tests", "title": "Sem testes automatizados", "component": "api", "impact": 2, "likelihood": 3, "evidence": "Nenhum arquivo de teste; CI só roda lint, format e typecheck.", "recommendation": "Adicionar testes dos procedimentos tRPC.", "confidence": "verified" },
+    { "id": "r-mobile-url", "title": "URL do app móvel fixa em desenvolvimento", "component": "expo", "impact": 3, "likelihood": 2, "evidence": "base-url.ts usa o host do Metro na porta 3000 e lança erro fora do modo dev.", "recommendation": "Ler a URL de produção da configuração do Expo.", "confidence": "verified" },
+    { "id": "r-spof-next", "title": "App móvel depende do site Next.js", "component": "nextjs", "impact": 2, "likelihood": 1, "evidence": "Expo chama /api/trpc e /api/auth do app Next.js.", "recommendation": "Monitorar a disponibilidade das rotas de API.", "confidence": "verified" }
+  ],
+  "inventory": {
+    "languages": [{ "name": "TypeScript", "share": 88 }, { "name": "JavaScript", "share": 7 }, { "name": "CSS", "share": 5 }],
+    "frameworks": ["Next.js 16", "TanStack Start 1.135", "Expo 54", "React 19.1", "tRPC 11", "TanStack Query 5", "Better Auth 1.4", "Drizzle ORM 0.44", "Tailwind CSS 4", "Zod 4", "Turborepo 2.5"],
+    "dependencies": [
+      { "name": "next", "version": "^16.0.9", "pinned": false, "scope": "runtime", "source": "apps/nextjs/package.json" },
+      { "name": "expo", "version": "~54.0.20", "pinned": false, "scope": "runtime", "source": "apps/expo/package.json" },
+      { "name": "react-native", "version": "~0.81.5", "pinned": false, "scope": "runtime", "source": "apps/expo/package.json" },
+      { "name": "@tanstack/react-start", "version": "^1.135.2", "pinned": false, "scope": "runtime", "source": "apps/tanstack-start/package.json" },
+      { "name": "nitro", "version": "3.0.1-alpha.1", "pinned": true, "scope": "runtime", "source": "apps/tanstack-start/package.json" },
+      { "name": "@trpc/server", "version": "^11.7.1", "pinned": false, "scope": "runtime", "source": "pnpm-workspace.yaml" },
+      { "name": "better-auth", "version": "1.4.0-beta.9", "pinned": true, "scope": "runtime", "source": "pnpm-workspace.yaml" },
+      { "name": "drizzle-orm", "version": "^0.44.7", "pinned": false, "scope": "runtime", "source": "packages/db/package.json" },
+      { "name": "@vercel/postgres", "version": "^0.10.0", "pinned": false, "scope": "runtime", "source": "packages/db/package.json" },
+      { "name": "react", "version": "19.1.4", "pinned": true, "scope": "runtime", "source": "pnpm-workspace.yaml" },
+      { "name": "zod", "version": "^4.1.12", "pinned": false, "scope": "runtime", "source": "pnpm-workspace.yaml" },
+      { "name": "turbo", "version": "^2.5.8", "pinned": false, "scope": "dev", "source": "package.json" }
+    ]
+  },
+  "glossary": [
+    { "term": "tRPC", "definition": "API tipada em TypeScript sem esquema separado; cliente e servidor compartilham os tipos." },
+    { "term": "Procedimento protegido", "definition": "Chamada da API que exige sessão válida." },
+    { "term": "Catálogo (pnpm)", "definition": "Lista central de versões usada por todos os pacotes do monorepo." },
+    { "term": "Proxy OAuth", "definition": "Encaminha o retorno do login para ambientes de preview e para o app móvel." },
+    { "term": "Workspace", "definition": "Pacote interno do monorepo (@acme/*)." }
+  ],
+  "openQuestions": [
+    "Qual dos dois apps web é o oficial em produção?",
+    "Qual a URL de produção que o app móvel deve usar?"
+  ]
+}

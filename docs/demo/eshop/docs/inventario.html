@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src data:; base-uri 'none'; form-action 'none'">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="arqT 1.0.0">
+<title>Inventário técnico — eShop (AdventureWorks)</title>
+<style>/* arqT — design tokens e estilos de diagrama (compartilhado por planta e documentos) */
+:root {
+  color-scheme: light;
+  --font: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, "SF Pro Text", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-display: "Segoe UI Variable Display", "Segoe UI", system-ui, -apple-system, "SF Pro Display", Roboto, Arial, sans-serif;
+  --mono: "Cascadia Code", "JetBrains Mono", "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
+
+  --bg: #f4f5f8;
+  --bg-2: #eceef3;
+  --surface: #ffffff;
+  --surface-2: #f8f9fb;
+  --card: #ffffff;
+  --line: #e2e5ec;
+  --line-2: #cfd4de;
+  --text: #151a26;
+  --text-2: #4b5466;
+  --text-3: #7a8396;
+  --brand: #3b5bdb;
+  --brand-2: #2f4ac0;
+  --brand-soft: #e9edff;
+  --ok: #138a52;
+  --ok-soft: #e3f5ec;
+  --warn: #b7791f;
+  --warn-soft: #fdf3e1;
+  --bad: #c92a3a;
+  --bad-soft: #fde8ea;
+  --muted-soft: #eef0f4;
+  --shadow-1: 0 1px 2px rgba(16, 24, 40, .06), 0 1px 3px rgba(16, 24, 40, .08);
+  --shadow-2: 0 6px 16px -4px rgba(16, 24, 40, .12), 0 2px 6px -2px rgba(16, 24, 40, .08);
+  --shadow-3: 0 18px 40px -12px rgba(16, 24, 40, .25);
+  --radius: 12px;
+  --edge: #9aa3b5;
+  --edge-hot: var(--brand);
+  --band-bg: rgba(59, 91, 219, .035);
+  --band-line: #c9d1ea;
+  --grid-dot: #d9dde6;
+
+  --k-service: #2f6fe4; --k-ui: #7b4ddb; --k-db: #c77a12; --k-queue: #cf3c82; --k-job: #0f8f84;
+  --k-lib: #56627a; --k-cache: #d0453b; --k-storage: #a88412; --k-gateway: #0e8aa8; --k-function: #dc6a1c;
+  --k-external: #6f7889; --k-person: #4c55d6; --k-system: #3b5bdb;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #0e1118; --bg-2: #131722; --surface: #161b26; --surface-2: #1b2130; --card: #1a2030;
+    --line: #262d3d; --line-2: #343d52; --text: #e8ebf2; --text-2: #aab2c3; --text-3: #7d879b;
+    --brand: #7b93ff; --brand-2: #96a9ff; --brand-soft: #1e2645;
+    --ok: #4cc38a; --ok-soft: #12291f; --warn: #e3a64a; --warn-soft: #2d2314; --bad: #f06a77; --bad-soft: #321a1e; --muted-soft: #202634;
+    --shadow-1: 0 1px 2px rgba(0, 0, 0, .4); --shadow-2: 0 8px 20px -6px rgba(0, 0, 0, .55); --shadow-3: 0 22px 50px -12px rgba(0, 0, 0, .7);
+    --edge: #5d6780; --band-bg: rgba(123, 147, 255, .05); --band-line: #313b58; --grid-dot: #222938;
+    --k-service: #5b93ff; --k-ui: #a383ff; --k-db: #f0a541; --k-queue: #f06aa8; --k-job: #3cc7b8;
+    --k-lib: #8d99b3; --k-cache: #ff7a6e; --k-storage: #d8b43c; --k-gateway: #43c0de; --k-function: #ff9a52;
+    --k-external: #97a1b5; --k-person: #8b93ff; --k-system: #7b93ff;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0e1118; --bg-2: #131722; --surface: #161b26; --surface-2: #1b2130; --card: #1a2030;
+  --line: #262d3d; --line-2: #343d52; --text: #e8ebf2; --text-2: #aab2c3; --text-3: #7d879b;
+  --brand: #7b93ff; --brand-2: #96a9ff; --brand-soft: #1e2645;
+  --ok: #4cc38a; --ok-soft: #12291f; --warn: #e3a64a; --warn-soft: #2d2314; --bad: #f06a77; --bad-soft: #321a1e; --muted-soft: #202634;
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, .4); --shadow-2: 0 8px 20px -6px rgba(0, 0, 0, .55); --shadow-3: 0 22px 50px -12px rgba(0, 0, 0, .7);
+  --edge: #5d6780; --band-bg: rgba(123, 147, 255, .05); --band-line: #313b58; --grid-dot: #222938;
+  --k-service: #5b93ff; --k-ui: #a383ff; --k-db: #f0a541; --k-queue: #f06aa8; --k-job: #3cc7b8;
+  --k-lib: #8d99b3; --k-cache: #ff7a6e; --k-storage: #d8b43c; --k-gateway: #43c0de; --k-function: #ff9a52;
+  --k-external: #97a1b5; --k-person: #8b93ff; --k-system: #7b93ff;
+}
+
+.ic { fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ---------- diagramas ---------- */
+.diagram { font-family: var(--font); overflow: visible; }
+.diagram text { fill: var(--text); }
+.k-service { --k: var(--k-service); } .k-ui { --k: var(--k-ui); } .k-db { --k: var(--k-db); }
+.k-queue { --k: var(--k-queue); } .k-job { --k: var(--k-job); } .k-lib { --k: var(--k-lib); }
+.k-cache { --k: var(--k-cache); } .k-storage { --k: var(--k-storage); } .k-gateway { --k: var(--k-gateway); }
+.k-function { --k: var(--k-function); } .k-external { --k: var(--k-external); } .k-person { --k: var(--k-person); }
+.k-system { --k: var(--k-system); }
+
+.band rect { fill: var(--band-bg); stroke: var(--band-line); stroke-width: 1.2; stroke-dasharray: 5 4; }
+.band.b-container rect { stroke-dasharray: none; fill: color-mix(in srgb, var(--brand) 4%, transparent); }
+.band-label { font-size: 11.5px; font-weight: 650; letter-spacing: .06em; text-transform: uppercase; fill: var(--text-3) !important; }
+
+.node { cursor: pointer; outline: none; }
+.node .card { fill: var(--card); stroke: var(--line-2); stroke-width: 1; filter: drop-shadow(0 1px 1.5px rgba(16, 24, 40, .07)) drop-shadow(0 3px 8px rgba(16, 24, 40, .06)); transition: stroke .15s, stroke-width .15s; }
+.node .stack { fill: var(--card); stroke: var(--line-2); stroke-width: 1; opacity: .9; }
+.node .accent { fill: var(--k); }
+.node .tile { fill: color-mix(in srgb, var(--k) 13%, var(--card)); }
+.node .ic { color: var(--k); stroke-width: 1.8; }
+.node .kind { font-size: 9.6px; font-weight: 700; letter-spacing: .08em; fill: color-mix(in srgb, var(--k) 80%, var(--text-2)) !important; }
+.node .name { font-size: 14px; font-weight: 640; font-family: var(--font-display); }
+.node .tech { font-size: 11.5px; fill: var(--text-3) !important; }
+.node .badge circle { stroke: var(--card); stroke-width: 2; }
+.node .badge path { fill: none; stroke: #fff; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.node.c-verified .badge circle { fill: var(--ok); }
+.node.c-inferred .badge circle { fill: var(--warn); }
+.node.c-unconfirmed .badge circle { fill: var(--text-3); }
+.node.c-unconfirmed .card { stroke-dasharray: 5 4; stroke: var(--text-3); }
+.node .drill path { fill: none; stroke: var(--text-3); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.node.k-external .card { fill: color-mix(in srgb, var(--k-external) 6%, var(--card)); }
+.node.k-system .card { stroke: color-mix(in srgb, var(--k-system) 55%, var(--line-2)); stroke-width: 1.6; }
+.node.ghost { opacity: .78; }
+.node.ghost .card { fill: var(--surface-2); }
+
+.edge .line { fill: none; stroke: var(--edge); stroke-width: 1.6; transition: stroke .15s, opacity .15s; }
+.edge .hit { fill: none; stroke: transparent; stroke-width: 14; }
+.edge.async .line { stroke-dasharray: 7 5; }
+.edge.c-unconfirmed .line { stroke-dasharray: 2 4; }
+.elabel rect { fill: var(--surface); stroke: var(--line); stroke-width: 1; }
+.elabel text { font-size: 11px; text-anchor: middle; fill: var(--text-2) !important; font-weight: 500; }
+
+/* sequência */
+.seq .lifeline { stroke: var(--line-2); stroke-width: 1.2; stroke-dasharray: 4 5; }
+.seq .msg .line { fill: none; stroke: var(--text-3); stroke-width: 1.6; }
+.seq .msg.async .line { stroke-dasharray: 7 5; }
+.seq .msg.reply .line { stroke-dasharray: 3 4; }
+.seq .msg-label { font-size: 12px; fill: var(--text-2) !important; }
+.seq .seq-head .name { font-size: 13px; font-weight: 620; }
+.seq .seq-head .card { fill: color-mix(in srgb, var(--k) 8%, var(--card)); stroke: color-mix(in srgb, var(--k) 45%, var(--line)); }
+.seq .seq-head .ic { color: var(--k); }
+</style>
+<style>/* arqT — documentos (tela + impressão A4) */
+* { box-sizing: border-box; }
+html { background: var(--bg); }
+body { margin: 0; color: var(--text); font: 14.5px/1.6 var(--font); -webkit-font-smoothing: antialiased; }
+.sheet { max-width: 980px; margin: 32px auto; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow-2); padding: 56px 64px 64px; }
+a { color: var(--brand); }
+code, .mono { font-family: var(--mono); font-size: 12.5px; }
+.cover { border-bottom: 1px solid var(--line); padding-bottom: 28px; margin-bottom: 28px; }
+.cover .eyebrow { font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--brand); display: flex; align-items: center; gap: 8px; }
+.cover .eyebrow .ic { width: 16px; height: 16px; }
+.cover h1 { font: 700 34px/1.12 var(--font-display); letter-spacing: -.02em; margin: 10px 0 6px; }
+.cover .sys { font: 600 19px/1.3 var(--font-display); color: var(--text-2); margin: 0 0 14px; }
+.cover .purpose { color: var(--text-2); max-width: 70ch; margin: 0 0 18px; font-size: 15.5px; }
+.cover table.meta { border-collapse: collapse; font-size: 12.5px; }
+.cover table.meta td { padding: 3px 18px 3px 0; color: var(--text-2); border: 0; }
+.cover table.meta td:first-child { color: var(--text-3); }
+.toc { background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px; padding: 16px 22px; margin-bottom: 30px; }
+.toc h2 { font-size: 11px !important; letter-spacing: .1em; text-transform: uppercase; color: var(--text-3); margin: 0 0 8px !important; border: 0 !important; padding: 0 !important; }
+.toc ol { margin: 0; padding-left: 20px; columns: 2; column-gap: 32px; }
+.toc li { margin: 3px 0; break-inside: avoid; }
+.toc a { color: var(--text); text-decoration: none; }
+.toc a:hover { color: var(--brand); }
+main h2 { font: 650 22px/1.25 var(--font-display); letter-spacing: -.01em; margin: 38px 0 12px; padding-top: 6px; border-top: 1px solid var(--line); padding-top: 22px; }
+main h2 .num { color: var(--brand); margin-right: 10px; font-variant-numeric: tabular-nums; }
+main h3 { font: 640 16px/1.3 var(--font-display); margin: 24px 0 8px; }
+main p { margin: 8px 0; color: var(--text-2); }
+main ul { color: var(--text-2); padding-left: 22px; }
+.lead { font-size: 15.5px; color: var(--text) !important; }
+table.t { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 13px; }
+table.t th { text-align: left; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--text-3); font-weight: 700; padding: 8px 10px; border-bottom: 1.5px solid var(--line-2); background: var(--surface-2); }
+table.t td { padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; color: var(--text-2); }
+table.t td b { color: var(--text); }
+table.t tr { break-inside: avoid; }
+.c { display: inline-block; font-size: 11px; font-weight: 650; padding: 1px 8px; border-radius: 999px; white-space: nowrap; }
+.c.verified { color: var(--ok); background: var(--ok-soft); }
+.c.inferred { color: var(--warn); background: var(--warn-soft); }
+.c.unconfirmed { color: var(--text-3); background: var(--bg-2); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+.chip { padding: 2px 10px; border-radius: 999px; font-size: 12px; background: var(--bg-2); color: var(--text-2); border: 1px solid var(--line); }
+.figure { margin: 14px 0 22px; border: 1px solid var(--line); border-radius: 12px; padding: 14px; background: var(--bg); break-inside: avoid; }
+.figure svg { width: 100%; height: auto; display: block; max-height: 680px; }
+.figure figcaption { font-size: 12px; color: var(--text-3); margin-top: 8px; text-align: center; }
+.kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 16px 0; }
+.kpi { border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; background: var(--surface-2); }
+.kpi b { display: block; font: 700 24px/1.1 var(--font-display); color: var(--text); }
+.kpi span { font-size: 12px; color: var(--text-3); }
+.heat { border-collapse: separate; border-spacing: 5px; margin: 8px 0 16px; }
+.heat td { width: 92px; height: 48px; text-align: center; border-radius: 9px; font: 700 18px var(--font-display); border: 1px solid var(--line); }
+.heat th { font-size: 11px; color: var(--text-3); font-weight: 600; padding: 0 6px; }
+.callout { border-left: 4px solid var(--brand); background: var(--brand-soft); border-radius: 0 10px 10px 0; padding: 10px 14px; margin: 12px 0; color: var(--text-2); font-size: 13.5px; }
+.callout.warn { border-color: var(--warn); background: var(--warn-soft); }
+.risk-card { border: 1px solid var(--line); border-left: 4px solid var(--sev); border-radius: 10px; padding: 10px 14px; margin: 10px 0; break-inside: avoid; }
+.risk-card b { color: var(--text); }
+.risk-card p { margin: 4px 0; font-size: 13.5px; }
+.cmdline { font-family: var(--mono); font-size: 12px; background: var(--bg-2); border: 1px solid var(--line); border-radius: 6px; padding: 1px 6px; }
+footer.foot { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 12px; color: var(--text-3); display: flex; justify-content: space-between; gap: 16px; }
+.ic { width: 16px; height: 16px; }
+.print-hint { max-width: 980px; margin: 18px auto -14px; font-size: 12.5px; color: var(--text-3); text-align: right; padding: 0 8px; }
+
+@page { size: A4; margin: 16mm 14mm 18mm; }
+@media print {
+  :root, :root[data-theme="dark"] { color-scheme: light; --bg: #ffffff; --bg-2: #f1f3f6; --surface: #ffffff; --surface-2: #f7f8fa; --text: #111827; --text-2: #374151; --text-3: #6b7280; --line: #e5e7eb; --line-2: #d1d5db; }
+  html, body { background: #fff; }
+  .sheet { border: 0; box-shadow: none; margin: 0; padding: 0; max-width: none; border-radius: 0; }
+  .print-hint { display: none; }
+  .cover { min-height: 60vh; display: flex; flex-direction: column; justify-content: flex-end; break-after: page; }
+  .toc { break-after: page; }
+  main h2 { break-before: auto; break-after: avoid; }
+  main h3 { break-after: avoid; }
+  .figure { background: #fff; }
+  a { color: inherit; text-decoration: none; }
+}
+@media (max-width: 760px) { .sheet { padding: 28px 18px; margin: 0; border-radius: 0; } .toc ol { columns: 1; } .kpis { grid-template-columns: 1fr 1fr; } }
+
+@page { @top-left { content: "eShop (AdventureWorks) · Inventário técnico"; font: 9pt sans-serif; color: #6b7280; } @bottom-right { content: counter(page) " / " counter(pages); font: 9pt sans-serif; color: #6b7280; } }</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><symbol id="i-service" viewBox="0 0 24 24"><rect x="3.5" y="4" width="17" height="6.5" rx="1.6"/><rect x="3.5" y="13.5" width="17" height="6.5" rx="1.6"/><path d="M7 7.25h.01M7 16.75h.01M11 7.25h6M11 16.75h6"/></symbol><symbol id="i-ui" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="15" rx="2"/><path d="M3 9h18M6.2 6.8h.01M8.6 6.8h.01"/><path d="M7 13h6M7 16h10"/></symbol><symbol id="i-db" viewBox="0 0 24 24"><ellipse cx="12" cy="5.8" rx="7.5" ry="2.8"/><path d="M4.5 5.8v12.4c0 1.55 3.36 2.8 7.5 2.8s7.5-1.25 7.5-2.8V5.8"/><path d="M4.5 12c0 1.55 3.36 2.8 7.5 2.8s7.5-1.25 7.5-2.8"/></symbol><symbol id="i-queue" viewBox="0 0 24 24"><rect x="3" y="7" width="4" height="10" rx="1"/><rect x="8.5" y="7" width="4" height="10" rx="1"/><rect x="14" y="7" width="4" height="10" rx="1"/><path d="M19.5 12h2M20.5 10.5 22 12l-1.5 1.5"/></symbol><symbol id="i-job" viewBox="0 0 24 24"><circle cx="12" cy="12.5" r="8"/><path d="M12 8v4.8l3 1.8M9.5 2.5h5"/></symbol><symbol id="i-lib" viewBox="0 0 24 24"><path d="M12 3 20 7.3v9.4L12 21l-8-4.3V7.3z"/><path d="M4 7.3 12 11.6l8-4.3M12 11.6V21"/></symbol><symbol id="i-cache" viewBox="0 0 24 24"><path d="M13 2.5 5 13.5h6l-1 8 8-11h-6z"/></symbol><symbol id="i-storage" viewBox="0 0 24 24"><path d="M3.5 7.5a2 2 0 0 1 2-2h4l2 2.2h7a2 2 0 0 1 2 2v8.3a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/></symbol><symbol id="i-gateway" viewBox="0 0 24 24"><path d="M12 3 19.5 6v5.5c0 4.6-3.2 8.3-7.5 9.5-4.3-1.2-7.5-4.9-7.5-9.5V6z"/><path d="M9 12h6M12.8 9.8 15 12l-2.2 2.2"/></symbol><symbol id="i-function" viewBox="0 0 24 24"><path d="M8 4.5c2.2 0 2.6 1.6 3 4l1.8 9.4c.4 2 1 2.6 3.2 2.6M6.5 10h7M9.5 20.5l3.2-7"/></symbol><symbol id="i-external" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.4 2.4 3.6 5.2 3.6 8.5s-1.2 6.1-3.6 8.5c-2.4-2.4-3.6-5.2-3.6-8.5S9.6 5.9 12 3.5z"/></symbol><symbol id="i-person" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.8"/><path d="M4.5 20.5c.7-3.9 3.7-6.3 7.5-6.3s6.8 2.4 7.5 6.3"/></symbol><symbol id="i-system" viewBox="0 0 24 24"><path d="M12 2.8 20.2 7.4v9.2L12 21.2l-8.2-4.6V7.4z"/><path d="M3.8 7.4 12 12l8.2-4.6M12 12v9.2"/></symbol><symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></symbol><symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6 6 6M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4 6 18M18 6l1.4-1.4"/></symbol><symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></symbol><symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol><symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol><symbol id="i-fit" viewBox="0 0 24 24"><path d="M4 9V5.5A1.5 1.5 0 0 1 5.5 4H9M15 4h3.5A1.5 1.5 0 0 1 20 5.5V9M20 15v3.5a1.5 1.5 0 0 1-1.5 1.5H15M9 20H5.5A1.5 1.5 0 0 1 4 18.5V15"/></symbol><symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11M7.5 10.5 12 15l4.5-4.5M5 19.5h14"/></symbol><symbol id="i-present" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M12 16v4M8.5 20h7M10 8.2v4.6l4-2.3z"/></symbol><symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol><symbol id="i-chevron" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></symbol><symbol id="i-back" viewBox="0 0 24 24"><path d="m15 6-6 6 6 6"/></symbol><symbol id="i-file" viewBox="0 0 24 24"><path d="M7 3.5h7l4.5 4.5v12a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-15.5a1 1 0 0 1 1-1z"/><path d="M14 3.5V8h4.5"/></symbol><symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3.8 21.2 19.5H2.8z"/><path d="M12 10v4.2M12 17h.01"/></symbol><symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol><symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M9.6 9.3a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.2-2.4 3.8M12 17h.01"/></symbol><symbol id="i-layers" viewBox="0 0 24 24"><path d="m12 3.5 9 4.8-9 4.8-9-4.8z"/><path d="m3 12.4 9 4.8 9-4.8M3 16.4l9 4.8 9-4.8"/></symbol><symbol id="i-flow" viewBox="0 0 24 24"><circle cx="5.5" cy="6" r="2.2"/><circle cx="18.5" cy="18" r="2.2"/><path d="M7.7 6H14a3 3 0 0 1 3 3v0a3 3 0 0 1-3 3h-4a3 3 0 0 0-3 3v0a3 3 0 0 0 3 3h6.3"/></symbol><symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 19.5 6v5.5c0 4.6-3.2 8.3-7.5 9.5-4.3-1.2-7.5-4.9-7.5-9.5V6z"/><path d="m9 12 2.2 2.2L15.5 10"/></symbol><symbol id="i-doc" viewBox="0 0 24 24"><path d="M6 3.5h12a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-15a1 1 0 0 1 1-1z"/><path d="M8.5 8h7M8.5 11.5h7M8.5 15h4.5"/></symbol><symbol id="i-server" viewBox="0 0 24 24"><rect x="4" y="3.5" width="16" height="17" rx="2"/><path d="M4 9.2h16M4 14.8h16M7.5 6.4h.01M7.5 12h.01M7.5 17.6h.01"/></symbol><symbol id="i-copy" viewBox="0 0 24 24"><rect x="8.5" y="8.5" width="11" height="11" rx="1.6"/><path d="M15.5 8.5V6a1.5 1.5 0 0 0-1.5-1.5H6A1.5 1.5 0 0 0 4.5 6v8A1.5 1.5 0 0 0 6 15.5h2.5"/></symbol><symbol id="i-drill" viewBox="0 0 24 24"><path d="M4 7h10M4 12h7M4 17h5"/><path d="m15 11 4 4-4 4"/></symbol><symbol id="i-data" viewBox="0 0 24 24"><path d="M4 6.5h16M4 12h16M4 17.5h16"/><path d="M9 4v16"/></symbol><symbol id="i-history" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7L4 8.6"/><path d="M4 4v4.6h4.6M12 8v4.4l3 1.8"/></symbol></defs></svg>
+<p class="print-hint">Para PDF: abra o documento e use Imprimir → Salvar como PDF (A4).</p>
+<div class="sheet">
+  <header class="cover">
+    <div class="eyebrow"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-layers"/></svg> arqT · Inventário técnico</div>
+    <h1>Inventário técnico</h1>
+    <p class="sys">eShop (AdventureWorks)</p>
+    <p class="purpose">Loja virtual de referência onde clientes navegam pelo catálogo, montam o carrinho e fazem pedidos pela web ou pelo celular.</p>
+    <table class="meta">
+      <tr><td>Versão</td><td>19/11/2026 · Commit 134625b29e46 · main</td></tr>
+      <tr><td>Confiança das afirmações</td><td><span class="c verified">Verificado</span> <span class="c inferred">Inferido</span> <span class="c unconfirmed">A confirmar</span></td></tr>
+    </table>
+  </header>
+  <nav class="toc"><h2>Sumário</h2><ol><li><a href="#s1">Linguagens</a></li><li><a href="#s2">Frameworks e bibliotecas principais</a></li><li><a href="#s3">Dependências</a></li><li><a href="#s4">Componentes</a></li></ol></nav>
+  <main><section id="s1"><h2><span class="num">1</span>Linguagens</h2><table class="t"><tr><th>Nome</th><th>%</th><th></th></tr><tr><td><b>C#</b></td><td>86%</td><td style="width:50%"><div style="height:8px;border-radius:4px;background:var(--bg-2)"><div style="height:8px;border-radius:4px;background:var(--brand);width:86%"></div></div></td></tr><tr><td><b>Razor</b></td><td>6%</td><td style="width:50%"><div style="height:8px;border-radius:4px;background:var(--bg-2)"><div style="height:8px;border-radius:4px;background:var(--brand);width:6%"></div></div></td></tr><tr><td><b>CSS</b></td><td>5%</td><td style="width:50%"><div style="height:8px;border-radius:4px;background:var(--bg-2)"><div style="height:8px;border-radius:4px;background:var(--brand);width:5%"></div></div></td></tr><tr><td><b>JavaScript/TypeScript</b></td><td>3%</td><td style="width:50%"><div style="height:8px;border-radius:4px;background:var(--bg-2)"><div style="height:8px;border-radius:4px;background:var(--brand);width:3%"></div></div></td></tr></table></section><section id="s2"><h2><span class="num">2</span>Frameworks e bibliotecas principais</h2><div class="chips"><span class="chip">ASP.NET Core 11</span><span class="chip">Blazor</span><span class="chip">.NET MAUI</span><span class="chip">Aspire 13.6</span><span class="chip">EF Core 11</span><span class="chip">MediatR 13</span><span class="chip">Duende IdentityServer 8</span><span class="chip">gRPC</span><span class="chip">YARP</span><span class="chip">FluentValidation 12</span><span class="chip">Microsoft.Extensions.AI</span><span class="chip">Playwright</span></div></section><section id="s3"><h2><span class="num">3</span>Dependências</h2><p>13 · 1 sem versão fixada · 0 licença copyleft</p><table class="t"><tr><th>Nome</th><th>Versão</th><th>Licença</th><th>Escopo</th><th>Origem</th></tr><tr><td><b>Aspire.Hosting.RabbitMQ</b></td><td><code>13.6.5</code></td><td>Não mapeado</td><td>runtime</td><td><code>Directory.Packages.props</code></td></tr><tr><td><b>Aspire.Npgsql.EntityFrameworkCore.PostgreSQL</b></td><td><code>13.6.5</code></td><td>Não mapeado</td><td>runtime</td><td><code>Directory.Packages.props</code></td></tr><tr><td><b>Aspire.StackExchange.Redis</b></td><td><code>13.6.5</code></td><td>Não mapeado</td><td>runtime</td><td><code>Directory.Packages.props</code></td></tr><tr><td><b>Aspire.Azure.AI.OpenAI</b></td><td><code>13.6.0-preview.1.26479.8</code></td><td>Não mapeado</td><td>runtime</td><td><code>Directory.Packages.props</code></td></tr><tr><td><b>Npgsql.EntityFrameworkCore.PostgreSQL</b></td><td><code>11.0.0-rc.3</code></td><td>Não mapeado</td><td>runtime</td><td><code>Directory.Packages.props</code></td></tr><tr><td><b>Pgvector.EntityFrameworkCore</b></td><td><code>0.3.0</code></td><td>Não mapeado</td><td>runtime</td><td><code>Directory.Packages.props</code></td></tr><tr><td><b>Duende.IdentityServer</b></td><td><code>8.0.11</code></td><td>Não mapeado</td><td>runtime</td><td><code>Directory.Packages.props</code></td></tr><tr><td><b>Grpc.AspNetCore</b></td><td><code>2.85.0</code></td><td>Não mapeado</td><td>runtime</td><td><code>Directory.Packages.props</code></td></tr><tr><td><b>MediatR</b></td><td><code>13.1.0</code></td><td>Não mapeado</td><td>runtime</td><td><code>Directory.Packages.props</code></td></tr><tr><td><b>FluentValidation</b></td><td><code>12.2.0</code></td><td>Não mapeado</td><td>runtime</td><td><code>Directory.Packages.props</code></td></tr><tr><td><b>Asp.Versioning.Http</b></td><td><code>10.2.3</code></td><td>Não mapeado</td><td>runtime</td><td><code>Directory.Packages.props</code></td></tr><tr><td><b>IdentityModel</b></td><td><code>7.0.0</code></td><td>Não mapeado</td><td>runtime</td><td><code>Directory.Packages.props</code></td></tr><tr><td><b>@playwright/test</b></td><td><code>^1.62.1</code> <span class="c inferred">sem versão fixada</span></td><td>Não mapeado</td><td>dev</td><td><code>package.json</code></td></tr></table></section><section id="s4"><h2><span class="num">4</span>Componentes</h2><table class="t"><tr><th>Nome</th><th>Tipo</th><th>Tecnologia</th><th>Onde</th><th></th></tr><tr><td><b>Loja web</b></td><td>Interface</td><td>Blazor Server</td><td><code>src/WebApp/Program.cs:30, src/eShop.AppHost/AppHost.cs:71</code></td><td><span class="c verified">Verificado</span></td></tr><tr><td><b>App móvel</b></td><td>Interface</td><td>.NET MAUI</td><td><code>src/ClientApp/MauiProgram.cs:22, src/HybridApp/MauiProgram.cs:30</code></td><td><span class="c verified">Verificado</span></td></tr><tr><td><b>Cliente de webhooks</b></td><td>Interface</td><td>Blazor Server</td><td><code>src/WebhookClient/Program.cs:29, src/eShop.AppHost/AppHost.cs:67</code></td><td><span class="c verified">Verificado</span></td></tr><tr><td><b>BFF móvel</b></td><td>Gateway</td><td>YARP</td><td><code>src/eShop.AppHost/AppHost.cs:62, src/eShop.AppHost/Extensions.cs:88</code></td><td><span class="c verified">Verificado</span></td></tr><tr><td><b>Identidade</b></td><td>Serviço</td><td>Duende IdentityServer 8</td><td><code>src/Identity.API/Program.cs:18, src/eShop.AppHost/AppHost.cs:25</code></td><td><span class="c verified">Verificado</span></td></tr><tr><td><b>API de catálogo</b></td><td>Serviço</td><td>ASP.NET Core · EF Core</td><td><code>src/Catalog.API/Program.cs:26, src/eShop.AppHost/AppHost.cs:38</code></td><td><span class="c verified">Verificado</span></td></tr><tr><td><b>Endpoints do catálogo</b><br><span style="color:var(--text-3)">⌂ API de catálogo</span></td><td>Serviço</td><td></td><td><code>src/Catalog.API/Apis/CatalogApi.cs:22</code></td><td><span class="c verified">Verificado</span></td></tr><tr><td><b>Busca semântica</b><br><span style="color:var(--text-3)">⌂ API de catálogo</span></td><td>Serviço</td><td></td><td><code>src/Catalog.API/Services/CatalogAI.cs:7</code></td><td><span class="c verified">Verificado</span></td></tr><tr><td><b>Eventos do catálogo</b><br><span style="color:var(--text-3)">⌂ API de catálogo</span></td><td>Serviço</td><td></td><td><code>src/Catalog.API/IntegrationEvents/CatalogIntegrationEventService.cs:28</code></td><td><span class="c verified">Verificado</span></td></tr><tr><td><b>Dados do catálogo</b><br><span style="color:var(--text-3)">⌂ API de catálogo</span></td><td>Biblioteca</td><td></td><td><code>src/Catalog.API/Infrastructure/CatalogContext.cs:8</code></td><td><span class="c verified">Verificado</span></td></tr><tr><td><b>API de carrinho</b></td><td>Serviço</td><td>ASP.NET Core · gRPC</td><td><code>src/Basket.API/Program.cs:12, src/eShop.AppHost/AppHost.cs:32</code></td><td><span class="c verified">Verificado</span></td></tr><tr><td><b>API de pedidos</b></td><td>Serviço</td><td>ASP.NET Core · MediatR</td><td><code>src/Ordering.API/Program.cs:21, src/eShop.AppHost/AppHost.cs:42</code></td><td><span class="c verified">Verificado</span></td></tr><tr><td><b>Endpoints de pedidos</b><br><span style="color:var(--text-3)">⌂ API de pedidos</span></td><td>Serviço</td><td></td><td><code>src/Ordering.API/Apis/OrdersApi.cs:17</code></td><td><span class="c verified">Verificado</span></td></tr><tr><td><b>Casos de uso</b><br><span style="color:var(--text-3)">⌂ API de pedidos</span></td><td>Serviço</td><td></td><td><code>src/Ordering.API/Application/Commands/CreateOrderCommandHandler.cs:33, src/Ordering.API/Extensions/Extensions.cs:37</code></td><td><span class="c verified">Verificado</span></td></tr><tr><td><b>Domínio de pedidos</b><br><span style="color:var(--text-3)">⌂ API de pedidos</span></td><td>Biblioteca</td><td>Ordering.Domain</td><td><code>src/Ordering.Domain/AggregatesModel/OrderAggregate/Order.cs:5, src/Ordering.Domain/AggregatesModel/BuyerAggregate/Buyer.cs:5</code></td><td><span class="c verified">Verificado</span></td></tr><tr><td><b>Persistência de pedidos</b><br><span style="color:var(--text-3)">⌂ API de pedidos</span></td><td>Biblioteca</td><td>Ordering.Infrastructure</td><td><code>src/Ordering.Infrastructure/OrderingContext.cs:10</code></td><td><span class="c verified">Verificado</span></td></tr><tr><td><b>Outbox de eventos</b><br><span style="color:var(--text-3)">⌂ API de pedidos</span></td><td>Biblioteca</td><td>IntegrationEventLogEF</td><td><code>src/Ordering.API/Application/IntegrationEvents/OrderingIntegrationEventService.cs:24, src/IntegrationEventLogEF/Services/IntegrationEventLogService.cs:19</code></td><td><span class="c verified">Verificado</span></td></tr><tr><td><b>Processador de pedidos</b></td><td>Job / worker</td><td>.NET BackgroundService</td><td><code>src/OrderProcessor/Extensions/Extensions.cs:19, src/eShop.AppHost/AppHost.cs:48</code></td><td><span class="c verified">Verificado</span></td></tr><tr><td><b>Processador de pagamento</b></td><td>Job / worker</td><td>.NET · consumidor</td><td><code>src/PaymentProcessor/Program.cs:5, src/eShop.AppHost/AppHost.cs:53</code></td><td><span class="c verified">Verificado</span></td></tr><tr><td><b>API de webhooks</b></td><td>Serviço</td><td>ASP.NET Core · EF Core</td><td><code>src/Webhooks.API/Program.cs:20, src/eShop.AppHost/AppHost.cs:56</code></td><td><span class="c verified">Verificado</span></td></tr><tr><td><b>PostgreSQL</b></td><td>Banco de dados</td><td>PostgreSQL · pgvector</td><td><code>src/eShop.AppHost/AppHost.cs:12</code></td><td><span class="c verified">Verificado</span></td></tr><tr><td><b>Redis</b></td><td>Cache</td><td>Redis</td><td><code>src/eShop.AppHost/AppHost.cs:9</code></td><td><span class="c verified">Verificado</span></td></tr><tr><td><b>Barramento de eventos</b></td><td>Fila / mensageria</td><td>RabbitMQ</td><td><code>src/eShop.AppHost/AppHost.cs:10</code></td><td><span class="c verified">Verificado</span></td></tr></table></section></main>
+  <footer class="foot"><span>Gerado pelo arqT a partir do código-fonte. Afirmações marcadas como inferidas ou a confirmar devem ser revisadas.</span><span>arqT 1.0.0</span></footer>
+</div>
+</body>
+</html>
