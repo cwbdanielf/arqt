@@ -27,7 +27,7 @@ import { renderDocx } from './lib/docx.mjs';
 import { renderPptx } from './lib/pptx.mjs';
 import { countLabel } from './lib/i18n.mjs';
 
-const VERSION = '1.0.0';
+const VERSION = '1.1.0';
 const SKILL_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = '.arqt';
 const HISTORY_KEEP = 20;

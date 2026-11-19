@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src data:; base-uri 'none'; form-action 'none'">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="generator" content="arqT 1.0.0">
+<meta name="generator" content="arqT 1.1.0">
 <title>Resumo executivo — eShop (AdventureWorks)</title>
 <style>/* arqT — design tokens e estilos de diagrama (compartilhado por planta e documentos) */
 :root {
@@ -237,7 +237,7 @@ footer.foot { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--l
     <p>Evidência: catalogdb, identitydb, orderingdb e webhooksdb no mesmo servidor.</p><p><b>Recomendação:</b> Separar ou usar serviço gerenciado com alta disponibilidade.</p></div><div class="risk-card" style="--sev:var(--ok)"><b>Carrinho sem persistência</b> <span class="c inferred">Inferido</span>
     <p>Impacto: Baixo · Probabilidade: Médio · Onde: Redis</p>
     <p>Evidência: Redis sem volume nem persistência declarados no AppHost.</p><p><b>Recomendação:</b> Ativar persistência ou aceitar perda de carrinhos.</p></div></section><section id="s4"><h2><span class="num">4</span>Recomendações</h2><ol><li><b>Usar chave gerenciada (Key Vault) antes de produção.</b> <span style="color:var(--text-3)">(Chave de assinatura de desenvolvimento)</span></li><li><b>Gerar scripts SQL e aplicar no pipeline.</b> <span style="color:var(--text-3)">(Migração automática na subida)</span></li><li><b>Fixar a tag da imagem.</b> <span style="color:var(--text-3)">(Imagem do Postgres sem versão fixa)</span></li><li><b>Atualizar para versões estáveis quando saírem.</b> <span style="color:var(--text-3)">(Dependências em versão prévia)</span></li><li><b>Separar ou usar serviço gerenciado com alta disponibilidade.</b> <span style="color:var(--text-3)">(Um único Postgres para quatro bancos)</span></li><li><b>Ativar persistência ou aceitar perda de carrinhos.</b> <span style="color:var(--text-3)">(Carrinho sem persistência)</span></li></ol></section><section id="s5"><h2><span class="num">5</span>Itens a confirmar</h2><div class="callout warn">Gerado pelo arqT a partir do código-fonte. Afirmações marcadas como inferidas ou a confirmar devem ser revisadas.</div><ul><li>ADR-4: Carrinho em Redis via gRPC</li><li>Existe um provedor de pagamento real previsto ou o processador sempre simula?</li><li>Qual ambiente de produção é usado além do Azure Container Apps?</li><li>Há política de retenção para a tabela de log de eventos de integração?</li></ul></section></main>
-  <footer class="foot"><span>Gerado pelo arqT a partir do código-fonte. Afirmações marcadas como inferidas ou a confirmar devem ser revisadas.</span><span>arqT 1.0.0</span></footer>
+  <footer class="foot"><span>Gerado pelo arqT a partir do código-fonte. Afirmações marcadas como inferidas ou a confirmar devem ser revisadas.</span><span>arqT 1.1.0</span></footer>
 </div>
 </body>
 </html>
