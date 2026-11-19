@@ -2,13 +2,15 @@
 
 Estado atual, como desenvolver e o que vem a seguir. Atualizar este arquivo a cada item concluído.
 
-## Estado atual — 1.0.0
+## Estado atual — 1.0.0 + não lançado (ver CHANGELOG)
 
 - `/arqt` analisa o repositório, escreve um modelo JSON validado (com evidências `arquivo:linha`) e gera a planta
   interativa offline (`planta.html`) e os documentos em HTML A4 e Markdown.
 - Princípios que não mudam: **zero rede**, **zero dependências npm** (runtime e dev), escrita restrita ao diretório de
   saída, varredura de segredos com falha fechada, saída determinística, integridade por `CHECKSUMS.txt`.
 - Layout próprio (camadas, fronteiras, roteamento ortogonal), fontes do sistema, templates JS com escape por padrão.
+- Também: `/arqt docx` e `/arqt pptx` (OOXML próprio, diagramas em formas nativas), página inicial com imagens geradas
+  pelo próprio skill e demo ao vivo em https://cwbdanielf.github.io/arqt/.
 - Node ≥ 20 para usar o skill; ≥ 22 para rodar os testes (padrão `*` no `--test`). CI em 22/24/26.
 
 ## Como desenvolver
@@ -53,7 +55,7 @@ Publicado em https://github.com/cwbdanielf/arqt. Pendentes: 1.2 (assinatura), 1.
 
 Rodar o `/arqt` em 5 repositórios open source de stacks diferentes e corrigir o que aparecer em análise, layout e textos.
 
-**Próximo passo:** 5.6 (revisão final) e divulgar. Pendências que dependem do usuário: enviar `docs/img/social-preview.png` em Settings → Social preview; 1.2 (assinatura das tags); frente 3 e 2.6 adiadas.
+**Próximo passo:** desenvolvimento planejado concluído; resta divulgar. Pendências do usuário: enviar `docs/img/social-preview.png` em Settings → Social preview; 1.2 (assinatura das tags) antes de uma tag v1.1.0; frente 3 e 2.6 adiadas.
 
 | # | Item | Pronto quando |
 |---|---|---|
@@ -148,7 +150,7 @@ geradas pelo próprio arqT** a partir dos modelos de exemplo. Começa depois das
 | 5.3 | ~~Reescrever o README seguindo o roteiro, com textos concisos em português e versão em inglês (`README.en.md`)~~ (feito) | página revisada |
 | 5.4 | ~~Planta viva: publicar `docs/demo/` no GitHub Pages (pedir aprovação: muda configuração do repositório) e apontar a imagem principal para ela~~ (feito: Pages em main/docs, autorizado pelo usuário) | demo abre por link, sem baixar nada |
 | 5.5 | ~~Imagem de compartilhamento (1280×640) a partir de uma vista, descrição e tópicos do repositório~~ (feito; a imagem `docs/img/social-preview.png` precisa ser enviada em Settings → Social preview, sem API) | prévia bonita ao colar o link |
-| 5.6 | Revisão final: legível no tema escuro e no celular, links ok, imagens em dia com os modelos (teste que falha se estiverem velhas), regras de anonimato | checklist cumprido → divulgar |
+| 5.6 | ~~Revisão final: legível no tema escuro e no celular, links ok, imagens em dia com os modelos (teste que falha se estiverem velhas), regras de anonimato~~ (feito: README renderizado no GitHub sem imagens quebradas, SVG claro e escuro conferidos, demo ao vivo respondendo, testes de imagens e links; LibreOffice não disponível nesta máquina — conferir .docx/.pptx nele quando possível) | checklist cumprido → divulgar |
 
 ## Fora de escopo
 
