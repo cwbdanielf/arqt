@@ -51,7 +51,7 @@ Publicado em https://github.com/cwbdanielf/arqt. Pendentes: 1.2 (assinatura), 1.
 
 Rodar o `/arqt` em 5 repositórios open source de stacks diferentes e corrigir o que aparecer em análise, layout e textos.
 
-**Próximo passo:** frente 4 — 4.3 (`/arqt pptx`), depois 4.2b, 4.4 e 4.5. Frente 3 (avaliação pelos colegas) e 2.6 adiadas por decisão do usuário.
+**Próximo passo:** 4.2b (diagramas nativos no DOCX), depois a frente 5 (página inicial). Frente 3 (avaliação pelos colegas) e 2.6 adiadas por decisão do usuário.
 
 | # | Item | Pronto quando |
 |---|---|---|
@@ -116,9 +116,9 @@ Gerados por OOXML próprio (XML + zip via `node:zlib`), sem dependências e sem 
 | 4.1 | ~~`scripts/lib/ooxml.mjs`: escritor de zip (store/deflate) e partes OOXML mínimas~~ (feito, com leitor para testes) | teste de zip válido |
 | 4.2 | ~~`/arqt docx`: resumo executivo, arquitetura e sustentação, com tabelas e títulos navegáveis~~ (feito: convertido do Markdown gerado; abre sem aviso no Word 16 — LibreOffice não disponível aqui, conferir na 5.6) | abre sem aviso no Word e no LibreOffice |
 | 4.2b | Diagramas dentro do DOCX como formas nativas (reaproveitar o desenho da 4.3); hoje há um aviso apontando para a planta | diagramas visíveis no Word |
-| 4.3 | `/arqt pptx`: resumo executivo, 1 slide por vista (contexto, contêineres, componentes) e mapa de riscos; diagramas como formas nativas a partir das coordenadas do motor de layout | abre sem aviso no PowerPoint e no LibreOffice |
-| 4.4 | Testes de determinismo (bytes idênticos com `--now` fixo) e de segurança (escape de texto do modelo em XML) | testes passando |
-| 4.5 | Documentar no README e no `SKILL.md` | comandos documentados |
+| 4.3 | ~~`/arqt pptx`: resumo executivo, 1 slide por vista (contexto, contêineres, componentes) e mapa de riscos; diagramas como formas nativas a partir das coordenadas do motor de layout~~ (feito: abre sem aviso no PowerPoint 16; LibreOffice a conferir na 5.6) | abre sem aviso no PowerPoint e no LibreOffice |
+| 4.4 | ~~Testes de determinismo (bytes idênticos com `--now` fixo) e de segurança (escape de texto do modelo em XML)~~ (feito) | testes passando |
+| 4.5 | ~~Documentar no README e no `SKILL.md`~~ (feito; demo inclui .docx e .pptx) | comandos documentados |
 
 ### 5. Página inicial de divulgação (v1.4 — última etapa antes de divulgar)
 

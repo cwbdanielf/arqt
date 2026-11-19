@@ -4,7 +4,8 @@ Planta e documentos gerados pelo arqT para o projeto open source
 [dotnet/eShop](https://github.com/dotnet/eShop) (licença MIT), no commit `134625b2`.
 
 - `eshop/planta.html` — planta interativa (abre offline no navegador).
-- `eshop/docs/` — resumo executivo, arquitetura, sustentação, inventário e mudanças (HTML A4 e Markdown).
+- `eshop/docs/` — resumo executivo, arquitetura, sustentação, inventário e mudanças (HTML A4 e Markdown), versões Word
+  (`.docx`) e a apresentação `apresentacao.pptx`.
 
 Para ver: baixe a pasta `eshop/` (ou clone o repositório) e abra `planta.html` no navegador.
 O GitHub mostra os arquivos `.md` direto na página.

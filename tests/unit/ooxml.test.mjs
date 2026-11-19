@@ -55,3 +55,26 @@ test('/arqt docx: gera 3 .docx determinísticos e escapa texto malicioso do mode
   }
   assert.ok(!fs.existsSync(path.join(a, '.arqt', 'docs', 'inventario.docx')));
 });
+
+test('/arqt pptx: capa, resumo, uma vista por slide e riscos; determinístico e com texto escapado', () => {
+  const m = loja();
+  m.components[0].name = 'Web <a:t>"injeção"</a:t>';
+  const a = lojaProject(m); const b = lojaProject(m);
+  for (const dir of [a, b]) {
+    const out = execFileSync(process.execPath, [BUILD, 'pptx', '--now', NOW, '--no-history'], { cwd: dir, encoding: 'utf8' });
+    assert.match(out, /apresentacao\.pptx/);
+  }
+  const fa = fs.readFileSync(path.join(a, '.arqt', 'docs', 'apresentacao.pptx'));
+  assert.deepEqual(fa, fs.readFileSync(path.join(b, '.arqt', 'docs', 'apresentacao.pptx')), 'bytes idênticos');
+  const parts = unzip(fa);
+  for (const p of ['ppt/presentation.xml', 'ppt/slideMasters/slideMaster1.xml', 'ppt/slideLayouts/slideLayout1.xml', 'ppt/theme/theme1.xml', 'docProps/core.xml']) assert.ok(parts[p], p);
+  const slides = Object.keys(parts).filter((k) => /^ppt\/slides\/slide\d+\.xml$/.test(k));
+  const views = 1 + 1 + m.components.filter((c) => !c.parent && m.components.some((k) => k.parent === c.id)).length; // contexto + contêineres + componentes
+  assert.equal(slides.length, 2 + views + (m.risks.length ? 1 : 0));
+  const pres = parts['ppt/presentation.xml'].toString();
+  assert.equal((pres.match(/<p:sldId /g) || []).length, slides.length);
+  const all = slides.map((s) => parts[s].toString()).join('');
+  assert.ok(all.includes('&lt;a:t&gt;&quot;injeção&quot;&lt;/a:t&gt;'), 'nome escapado');
+  assert.match(all, /<a:custGeom>/, 'setas como formas nativas');
+  assert.ok(!fs.existsSync(path.join(a, '.arqt', 'docs', 'arquitetura.docx')), 'pptx não gera docx');
+});

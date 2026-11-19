@@ -24,6 +24,8 @@ import { diffModels } from './lib/diff.mjs';
 import { renderPlanta } from '../templates/planta.mjs';
 import { renderDocs } from '../templates/docs.mjs';
 import { renderDocx } from './lib/docx.mjs';
+import { renderPptx } from './lib/pptx.mjs';
+import { countLabel } from './lib/i18n.mjs';
 
 const VERSION = '1.0.0';
 const SKILL_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -108,10 +110,10 @@ function main() {
   if (args.positional[0] === 'publicar' || args.positional[0] === 'publish') return publish(root, guard);
 
   const warnings = [];
-  const FORMATS = ['docx'];
+  const FORMATS = ['docx', 'pptx'];
   const formats = args.positional.filter((p) => FORMATS.includes(p));
   const unknownArgs = args.positional.filter((p) => !AUD[p] && !FORMATS.includes(p));
-  if (unknownArgs.length || args.unknown) warnings.push(`argumento(s) ignorado(s): ${[...unknownArgs, ...(args.unknown || [])].join(' ')} (aceitos: diretoria, sustentacao, desenvolvimento, docx, publicar)`);
+  if (unknownArgs.length || args.unknown) warnings.push(`argumento(s) ignorado(s): ${[...unknownArgs, ...(args.unknown || [])].join(' ')} (aceitos: diretoria, sustentacao, desenvolvimento, docx, pptx, publicar)`);
   const audience = AUD[args.positional.find((p) => AUD[p])] || 'dev';
 
   const modelFile = path.join(outDir, 'model.json');
@@ -179,8 +181,25 @@ function main() {
   for (const d of docs) { outputs.push([`${OUT}/docs/${d.slug}.html`, d.html]); outputs.push([`${OUT}/docs/${d.slug}.md`, d.md]); }
   // formatos formais (OOXML próprio): varre-se o XML do documento antes de compactar
   const binaries = []; const scanOnly = [];
+  const date = m.meta.generatedAt.replace(/\.\d+Z$/, 'Z');
+  if (formats.includes('pptx')) {
+    const en = m.meta.language === 'en';
+    const containersN = m.components.filter((c) => !c.parent && c.kind !== 'external').length;
+    const labels = {
+      deckTitle: en ? 'Architecture presentation' : 'Apresentação de arquitetura', cover: en ? 'Architecture map' : 'Planta arquitetural',
+      summary: t.doc.executivo, containers: countLabel(t, 'containersCount', containersN),
+      integrations: countLabel(t, 'integrationsCount', m.actors.filter((a) => a.kind === 'external-system').length),
+      highRisks: countLabel(t, 'highRisks', m.risks.filter((r) => r.impact * r.likelihood >= 6).length),
+      contextSub: en ? 'Who uses the system and what it talks to' : 'Quem usa o sistema e com quem ele conversa',
+      containersSub: en ? 'Applications, data and integrations' : 'Aplicações, dados e integrações',
+      componentsOf: en ? 'Internal components and neighbours' : 'Componentes internos e vizinhos',
+      riskMap: t.doc.riskMap, riskSub: en ? 'Impact × likelihood; numbers refer to the list' : 'Impacto × probabilidade; os números remetem à lista',
+    };
+    const { buffer, xml } = renderPptx({ m, t, views, metrics, date, labels });
+    scanOnly.push([`${OUT}/docs/apresentacao.pptx`, xml]);
+    binaries.push([`${OUT}/docs/apresentacao.pptx`, buffer]);
+  }
   if (formats.includes('docx')) {
-    const date = m.meta.generatedAt.replace(/\.\d+Z$/, 'Z');
     const diagramNote = m.meta.language === 'en' ? 'Diagram available in the interactive map (planta.html).' : 'Diagrama disponível na planta interativa (planta.html).';
     for (const d of docs.filter((x) => ['executivo', 'arquitetura', 'sustentacao'].includes(x.slug))) {
       const { buffer, xml } = renderDocx({ markdown: d.md, title: `${d.title} — ${m.system.name}`, language: m.meta.language, date, diagramNote });
@@ -219,6 +238,7 @@ function main() {
   line('');
   line(`  planta:      ${path.join(OUT, 'planta.html')}`);
   for (const d of docs) line(`  documento:   ${path.join(OUT, 'docs', d.slug + '.html')}  (+ .md${binaries.some(([f]) => f.endsWith(`/${d.slug}.docx`)) ? ' + .docx' : ''})`);
+  if (binaries.some(([f]) => f.endsWith('.pptx'))) line(`  apresentação: ${path.join(OUT, 'docs', 'apresentacao.pptx')}`);
   if (warnings.length) {
     line(`\n⚠ ${warnings.length} aviso(s):`);
     for (const w of warnings.slice(0, 40)) line(`  - ${w}`);
@@ -231,7 +251,7 @@ function publish(root, guard) {
   const files = ['model.json', ...['executivo', 'arquitetura', 'sustentacao', 'inventario', 'mudancas'].flatMap((s) => [`docs/${s}.html`, `docs/${s}.md`])];
   const missing = files.filter((f) => !fs.existsSync(path.join(src, f)));
   if (missing.length) fail(EXIT.usage, 'Nada para publicar ainda', missing.map((f) => `${OUT}/${f} ausente`), 'Rode /arqt antes de publicar.');
-  files.push(...['executivo', 'arquitetura', 'sustentacao'].map((s) => `docs/${s}.docx`).filter((f) => fs.existsSync(path.join(src, f))));
+  files.push(...[...['executivo', 'arquitetura', 'sustentacao'].map((s) => `docs/${s}.docx`), 'docs/apresentacao.pptx'].filter((f) => fs.existsSync(path.join(src, f))));
   for (const f of files) guard.write(`docs/arquitetura/${f}`, fs.readFileSync(path.join(src, f)));
   guard.write('docs/arquitetura/planta.html', fs.readFileSync(path.join(src, 'planta.html')));
   line(`✓ ${files.length + 1} arquivos publicados em docs/arquitetura/ (versione-os junto com o código).`);
