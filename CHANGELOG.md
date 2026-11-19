@@ -4,6 +4,7 @@
 
 - Layout: em vistas com faixas em colunas, cada faixa usa só as próprias arestas para definir colunas (diagramas bem mais estreitos em microsserviços com barramento de eventos).
 - Planta: diagramas largos abrem com zoom mínimo legível (60%), alinhados pelo início; "Ajustar à tela" (F) continua mostrando tudo.
+- Rótulos das setas: não são mais abreviados quando cabem (setas em corredor e rótulos disputando o mesmo trecho).
 - Textos: contagens no singular quando há 1 item.
 - Manual de sustentação: bibliotecas sem dados de operação não aparecem mais (monorepos).
 - Demonstração em `docs/demo/` (dotnet/eShop) e modelos de exemplo open source em `tests/models/`, cobertos pelos testes.

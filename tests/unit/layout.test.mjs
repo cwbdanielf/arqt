@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { layoutGraph } from '../../skills/arqt/scripts/lib/layout.mjs';
+import { layoutGraph, placeLabels } from '../../skills/arqt/scripts/lib/layout.mjs';
 import { buildViews } from '../../skills/arqt/scripts/lib/views.mjs';
 import { normalize } from '../../skills/arqt/scripts/lib/model.mjs';
 import { strings } from '../../skills/arqt/scripts/lib/i18n.mjs';
@@ -114,4 +114,17 @@ test('modelos de exemplo open source: garantias de layout, rótulos inteiros e l
       assert.ok(v.layout.cols <= 8, `${n} ${v.id}: ${v.layout.cols} colunas`);
     }
   }
+});
+
+test('rótulos de até 24 caracteres não são abreviados (300 grafos aleatórios)', () => {
+  const words = ['Consulta saldo', 'Publica pedido criado', 'Grava carrinho', 'Entrega status do pedido', 'Lê catálogo', 'Valida tokens', 'Envia webhook', 'Busca pedidos em carência'];
+  const bad = [];
+  for (let seed = 1; seed <= 300; seed++) {
+    const g = randomGraph(seed, 5 + (seed % 16), 4 + (seed * 7) % 30, seed % 4);
+    g.edges.forEach((e, i) => { e.label = words[(i + seed) % words.length]; });
+    const lay = layoutGraph(g);
+    const placed = placeLabels(lay, Object.fromEntries(g.edges.map((e) => [e.id, e.label])));
+    for (const e of g.edges) if (e.label.length <= 24 && (!placed[e.id] || placed[e.id].truncated)) bad.push(`seed ${seed} ${e.id} "${e.label}"`);
+  }
+  assert.deepEqual(bad, []);
 });

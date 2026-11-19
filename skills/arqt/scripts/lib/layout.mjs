@@ -360,22 +360,23 @@ function layoutCore(graph, options = {}) {
   // muitas setas rotuladas saindo do mesmo nó pelo mesmo vão ficam a menos de um rótulo de distância:
   // nesse caso o vão comporta dois rótulos lado a lado, alternando esquerda/direita.
   const fan = new Map();
+  // vão onde fica o 1º trecho horizontal (é onde o rótulo vai): reta → vão do destino; L → canal; corredor → vão de saída
+  // corredor: só quando o trecho no corredor é curto (colunas vizinhas, gIn === gOut); senão o rótulo vai no corredor
+  const labelGap = (r) => (!r.segs.length ? r.t.c : r.type === 'lout' || r.type === 'lin' ? r.vgap : r.gIn === r.gOut ? r.gOut : -1);
   for (const r of routes) {
-    if (!lw(r) || !(r.type === 'lout' || r.type === 'lin' || !r.segs.length)) continue;
-    const g = r.segs.length ? r.vgap : r.t.c;
+    const g = labelGap(r);
+    if (!lw(r) || g < 0) continue;
     const k = g + '|' + r.e.from;
     fan.set(k, (fan.get(k) || 0) + 1);
   }
   for (const r of routes) {
     const w = lw(r);
-    if (!w) continue;
-    const g = r.segs.length ? r.vgap : r.t.c;
+    const g = labelGap(r);
+    if (!w || g < 0) continue;
     const nf = fan.get(g + '|' + r.e.from) || 0;
     const two = nf > 1 && (H * 0.68) / (nf - 1) < 20; // portas próximas demais: rótulos empilhados colidiriam
     if (!r.segs.length) { if (r.t.c === r.s.c + 1) labelNeed[r.t.c] = Math.max(labelNeed[r.t.c], two ? 2 * w + 40 : w + 28); }
-    else if (r.type === 'lout' || r.type === 'lin') {
-      labelNeed[r.vgap] = Math.max(labelNeed[r.vgap], two ? 2 * w + 46 : w + 34);
-    }
+    else labelNeed[g] = Math.max(labelNeed[g], two ? 2 * w + 46 : w + 34);
   }
   const gapW = gapLanes.map((L, g) => (g === 0 || g === C
     ? Math.max(o.outerGap, laneSpan(L))
@@ -485,11 +486,14 @@ function simplify(pts) {
 }
 
 // ---- rótulos: posiciona no maior segmento horizontal livre ----
+const VLABEL_MAX = 176; // rótulo sobre trecho vertical: cobre os ~24 caracteres reservados pelo layout
 export function placeLabels(lay, labels, { charW = 6.4, padX = 8, h = 18 } = {}) {
   const boxes = Object.values(lay.nodes).map((n) => [n.x - 4, n.y - 4, n.x + n.w + 4, n.y + n.h + 4]);
   const hit = (b) => boxes.some((a) => !(b[2] <= a[0] || b[0] >= a[2] || b[3] <= a[1] || b[1] >= a[3]));
   const result = {};
-  const sorted = [...lay.edges].sort((a, b) => (a.id < b.id ? -1 : 1));
+  // rótulos com menos espaço escolhem primeiro (menor folga no maior trecho horizontal), depois por id
+  const room = (e) => { let m = 0; for (let i = 0; i < e.points.length - 1; i++) { const [x1, y1] = e.points[i]; const [x2, y2] = e.points[i + 1]; if (y1 === y2) m = Math.max(m, Math.abs(x2 - x1)); } return m - charW * (labels[e.id] || '').length; };
+  const sorted = [...lay.edges].sort((a, b) => room(a) - room(b) || (a.id < b.id ? -1 : 1));
   for (const e of sorted) {
     const text = labels[e.id];
     if (!text) continue;
@@ -501,28 +505,34 @@ export function placeLabels(lay, labels, { charW = 6.4, padX = 8, h = 18 } = {})
     }
     segs.sort((a, b) => b.len - a.len);
     let placed = null;
-    for (const s of segs) {
-      const w = Math.min(full, s.len - 14);
-      if (w < 46) continue;
-      const left = s.x1 + 8 + w / 2; const right = s.x2 - 8 - w / 2;
-      const cands = [left, right, s.x1 + s.len * 0.5, s.x1 + s.len * 0.32, s.x1 + s.len * 0.68];
-      for (const cx of cands) {
-        const b = [cx - w / 2, s.y - h / 2, cx + w / 2, s.y + h / 2];
-        if (b[0] < s.x1 + 6 || b[2] > s.x2 - 6) continue;
-        if (!hit(b)) { placed = { x: cx, y: s.y, w, truncated: w < full }; boxes.push(b); break; }
+    const vsegs = [];
+    for (let i = 0; i < e.points.length - 1; i++) {
+      const [x1, y1] = e.points[i]; const [x2, y2] = e.points[i + 1];
+      if (x1 === x2 && Math.abs(y2 - y1) >= 60) vsegs.push({ x: x1, cy: (y1 + y2) / 2 });
+    }
+    // 1ª passada: só onde o texto cabe inteiro — trechos horizontais (deslizando ao longo deles) e, se não houver,
+    // o meio de um trecho vertical longo; 2ª passada: aceita abreviar.
+    for (const whole of [true, false]) {
+      for (const s of segs) {
+        const w = Math.min(full, s.len - 14);
+        if (w < 46 || (whole && w < full)) continue;
+        const left = s.x1 + 8 + w / 2; const right = s.x2 - 8 - w / 2;
+        const cands = [left, right, s.x1 + s.len * 0.5, s.x1 + s.len * 0.32, s.x1 + s.len * 0.68];
+        for (let cx = left + 24; cx < right; cx += 24) cands.push(cx);
+        for (const cx of cands) {
+          const b = [cx - w / 2, s.y - h / 2, cx + w / 2, s.y + h / 2];
+          if (b[0] < s.x1 + 6 || b[2] > s.x2 - 6) continue;
+          if (!hit(b)) { placed = { x: cx, y: s.y, w, truncated: w < full }; boxes.push(b); break; }
+        }
+        if (placed) break;
+      }
+      for (const v of placed ? [] : vsegs) {
+        const w = Math.min(full, VLABEL_MAX);
+        if (whole && w < full) continue;
+        const b = [v.x - w / 2, v.cy - h / 2, v.x + w / 2, v.cy + h / 2];
+        if (!hit(b)) { placed = { x: v.x, y: v.cy, w, truncated: w < full }; boxes.push(b); break; }
       }
       if (placed) break;
-    }
-    if (!placed) {
-      // tenta o meio de um segmento vertical longo
-      for (let i = 0; i < e.points.length - 1 && !placed; i++) {
-        const [x1, y1] = e.points[i]; const [x2, y2] = e.points[i + 1];
-        if (x1 !== x2 || Math.abs(y2 - y1) < 60) continue;
-        const w = Math.min(full, 150);
-        const cy = (y1 + y2) / 2;
-        const b = [x1 - w / 2, cy - h / 2, x1 + w / 2, cy + h / 2];
-        if (!hit(b)) { placed = { x: x1, y: cy, w, truncated: w < full }; boxes.push(b); }
-      }
     }
     result[e.id] = placed;
   }

@@ -51,7 +51,7 @@ Publicado em https://github.com/cwbdanielf/arqt. Pendentes: 1.2 (assinatura), 1.
 
 Rodar o `/arqt` em 5 repositórios open source de stacks diferentes e corrigir o que aparecer em análise, layout e textos.
 
-**Próximo passo:** 2.8 (rótulo abreviado), depois 2.6 (feedback dos colegas, depende das issues da 1.6).
+**Próximo passo:** 2.6 (feedback dos colegas) depende das issues da 1.6 — ainda não há; enquanto isso, 1.7 (actions do CI) e depois a frente 3.
 
 | # | Item | Pronto quando |
 |---|---|---|
@@ -62,7 +62,7 @@ Rodar o `/arqt` em 5 repositórios open source de stacks diferentes e corrigir o
 | 2.5 | ~~Versionar 1–2 modelos de exemplo (licença permissiva) em `tests/models/` e gerar uma planta de demonstração~~ (feito: `eshop.json` e `create-t3-turbo.json`, demo em `docs/demo/`) | demo citada no README |
 | 2.6 | Incorporar o feedback dos colegas (issues da 1.6) | issues triadas e fechadas ou adiadas |
 | 2.7 | ~~Diagramas com cadeias longas ficam largos e abrem com zoom baixo~~ (feito: colunas por faixa contam só arestas internas; diagramas abrem com zoom mínimo de 60%, alinhados à esquerda; "Ajustar à tela" mostra tudo) | vista de componentes legível sem zoom manual |
-| 2.8 | Caso isolado: rótulo de seta longa entre colunas distantes ainda abreviado em 2 letras | nenhum rótulo ≤ 24 caracteres abreviado |
+| 2.8 | ~~Caso isolado: rótulo de seta longa entre colunas distantes ainda abreviado em 2 letras~~ (feito; resta 1 caso em ~20 mil rótulos aleatórios, com outro rótulo encostado) | nenhum rótulo ≤ 24 caracteres abreviado |
 
 **Repositórios de teste (2.1)** — cópias rasas, só leitura, fora do repo (pasta temporária da sessão; baixar de novo se sumir):
 
@@ -91,6 +91,9 @@ Rodar o `/arqt` em 5 repositórios open source de stacks diferentes e corrigir o
   "Como subir" vazia → bibliotecas sem dados de operação ficam fora do manual.
 - create-t3-turbo: cadeia real app → api → auth → db → banco gera vista de contêineres larga (8 colunas, 2 linhas); a quebra em
   linhas não compensou (modo em faixas ficou com zoom parecido e mais cruzamentos) → resolvido pelo zoom mínimo legível da 2.7.
+- Rótulos abreviados (2.8): setas em corredor entre colunas vizinhas não tinham espaço reservado e rótulos folgados
+  ocupavam o lugar dos apertados → reserva no vão de saída, rótulos mais apertados escolhem primeiro e trecho vertical antes
+  de abreviar. Em 1.500 grafos aleatórios: de 67 para 1 abreviado, sem aumentar a largura dos diagramas dos modelos.
 - Playbook sem monorepo TS (apps × pacotes × tooling, catálogo do pnpm, tRPC montado dentro do app, Drizzle) → incluído.
 
 ### 3. Teste A/B formal — rúbrica cega (v1.2)
