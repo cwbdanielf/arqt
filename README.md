@@ -72,7 +72,7 @@ O arqT foi criado do zero com um contrato de segurança explícito (detalhes em 
 ## Desenvolvimento
 
 ```bash
-node --test tests/
+node --test "tests/**/*.test.mjs"
 ```
 
 ```bash

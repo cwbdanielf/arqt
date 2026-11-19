@@ -9,11 +9,11 @@ Estado atual, como desenvolver e o que vem a seguir. Atualizar este arquivo a ca
 - Princípios que não mudam: **zero rede**, **zero dependências npm** (runtime e dev), escrita restrita ao diretório de
   saída, varredura de segredos com falha fechada, saída determinística, integridade por `CHECKSUMS.txt`.
 - Layout próprio (camadas, fronteiras, roteamento ortogonal), fontes do sistema, templates JS com escape por padrão.
-- Node ≥ 20; CI em 22/24/26.
+- Node ≥ 20 para usar o skill; ≥ 22 para rodar os testes (padrão `*` no `--test`). CI em 22/24/26.
 
 ## Como desenvolver
 
-- `npm test` (ou `node --test tests/`) — suíte completa.
+- `npm test` (ou `node --test "tests/**/*.test.mjs"`) — suíte completa.
 - `node tools/checksums.mjs` — **rodar após qualquer mudança em `skills/arqt/`** (o build recusa arquivos alterados).
 - `sh tools/rebuild-preview.sh [projeto]` — checksums + build + cópia para `.preview/` (projeto padrão: `tests/projects/loja`).
 - Prévia no navegador: configuração `preview` em `.claude/launch.json` (porta 4321).
