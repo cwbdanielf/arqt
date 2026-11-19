@@ -28,6 +28,7 @@ Microsserviços .NET orquestrados pelo Aspire. A loja web (Blazor) e o app móve
 
 ```mermaid
 flowchart LR
+  %% arqt:view=context
   n_cliente(["Cliente"])
   n_parceiro(["Parceiro de webhooks"])
   n___system["eShop (AdventureWorks)"]

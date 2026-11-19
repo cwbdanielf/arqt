@@ -201,8 +201,11 @@ function main() {
   }
   if (formats.includes('docx')) {
     const diagramNote = m.meta.language === 'en' ? 'Diagram available in the interactive map (planta.html).' : 'Diagrama disponível na planta interativa (planta.html).';
+    const nodeOf = (id) => ix.actor.get(id) || ix.comp.get(id);
+    const diagrams = { views: new Map(views.map((v) => [v.id, v])), flows: new Map(m.flows.map((f) => [f.id, f])), t,
+      nameOf: (id) => nodeOf(id)?.name || id, kindOf: (id) => { const n = nodeOf(id); return !n ? 'lib' : n.kind === 'external-system' ? 'external' : n.kind; } };
     for (const d of docs.filter((x) => ['executivo', 'arquitetura', 'sustentacao'].includes(x.slug))) {
-      const { buffer, xml } = renderDocx({ markdown: d.md, title: `${d.title} — ${m.system.name}`, language: m.meta.language, date, diagramNote });
+      const { buffer, xml } = renderDocx({ markdown: d.md, title: `${d.title} — ${m.system.name}`, language: m.meta.language, date, diagramNote, diagrams });
       scanOnly.push([`${OUT}/docs/${d.slug}.docx`, xml]);
       binaries.push([`${OUT}/docs/${d.slug}.docx`, buffer]);
     }

@@ -49,6 +49,7 @@ Microsserviços .NET orquestrados pelo Aspire. A loja web (Blazor) e o app móve
 
 ```mermaid
 flowchart LR
+  %% arqt:view=context
   n_cliente(["Cliente"])
   n_parceiro(["Parceiro de webhooks"])
   n___system["eShop (AdventureWorks)"]
@@ -69,6 +70,7 @@ flowchart LR
 
 ```mermaid
 flowchart LR
+  %% arqt:view=containers
   n_cliente(["Cliente"])
   n_parceiro(["Parceiro de webhooks"])
   n_provedor_ia["Provedor de IA (Foundry/OpenAI)"]:::ext
@@ -147,6 +149,7 @@ Produtos, marcas, tipos, fotos e busca semântica; valida estoque dos pedidos.
 
 ```mermaid
 flowchart LR
+  %% arqt:view=comp-catalog-api
   n_mobile_bff["BFF móvel"]
   n_webapp["Loja web"]
   n_provedor_ia["Provedor de IA (Foundry/OpenAI)"]:::ext
@@ -182,6 +185,7 @@ Cria, cancela e envia pedidos; mantém o ciclo de vida do pedido (DDD + CQRS).
 
 ```mermaid
 flowchart LR
+  %% arqt:view=comp-ordering-api
   n_mobile_bff["BFF móvel"]
   n_webapp["Loja web"]
   n_identity_api["Identidade"]
@@ -223,6 +227,7 @@ Do carrinho ao pedido pago, coreografado por eventos.
 
 ```mermaid
 sequenceDiagram
+  %% arqt:flow=checkout
   participant p_cliente as Cliente
   participant p_webapp as Loja web
   participant p_ordering_endpoints as Endpoints de pedidos
@@ -252,6 +257,7 @@ Parceiro recebe aviso quando um pedido é pago.
 
 ```mermaid
 sequenceDiagram
+  %% arqt:flow=webhook
   participant p_parceiro as Parceiro de webhooks
   participant p_webhooks_client as Cliente de webhooks
   participant p_webhooks_api as API de webhooks

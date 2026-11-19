@@ -2,8 +2,74 @@
 // citações, tabelas, blocos de código e Mermaid). Títulos usam os estilos nativos "Heading N" do Word, então
 // o painel de navegação e o sumário automático funcionam.
 import { zip, xml, XML_HEAD, coreProps } from './ooxml.mjs';
+import { drawView, drawSequence, sequenceGeometry, INK, PX } from './shapes.mjs';
 
 const NS = 'xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"';
+const NS_DRAW = 'xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:wpg="http://schemas.microsoft.com/office/word/2010/wordprocessingGroup" xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape"';
+const TEXT_W = 9638 * 635; // largura útil da página A4 (margens de 2 cm) em EMU
+const MAX_H = 8.4 * 914400;
+const Rn = Math.round;
+
+// Grupo de formas do Word (wpg/wps) com a mesma interface do slide: box(), polyline(), para(), run().
+class WordGroup {
+  constructor(firstId = 1) { this.shapes = []; this.id = firstId; }
+  run(t, o = {}) { return { t, ...o }; }
+  para(runs, o = {}) { return { runs: [].concat(runs), ...o }; }
+  pXml({ runs, algn = 'l' }) {
+    const jc = algn === 'ctr' ? 'center' : algn === 'r' ? 'right' : 'left';
+    return `<w:p><w:pPr><w:spacing w:before="0" w:after="0" w:line="240" w:lineRule="auto"/><w:jc w:val="${jc}"/></w:pPr>` +
+      runs.map(({ t, sz = 1400, b, i, color = INK }) => `<w:r><w:rPr>${b ? '<w:b/>' : ''}${i ? '<w:i/>' : ''}<w:color w:val="${color}"/><w:sz w:val="${Math.max(2, Rn(sz / 50))}"/></w:rPr><w:t xml:space="preserve">${xml(t)}</w:t></w:r>`).join('') + '</w:p>';
+  }
+  sp(name, x, y, w, h, geom, fill, ln, txbx, bodyPr) {
+    this.shapes.push(`<wps:wsp><wps:cNvPr id="${this.id++}" name="${xml(name)}"/><wps:cNvSpPr/><wps:spPr><a:xfrm><a:off x="${Rn(x)}" y="${Rn(y)}"/><a:ext cx="${Math.max(1, Rn(w))}" cy="${Math.max(1, Rn(h))}"/></a:xfrm>${geom}${fill}${ln}</wps:spPr>${txbx}${bodyPr}</wps:wsp>`);
+  }
+  box({ x, y, w, h, paras = [], geom = 'rect', fill, line, lineW = 9525, dash, anchor = 't', inset = 45720, adj = 12000, name = 'Forma', wrap = 'square' }) {
+    const g = geom === 'roundRect' ? `<a:prstGeom prst="roundRect"><a:avLst><a:gd name="adj" fmla="val ${adj}"/></a:avLst></a:prstGeom>` : `<a:prstGeom prst="${geom}"><a:avLst/></a:prstGeom>`;
+    const f = fill ? `<a:solidFill><a:srgbClr val="${fill}"/></a:solidFill>` : '<a:noFill/>';
+    const l = line ? `<a:ln w="${Rn(lineW)}"><a:solidFill><a:srgbClr val="${line}"/></a:solidFill>${dash ? `<a:prstDash val="${dash}"/>` : ''}</a:ln>` : '<a:ln><a:noFill/></a:ln>';
+    const txbx = paras.length ? `<wps:txbx><w:txbxContent>${paras.map((p) => this.pXml(p)).join('')}</w:txbxContent></wps:txbx>` : '';
+    const ins = Rn(inset);
+    this.sp(name, x, y, w, h, g, f, l, txbx, `<wps:bodyPr rot="0" vert="horz" wrap="${wrap}" lIns="${ins}" tIns="${ins}" rIns="${ins}" bIns="${ins}" anchor="${anchor}" anchorCtr="0"><a:noAutofit/></wps:bodyPr>`);
+  }
+  polyline(pts, { color = '9AA3B5', w = 15240, dash, head, tail = true, name = 'Seta' }) {
+    const xs = pts.map((p) => p[0]); const ys = pts.map((p) => p[1]);
+    const x0 = Math.min(...xs); const y0 = Math.min(...ys);
+    const W = Math.max(1, Rn(Math.max(...xs) - x0)); const H = Math.max(1, Rn(Math.max(...ys) - y0));
+    const path = pts.map((p, i) => `<a:${i ? 'lnTo' : 'moveTo'}><a:pt x="${Rn(p[0] - x0)}" y="${Rn(p[1] - y0)}"/></a:${i ? 'lnTo' : 'moveTo'}>`).join('');
+    const g = `<a:custGeom><a:avLst/><a:gdLst/><a:ahLst/><a:cxnLst/><a:rect l="0" t="0" r="r" b="b"/><a:pathLst><a:path w="${W}" h="${H}" fill="none">${path}</a:path></a:pathLst></a:custGeom>`;
+    const l = `<a:ln w="${Rn(w)}"><a:solidFill><a:srgbClr val="${color}"/></a:solidFill>${dash ? `<a:prstDash val="${dash}"/>` : ''}<a:round/>${head ? '<a:headEnd type="triangle"/>' : ''}${tail ? '<a:tailEnd type="triangle"/>' : ''}</a:ln>`;
+    this.sp(name, x0, y0, W, H, g, '<a:noFill/>', l, '', '<wps:bodyPr/>');
+  }
+  xml(cx, cy, docId, title) {
+    cx = Rn(cx); cy = Rn(cy);
+    return `<w:p><w:pPr><w:spacing w:before="120" w:after="120"/><w:jc w:val="center"/></w:pPr><w:r><mc:AlternateContent><mc:Choice Requires="wpg"><w:drawing>` +
+      `<wp:inline distT="0" distB="0" distL="0" distR="0"><wp:extent cx="${cx}" cy="${cy}"/><wp:effectExtent l="0" t="0" r="0" b="0"/><wp:docPr id="${docId}" name="${xml(title)}"/><wp:cNvGraphicFramePr/>` +
+      `<a:graphic><a:graphicData uri="http://schemas.microsoft.com/office/word/2010/wordprocessingGroup"><wpg:wgp><wpg:cNvGrpSpPr/><wpg:grpSpPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${cx}" cy="${cy}"/><a:chOff x="0" y="0"/><a:chExt cx="${cx}" cy="${cy}"/></a:xfrm></wpg:grpSpPr>` +
+      this.shapes.join('') + '</wpg:wgp></a:graphicData></a:graphic></wp:inline></w:drawing></mc:Choice><mc:Fallback/></mc:AlternateContent></w:r></w:p>';
+  }
+}
+
+// Desenha a vista ou o fluxo marcado no bloco Mermaid (comentário "%% arqt:view=…" / "%% arqt:flow=…").
+function drawing(code, diagrams, docId) {
+  if (!diagrams) return null;
+  const src = code.join('\n');
+  const mv = /%% arqt:view=([a-z0-9-]+)/.exec(src); const mf = /%% arqt:flow=([a-z0-9-]+)/.exec(src);
+  const g = new WordGroup(docId * 1000 + 1); // ids únicos no documento (o docPr usa docId)
+  if (mv && diagrams.views.has(mv[1])) {
+    const v = diagrams.views.get(mv[1]);
+    const h = Math.min(MAX_H, TEXT_W * v.layout.height / v.layout.width); const w = Math.min(TEXT_W, h * v.layout.width / v.layout.height);
+    drawView(g, v, diagrams.t, { x: 0, y: 0, w, h });
+    return g.xml(w, h, docId, v.title);
+  }
+  if (mf && diagrams.flows.has(mf[1])) {
+    const f = diagrams.flows.get(mf[1]); const geo = sequenceGeometry(f);
+    const w0 = Math.min(TEXT_W, geo.width * PX); const h = Math.min(MAX_H, w0 * geo.height / geo.width); const w = h * geo.width / geo.height;
+    drawSequence(g, f, diagrams.nameOf, diagrams.kindOf, { x: 0, y: 0, w, h });
+    return g.xml(w, h, docId, f.name);
+  }
+  return null;
+}
+
 
 // Desfaz o escape de Markdown/HTML do gerador: \* \| \_ … e &amp; &lt; &gt;
 const plain = (s) => s.replace(/\\([\\`*_{}[\]()#+\-.!|>~])/g, '$1').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
@@ -45,7 +111,8 @@ function table(rows) {
     `<w:tblGrid>${'<w:gridCol/>'.repeat(n)}</w:tblGrid>${tr(head, true)}${body.map((r) => tr(r, false)).join('')}</w:tbl>` + para('', null);
 }
 
-export function markdownToDocumentXml(mdText, { diagramNote }) {
+export function markdownToDocumentXml(mdText, { diagramNote, diagrams }) {
+  let docId = 1;
   const lines = mdText.replace(/\r\n/g, '\n').split('\n');
   const body = [];
   for (let i = 0; i < lines.length; i++) {
@@ -54,7 +121,7 @@ export function markdownToDocumentXml(mdText, { diagramNote }) {
       const lang = l.slice(3).trim();
       const code = [];
       while (++i < lines.length && !/^```/.test(lines[i])) code.push(lines[i]);
-      if (lang === 'mermaid') body.push(para(run(diagramNote, { i: true, color: '6B7280' }), null));
+      if (lang === 'mermaid') body.push(drawing(code, diagrams, docId++) || para(run(diagramNote, { i: true, color: '6B7280' }), null));
       else for (const c of code) body.push(para(run(c || ' '), 'Code'));
       continue;
     }
@@ -75,7 +142,7 @@ export function markdownToDocumentXml(mdText, { diagramNote }) {
     body.push(para(runs(l), null));
   }
   const sect = '<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1134" w:right="1134" w:bottom="1134" w:left="1134" w:header="567" w:footer="567" w:gutter="0"/></w:sectPr>';
-  return XML_HEAD + `<w:document ${NS}><w:body>${body.join('')}${sect}</w:body></w:document>`;
+  return XML_HEAD + `<w:document ${NS} ${NS_DRAW}><w:body>${body.join('')}${sect}</w:body></w:document>`;
 }
 
 const heading = (id, name, size, lvl, color = '1F2A44') => `<w:style w:type="paragraph" w:styleId="${id}"><w:name w:val="${name}"/><w:basedOn w:val="Normal"/><w:next w:val="Normal"/><w:uiPriority w:val="9"/><w:qFormat/>` +
@@ -98,8 +165,8 @@ function stylesXml() {
     '</w:styles>';
 }
 
-export function renderDocx({ markdown, title, language, date, diagramNote }) {
-  const doc = markdownToDocumentXml(markdown, { diagramNote });
+export function renderDocx({ markdown, title, language, date, diagramNote, diagrams }) {
+  const doc = markdownToDocumentXml(markdown, { diagramNote, diagrams });
   const files = [
     { name: '[Content_Types].xml', data: XML_HEAD + '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/>' +
       '<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>' +
