@@ -2,6 +2,7 @@
 
 ## Não lançado
 
+- Página inicial nova (README em português e inglês) ilustrada só com imagens geradas pelo próprio arqT; demo ao vivo no GitHub Pages.
 - DOCX com os diagramas desenhados em formas nativas do Word (vistas e fluxos), no lugar do aviso.
 - `/arqt pptx`: apresentação com capa, resumo executivo, um slide por vista (diagramas em formas nativas editáveis) e mapa de riscos.
 - `/arqt docx`: resumo executivo, arquitetura e sustentação em Word, gerados por OOXML próprio (zip com `node:zlib`, sem dependências), determinísticos; `publicar` copia os .docx quando existirem.

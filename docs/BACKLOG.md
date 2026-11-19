@@ -19,6 +19,8 @@ Estado atual, como desenvolver e o que vem a seguir. Atualizar este arquivo a ca
 - Prévia no navegador: configuração `preview` em `.claude/launch.json` (porta 4321).
 - Modelos de projetos privados usados em teste **não** são versionados; só as correções que eles motivarem.
 - Modelos de projetos open source com licença permissiva ficam em `tests/models/` e entram nos testes de validade e layout.
+- Imagens do README: `node tools/readme-images.mjs` (SVG dos modelos); capturas PNG em `docs/img/` feitas com Edge sem janela
+  (`--headless=new --window-size=1440,900 --screenshot`) sobre a demo servida por `tools/serve.mjs`.
 - Demo: regenerar com `node <skill>/scripts/build.mjs --now 2026-11-19T12:00:00Z --no-history` na cópia rasa do eShop
   (commit da tabela 2.1) e copiar `planta.html` e `docs/` para `docs/demo/eshop/`. Decisão: sem GitHub Pages por enquanto
   (mudaria configuração do repositório); a planta abre baixando a pasta.
@@ -51,7 +53,7 @@ Publicado em https://github.com/cwbdanielf/arqt. Pendentes: 1.2 (assinatura), 1.
 
 Rodar o `/arqt` em 5 repositórios open source de stacks diferentes e corrigir o que aparecer em análise, layout e textos.
 
-**Próximo passo:** frente 5 (página inicial de divulgação). Frente 3 (avaliação pelos colegas) e 2.6 adiadas por decisão do usuário.
+**Próximo passo:** 5.6 (revisão final) e divulgar. Pendências que dependem do usuário: enviar `docs/img/social-preview.png` em Settings → Social preview; 1.2 (assinatura das tags); frente 3 e 2.6 adiadas.
 
 | # | Item | Pronto quando |
 |---|---|---|
@@ -141,11 +143,11 @@ geradas pelo próprio arqT** a partir dos modelos de exemplo. Começa depois das
 
 | # | Item | Pronto quando |
 |---|---|---|
-| 5.1 | `tools/readme-images.mjs`: roda o build nos modelos de `tests/models/` e exporta as vistas (contexto, contêineres, componentes, um fluxo, mapa de riscos) como **SVG autocontido** (estilos embutidos, fontes do sistema), em tema claro e escuro, para `docs/img/` | um comando regenera todas as imagens; saída determinística |
-| 5.2 | Recortes dos documentos (resumo executivo, sustentação) e uma animação curta da planta (clique → painel, fluxo passo a passo), feitos a partir da demo | imagens ≤ 300 KB cada; animação ≤ 2 MB |
-| 5.3 | Reescrever o README seguindo o roteiro, com textos concisos em português e versão em inglês (`README.en.md`) | página revisada |
-| 5.4 | Planta viva: publicar `docs/demo/` no GitHub Pages (pedir aprovação: muda configuração do repositório) e apontar a imagem principal para ela | demo abre por link, sem baixar nada |
-| 5.5 | Imagem de compartilhamento (1280×640) a partir de uma vista, descrição e tópicos do repositório | prévia bonita ao colar o link |
+| 5.1 | ~~`tools/readme-images.mjs`: roda o build nos modelos de `tests/models/` e exporta as vistas (contexto, contêineres, componentes, um fluxo, mapa de riscos) como **SVG autocontido** (estilos embutidos, fontes do sistema), em tema claro e escuro, para `docs/img/`~~ (feito; teste falha se ficarem velhas) | um comando regenera todas as imagens; saída determinística |
+| 5.2 | ~~Recortes dos documentos (resumo executivo, sustentação) e uma animação curta da planta (clique → painel, fluxo passo a passo), feitos a partir da demo~~ (feito: capturas da planta e do resumo executivo com Edge sem janela, ≤ 170 KB; animação adiada — sem ferramenta de GIF sem dependências) | imagens ≤ 300 KB cada; animação ≤ 2 MB |
+| 5.3 | ~~Reescrever o README seguindo o roteiro, com textos concisos em português e versão em inglês (`README.en.md`)~~ (feito) | página revisada |
+| 5.4 | ~~Planta viva: publicar `docs/demo/` no GitHub Pages (pedir aprovação: muda configuração do repositório) e apontar a imagem principal para ela~~ (feito: Pages em main/docs, autorizado pelo usuário) | demo abre por link, sem baixar nada |
+| 5.5 | ~~Imagem de compartilhamento (1280×640) a partir de uma vista, descrição e tópicos do repositório~~ (feito; a imagem `docs/img/social-preview.png` precisa ser enviada em Settings → Social preview, sem API) | prévia bonita ao colar o link |
 | 5.6 | Revisão final: legível no tema escuro e no celular, links ok, imagens em dia com os modelos (teste que falha se estiverem velhas), regras de anonimato | checklist cumprido → divulgar |
 
 ## Fora de escopo

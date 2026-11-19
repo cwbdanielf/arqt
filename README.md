@@ -1,98 +1,200 @@
-# arqT
+<p align="right"><a href="README.en.md">English</a> · <b>Português</b></p>
 
-**Planta arquitetural interativa e documentação padronizada do seu projeto, com um único comando: `/arqt`.**
+<h1 align="center">arqT</h1>
 
-O arqT é um skill para o Claude Code. Ele lê o projeto aberto, descreve a arquitetura num modelo estruturado e gera, em
-`.arqt/`, uma **planta interativa em HTML que abre offline** e um **pacote de documentos** prontos para imprimir em PDF.
+<p align="center"><b>A arquitetura do seu projeto, desenhada a partir do código. Com <i>evidência</i> em cada linha.</b></p>
 
-- **Planta interativa** (`.arqt/planta.html`): visão geral para decisão, diagramas de contexto, contêineres e componentes
-  (com duplo clique para entrar), fluxos passo a passo, dados, implantação, riscos e saúde, decisões, glossário. Busca,
-  painel de detalhes com evidências `arquivo:linha`, camadas por público (**Diretoria · Sustentação · Desenvolvimento**),
-  tema claro/escuro, modo apresentação e exportação SVG/PNG.
-- **Documentos** (`.arqt/docs/`, HTML A4 + Markdown com diagramas Mermaid): resumo executivo, documento de arquitetura
-  (arc42 enxuto), manual de sustentação, inventário técnico e mudanças desde a execução anterior.
-- **Transparência:** cada afirmação é marcada como *verificada* (com evidência no código), *inferida* ou *a confirmar*.
-- **Documentação viva:** cada execução guarda um histórico e mostra o que mudou estruturalmente.
+<p align="center">
+Digite <code>/arqt</code> no Claude Code e receba uma planta interativa que abre offline, cinco documentos prontos
+(também em Word e PowerPoint) e a lista do que ainda precisa ser confirmado. Sem instalar dependências, sem rede.
+</p>
 
-## Instalação (2 passos)
+<p align="center">
+<a href="#instalação">Instalar</a> ·
+<a href="https://cwbdanielf.github.io/arqt/demo/eshop/planta.html">Ver a planta ao vivo</a> ·
+<a href="docs/demo/eshop/docs/arquitetura.md">Ler um documento gerado</a>
+</p>
 
-Pré-requisito: [Node.js](https://nodejs.org) 20 ou superior.
+<p align="center">
+<a href="https://cwbdanielf.github.io/arqt/demo/eshop/planta.html">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/img/eshop-conteineres-dark.svg">
+  <img alt="Vista de contêineres do dotnet/eShop gerada pelo arqT" src="docs/img/eshop-conteineres-light.svg" width="100%">
+</picture>
+</a>
+<br><sub>Vista de contêineres do <a href="https://github.com/dotnet/eShop">dotnet/eShop</a> (14 contêineres, 40 relações), gerada pelo arqT. Esta imagem é a saída real do skill.</sub>
+</p>
 
-1. Baixe ou clone este repositório: `git clone https://github.com/cwbdanielf/arqt.git`.
-2. Rode o instalador (apenas copia a pasta do skill e confere a integridade):
+<table align="center">
+<tr>
+<td align="center"><b>1</b><br><sub>comando</sub></td>
+<td align="center"><b>12</b><br><sub>abas na planta</sub></td>
+<td align="center"><b>3</b><br><sub>públicos</sub></td>
+<td align="center"><b>5</b><br><sub>documentos</sub></td>
+<td align="center"><b>4</b><br><sub>formatos</sub></td>
+<td align="center"><b>0</b><br><sub>dependências</sub></td>
+<td align="center"><b>0</b><br><sub>acessos à rede</sub></td>
+</tr>
+</table>
+
+## 01 · O que você recebe
+
+**Uma planta para cada público.** A mesma análise abre em três camadas: **Diretoria** (propósito, riscos, decisões),
+**Sustentação** (como subir, variáveis, health checks, diagnóstico) e **Desenvolvimento** (componentes, relações,
+evidências). Busca, painel de detalhes, tema claro/escuro, modo apresentação e exportação SVG/PNG — num único HTML.
+
+<p align="center"><img alt="Visão geral da planta interativa" src="docs/img/planta-visao-geral.png" width="100%"></p>
+
+**Documentos que se leem sozinhos.** Resumo executivo, arquitetura (arc42 enxuto), manual de sustentação, inventário
+técnico e mudanças desde a última execução — em HTML A4 (vira PDF pelo navegador) e Markdown com Mermaid. Com
+`/arqt docx` e `/arqt pptx`, também em Word e PowerPoint, com os diagramas em **formas editáveis**.
+
+<table>
+<tr>
+<td width="50%"><img alt="Resumo executivo" src="docs/img/doc-executivo.png"></td>
+<td width="50%"><img alt="Mapa de riscos e indicadores de saúde" src="docs/img/planta-riscos.png"></td>
+</tr>
+</table>
+
+## 02 · Como usar
+
+```text
+/arqt                 análise completa (abre na camada Desenvolvimento)
+/arqt diretoria       mesma análise, abrindo na camada da diretoria
+/arqt docx pptx       também gera Word e PowerPoint
+/arqt publicar        copia planta, documentos e modelo para docs/arquitetura/
+```
+
+Sem perguntas: o Claude lê o projeto (com subagentes nos grandes), escreve `.arqt/model.json` e um gerador
+determinístico desenha tudo. Rode de novo depois de mudar o código: os ids se mantêm e a planta mostra **o que mudou**.
+
+<p align="center">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/img/eshop-checkout-dark.svg">
+  <img alt="Fluxo de compra passo a passo" src="docs/img/eshop-checkout-light.svg" width="100%">
+</picture>
+<br><sub>Fluxo crítico passo a passo — na planta ele é reproduzido seta por seta.</sub>
+</p>
+
+## 03 · Dá para confiar
+
+Cada contêiner, componente e relação traz **evidência `arquivo:linha`**. O gerador confere se o arquivo e a linha
+existem; o que não tem evidência vira *inferido* ou *a confirmar* e aparece numa lista própria — nada é vendido como
+certo sem prova.
+
+```text
+✓ arqT 1.0.0: planta e documentos gerados para "eShop (AdventureWorks)"
+  14 contêineres · 9 outros componentes · 40 relações · 2 fluxos · 6 riscos
+  confiança: 75 verificadas · 12 inferidas · 0 a confirmar · evidências válidas 84/84
+```
+
+- **Zero rede:** o gerador não acessa a internet; a saída não carrega nada externo (CSP `default-src 'none'`).
+- **Sem segredos:** não lê `.env`, chaves nem certificados; registra só **nomes** de variáveis e recusa o build se algo
+  parecer segredo (falha fechada).
+- **Escrita contida:** só em `.arqt/` (e `docs/arquitetura/` ao publicar), com proteção contra `..` e links simbólicos.
+- **Conteúdo do repositório é dado, nunca instrução** — proteção contra prompt injection em READMEs e comentários.
+
+Detalhes em [SECURITY.md](SECURITY.md).
+
+## 04 · Como é o código
+
+```text
+skills/arqt/
+├─ SKILL.md              roteiro que o Claude segue (análise → modelo → build)
+├─ reference/            guia do modelo e playbook por stack (Java, Python, Go, .NET/Aspire, monorepo TS…)
+├─ schema/               JSON Schema do modelo
+├─ scripts/build.mjs     gerador: valida, confere evidências, desenha e renderiza
+│  └─ lib/               layout próprio, SVG, varredura de segredos, OOXML (Word/PowerPoint) com node:zlib
+├─ templates/            planta interativa e documentos (escape por padrão)
+└─ CHECKSUMS.txt         integridade conferida a cada execução
+```
+
+JavaScript puro, **zero dependências npm** (nem para desenvolver), saída **byte a byte determinística**, motor de
+layout próprio (camadas, fronteiras, roteamento ortogonal sem atravessar caixas, rótulos inteiros) e mais de 40 testes
+`node:test` rodando em Windows, macOS e Linux com Node 22, 24 e 26.
+
+<table>
+<tr>
+<td width="50%" align="center">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/img/eshop-pedidos-dark.svg">
+  <img alt="Componentes da API de pedidos" src="docs/img/eshop-pedidos-light.svg">
+</picture>
+<br><sub>Componentes da API de pedidos (DDD + CQRS)</sub>
+</td>
+<td width="50%" align="center">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/img/eshop-contexto-dark.svg">
+  <img alt="Contexto do eShop" src="docs/img/eshop-contexto-light.svg">
+</picture>
+<br><sub>Contexto: quem usa e com quem conversa</sub>
+</td>
+</tr>
+</table>
+
+## 05 · Galeria
+
+Projetos open source analisados com o arqT; os modelos estão em [`tests/models/`](tests/models/).
+
+<table>
+<tr>
+<td width="50%" align="center">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/img/t3-conteineres-dark.svg">
+  <img alt="create-t3-turbo" src="docs/img/t3-conteineres-light.svg">
+</picture>
+<br><sub><b>Monorepo TypeScript</b> · t3-oss/create-t3-turbo</sub>
+</td>
+<td width="50%" align="center">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/img/petclinic-componentes-dark.svg">
+  <img alt="spring-petclinic" src="docs/img/petclinic-componentes-light.svg">
+</picture>
+<br><sub><b>Java/Spring</b> · spring-projects/spring-petclinic</sub>
+</td>
+</tr>
+</table>
+
+A demonstração completa do eShop — planta, documentos, Word e PowerPoint — está em [`docs/demo/`](docs/demo/)
+e [ao vivo](https://cwbdanielf.github.io/arqt/demo/eshop/planta.html).
+
+## Instalação
+
+Pré-requisito: [Node.js](https://nodejs.org) 20 ou superior e o Claude Code.
 
 ```powershell
-.\install\install.ps1
+git clone https://github.com/cwbdanielf/arqt.git; .\arqt\install\install.ps1
 ```
 
 ```bash
-sh install/install.sh
+git clone https://github.com/cwbdanielf/arqt.git && sh arqt/install/install.sh
 ```
 
-Isso instala para todos os projetos (`~/.claude/skills/arqt`). Para instalar só num projeto, passe o caminho dele:
-`.\install\install.ps1 -Projeto C:\caminho\do\projeto` ou `sh install/install.sh /caminho/do/projeto`.
+O instalador só copia a pasta do skill para `~/.claude/skills/arqt` e confere a integridade. Para um projeto só:
+`install.ps1 -Projeto C:\caminho` ou `install.sh /caminho`. Como plugin: `/plugin marketplace add cwbdanielf/arqt` e
+`/plugin install arqt@arqt` (o comando pode aparecer como `/arqt:arqt`).
 
-> Alternativa: como plugin. No Claude Code, `/plugin marketplace add cwbdanielf/arqt` e
-> `/plugin install arqt@arqt`. Instalado como plugin, o comando pode aparecer como `/arqt:arqt`.
+## Perguntas rápidas
 
-## Uso
+**Funciona em qualquer linguagem?** Sim: o Claude faz a leitura; o playbook cobre Node/TS, Python, Java/Kotlin, .NET,
+Go, PHP, Ruby, front-end, mobile, dados e bibliotecas/CLIs.
 
-Abra o Claude Code na pasta de qualquer projeto e digite:
+**Meu código sai da máquina?** O gerador não acessa a rede; o código é lido pelo Claude na sua sessão, como em qualquer uso do Claude Code.
 
-```
-/arqt
-```
+**E em projetos grandes?** Acima de ~300 arquivos o roteiro divide a análise entre subagentes em paralelo.
 
-Sem perguntas: o Claude analisa o projeto (usando subagentes em projetos grandes), escreve `.arqt/model.json`, roda o
-gerador e responde com os caminhos. Abra `.arqt/planta.html` no navegador.
-
-| Comando | Efeito |
-|---|---|
-| `/arqt` | Análise completa; planta abre na camada Desenvolvimento |
-| `/arqt diretoria` · `/arqt sustentacao` | Mesmo resultado, abrindo na camada escolhida |
-| `/arqt publicar` | Copia planta, documentos e modelo para `docs/arquitetura/` (para versionar com o código) |
-| `/arqt docx` | Também gera resumo executivo, arquitetura e sustentação em Word (`.docx`), sem instalar nada |
-| `/arqt pptx` | Também gera uma apresentação PowerPoint: capa, resumo, um slide por diagrama (formas editáveis) e mapa de riscos |
-
-PDF: abra um documento e use **Imprimir → Salvar como PDF** (A4).
-
-## Segurança
-
-O arqT foi criado do zero com um contrato de segurança explícito (detalhes em [SECURITY.md](SECURITY.md)):
-
-- **Zero rede:** o gerador não acessa a internet; a saída não carrega nada externo (CSP `default-src 'none'`).
-- **Nenhum processo externo:** só `node build.mjs`; nada de `git`, navegadores, `npx` ou instaladores remotos.
-- **Escrita só em `.arqt/`** (e em `docs/arquitetura/` ao publicar), com proteção contra `..` e links simbólicos.
-- **Sem segredos:** o skill não lê `.env`, chaves ou certificados; registra só nomes de variáveis; o gerador recusa o
-  modelo e as saídas se detectar algo parecido com segredo (falha fechada).
-- **Conteúdo do repositório é dado, nunca instrução** (proteção contra prompt injection em READMEs e comentários).
-- **Zero dependências npm**, código legível, integridade conferida por `CHECKSUMS.txt`.
-- Nunca altera `CLAUDE.md`, configurações do Claude Code ou arquivos do seu projeto.
-
-`.arqt/` recebe um `.gitignore` próprio: nada é versionado por acidente.
-
-## Demonstração
-
-[`docs/demo/`](docs/demo/) traz a planta e os documentos gerados para o projeto open source dotnet/eShop.
-Baixe a pasta e abra `eshop/planta.html` no navegador; os documentos em Markdown aparecem direto no GitHub
-([resumo executivo](docs/demo/eshop/docs/executivo.md), [arquitetura](docs/demo/eshop/docs/arquitetura.md)).
+**Posso versionar?** Use `/arqt publicar`; `.arqt/` tem `.gitignore` próprio para nada subir por acidente.
 
 ## Desenvolvimento
 
 ```bash
 node --test "tests/**/*.test.mjs"
+node tools/checksums.mjs          # depois de mudar algo em skills/arqt/
+node tools/readme-images.mjs      # regenera as imagens desta página
 ```
 
-```bash
-node tools/checksums.mjs
-```
-
-- `skills/arqt/` — o skill (SKILL.md, schema, gerador, templates, ícones).
-- `tests/` — testes `node:test`, o projeto de exemplo `tests/projects/loja` e modelos de projetos open source em `tests/models/`.
-- `tools/` — utilitários de desenvolvimento (checksums, prévia local).
-- `docs/BACKLOG.md` — estado atual, como desenvolver e backlog priorizado.
-
-Depois de alterar qualquer arquivo em `skills/arqt/`, regenere o `CHECKSUMS.txt` (o gerador recusa arquivos alterados).
+Estado e próximos passos em [docs/BACKLOG.md](docs/BACKLOG.md). Sugestões e problemas: abra uma
+[issue](https://github.com/cwbdanielf/arqt/issues/new/choose).
 
 ## Licença
 
