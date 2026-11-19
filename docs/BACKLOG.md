@@ -31,7 +31,7 @@ Estado atual, como desenvolver e o que vem a seguir. Atualizar este arquivo a ca
 
 ## Backlog priorizado
 
-Ordem de execução: **1 → 2 → 3 → 4**. Cada frente termina com testes passando, checksums atualizados, CHANGELOG e um commit.
+Ordem de execução: **1 → 2 → 3 → 4 → 5**. A frente 5 (página inicial) é a **última antes de divulgar** o repositório. Cada frente termina com testes passando, checksums atualizados, CHANGELOG e um commit.
 
 ### 1. Publicação (v1.0.0)
 
@@ -117,6 +117,33 @@ Gerados por OOXML próprio (XML + zip via `node:zlib`), sem dependências e sem 
 | 4.3 | `/arqt pptx`: resumo executivo, 1 slide por vista (contexto, contêineres, componentes) e mapa de riscos; diagramas como formas nativas a partir das coordenadas do motor de layout | abre sem aviso no PowerPoint e no LibreOffice |
 | 4.4 | Testes de determinismo (bytes idênticos com `--now` fixo) e de segurança (escape de texto do modelo em XML) | testes passando |
 | 4.5 | Documentar no README e no `SKILL.md` | comandos documentados |
+
+### 5. Página inicial de divulgação (v1.4 — última etapa antes de divulgar)
+
+O README vira a página inicial do repositório: curta, elegante e convincente em 30 segundos, ilustrada **só com imagens
+geradas pelo próprio arqT** a partir dos modelos de exemplo. Começa depois das frentes 1–4, para mostrar o skill pronto.
+
+**Roteiro da página (de cima para baixo)**
+1. **Abertura:** nome, uma promessa de uma linha com uma palavra em destaque, um parágrafo do que o skill entrega
+   (`/arqt` → planta interativa + 5 documentos, offline) e a instalação em 2 comandos copiáveis. Logo abaixo, a **imagem
+   principal**: a vista de contêineres do eShop, clara e escura (`<picture>` com `prefers-color-scheme`), com link para a planta viva.
+2. **Faixa de números:** vistas, públicos, documentos, checagens do gerador, 0 dependências, 0 acesso à rede.
+3. **Seções numeradas, 2–4 linhas cada, uma imagem por seção:**
+   - 01 O que você recebe — planta por público e documentos (recortes do resumo executivo e do manual de sustentação);
+   - 02 Como usar — `/arqt`, `/arqt diretoria`, `/arqt publicar`, modo incremental com resumo de mudanças;
+   - 03 Dá para confiar — evidências `arquivo:linha`, verificado/inferido/a confirmar, varredura de segredos, saída real do build;
+   - 04 Como é o código — estrutura em árvore, zero dependências, saída determinística, `CHECKSUMS.txt`, regras de segurança;
+   - 05 Galeria — eShop (.NET), monorepo TypeScript e loja de exemplo, em miniaturas que abrem a demo.
+4. **Fecho:** perguntas frequentes curtas, licença e como dar feedback.
+
+| # | Item | Pronto quando |
+|---|---|---|
+| 5.1 | `tools/readme-images.mjs`: roda o build nos modelos de `tests/models/` e exporta as vistas (contexto, contêineres, componentes, um fluxo, mapa de riscos) como **SVG autocontido** (estilos embutidos, fontes do sistema), em tema claro e escuro, para `docs/img/` | um comando regenera todas as imagens; saída determinística |
+| 5.2 | Recortes dos documentos (resumo executivo, sustentação) e uma animação curta da planta (clique → painel, fluxo passo a passo), feitos a partir da demo | imagens ≤ 300 KB cada; animação ≤ 2 MB |
+| 5.3 | Reescrever o README seguindo o roteiro, com textos concisos em português e versão em inglês (`README.en.md`) | página revisada |
+| 5.4 | Planta viva: publicar `docs/demo/` no GitHub Pages (pedir aprovação: muda configuração do repositório) e apontar a imagem principal para ela | demo abre por link, sem baixar nada |
+| 5.5 | Imagem de compartilhamento (1280×640) a partir de uma vista, descrição e tópicos do repositório | prévia bonita ao colar o link |
+| 5.6 | Revisão final: legível no tema escuro e no celular, links ok, imagens em dia com os modelos (teste que falha se estiverem velhas), regras de anonimato | checklist cumprido → divulgar |
 
 ## Fora de escopo
 
