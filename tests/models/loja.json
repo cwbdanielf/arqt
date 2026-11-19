@@ -1,0 +1,116 @@
+{
+  "meta": { "schemaVersion": 1, "language": "pt-BR", "scope": "." },
+  "system": {
+    "name": "Loja Aurora",
+    "purpose": "Plataforma de comércio eletrônico para venda de produtos artesanais, com catálogo, carrinho, pagamento e acompanhamento de entregas.",
+    "summary": "Monólito modular em Node.js exposto por uma API REST, consumido por uma SPA React para clientes e por um painel administrativo. Pedidos são processados de forma assíncrona por um worker que integra pagamento, nota fiscal e transportadora.",
+    "businessCapabilities": ["Catálogo de produtos", "Carrinho e checkout", "Pagamentos", "Logística e entregas", "Gestão de estoque", "Notificações ao cliente"],
+    "stack": ["TypeScript", "Node.js 22", "Express", "React 19", "PostgreSQL 16", "Redis", "RabbitMQ", "Docker Compose"],
+    "qualityGoals": [
+      { "name": "Disponibilidade no checkout", "description": "Checkout não pode depender de serviços externos de forma síncrona além do gateway de pagamento.", "confidence": "inferred" },
+      { "name": "Rastreabilidade de pedidos", "description": "Todo pedido mantém histórico de estados auditável.", "confidence": "verified" }
+    ]
+  },
+  "actors": [
+    { "id": "cliente", "name": "Cliente", "kind": "person", "description": "Compra produtos pelo site e acompanha pedidos.", "confidence": "verified" },
+    { "id": "operador", "name": "Operador da loja", "kind": "person", "description": "Cadastra produtos, ajusta estoque e acompanha pedidos.", "confidence": "verified" },
+    { "id": "stripe", "name": "Stripe", "kind": "external-system", "tech": "API REST", "description": "Processa pagamentos com cartão e Pix.", "confidence": "verified" },
+    { "id": "sendgrid", "name": "SendGrid", "kind": "external-system", "tech": "API REST", "description": "Envio de e-mails transacionais.", "confidence": "verified" },
+    { "id": "correios", "name": "Correios", "kind": "external-system", "tech": "SOAP", "description": "Cálculo de frete e rastreamento.", "confidence": "inferred" },
+    { "id": "sefaz", "name": "SEFAZ (NF-e)", "kind": "external-system", "tech": "Webservice", "description": "Emissão de nota fiscal eletrônica.", "confidence": "unconfirmed" }
+  ],
+  "boundaries": [
+    { "id": "frontend", "name": "Front-end", "kind": "layer" },
+    { "id": "backend", "name": "Back-end", "kind": "layer" },
+    { "id": "dados", "name": "Dados e mensageria", "kind": "layer" }
+  ],
+  "components": [
+    { "id": "web", "name": "Loja (SPA)", "kind": "ui", "boundary": "frontend", "tech": "React 19 · Vite", "responsibility": "Vitrine, carrinho, checkout e área do cliente.", "sources": [{ "path": "apps/web/src/main.tsx", "line": 1 }], "ops": { "start": "npm run dev -w apps/web", "config": ["VITE_API_URL"], "ports": [5173], "tests": "detected" }, "confidence": "verified" },
+    { "id": "admin", "name": "Painel administrativo", "kind": "ui", "boundary": "frontend", "tech": "React 19", "responsibility": "Cadastro de produtos, estoque e acompanhamento de pedidos.", "sources": [{ "path": "apps/admin/src/main.tsx", "line": 1 }], "ops": { "start": "npm run dev -w apps/admin", "config": ["VITE_API_URL"], "ports": [5174], "tests": "absent" }, "confidence": "verified" },
+    { "id": "api", "name": "API da loja", "kind": "service", "boundary": "backend", "tech": "Node.js 22 · Express", "responsibility": "Expõe a API REST de catálogo, carrinho, pedidos e autenticação.", "sources": [{ "path": "apps/api/src/server.ts", "line": 12 }], "ops": { "start": "npm run start -w apps/api", "config": ["DATABASE_URL", "REDIS_URL", "AMQP_URL", "JWT_SECRET", "STRIPE_API_KEY"], "ports": [3000], "logs": "stdout em JSON (pino)", "health": "GET /health", "tests": "detected", "failureModes": [{ "symptom": "Respostas 503 no checkout", "probableCause": "Stripe indisponível ou chave inválida", "action": "Verificar status do Stripe e a variável STRIPE_API_KEY" }, { "symptom": "Login lento", "probableCause": "Redis fora do ar (sessões)", "action": "Checar REDIS_URL e o container redis" }] }, "confidence": "verified" },
+    { "id": "worker", "name": "Worker de pedidos", "kind": "job", "boundary": "backend", "tech": "Node.js 22", "responsibility": "Processa eventos de pedido: confirma pagamento, emite NF-e, agenda entrega e notifica o cliente.", "sources": [{ "path": "apps/worker/src/index.ts", "line": 5 }], "ops": { "start": "npm run start -w apps/worker", "config": ["DATABASE_URL", "AMQP_URL", "SENDGRID_API_KEY", "CORREIOS_USER"], "logs": "stdout", "tests": "absent" }, "confidence": "verified" },
+    { "id": "db", "name": "Banco principal", "kind": "db", "boundary": "dados", "tech": "PostgreSQL 16", "responsibility": "Produtos, clientes, pedidos e estoque.", "sources": [{ "path": "docker-compose.yml", "line": 3 }], "ops": { "ports": [5432] }, "confidence": "verified" },
+    { "id": "cache", "name": "Cache e sessões", "kind": "cache", "boundary": "dados", "tech": "Redis 7", "responsibility": "Sessões de usuário e cache de catálogo.", "sources": [{ "path": "docker-compose.yml", "line": 14 }], "ops": { "ports": [6379] }, "confidence": "verified" },
+    { "id": "mq", "name": "Fila de eventos", "kind": "queue", "boundary": "dados", "tech": "RabbitMQ", "responsibility": "Eventos de domínio (pedido criado, pago, enviado).", "sources": [{ "path": "docker-compose.yml", "line": 20 }], "ops": { "ports": [5672, 15672] }, "confidence": "verified" },
+    { "id": "auth", "name": "Autenticação", "parent": "api", "kind": "lib", "tech": "JWT", "responsibility": "Login, emissão e validação de tokens.", "sources": [{ "path": "apps/api/src/auth/index.ts", "line": 1 }], "confidence": "verified" },
+    { "id": "catalogo", "name": "Catálogo", "parent": "api", "kind": "service", "responsibility": "Consulta e cadastro de produtos com cache.", "sources": [{ "path": "apps/api/src/catalog/router.ts", "line": 1 }], "confidence": "verified" },
+    { "id": "carrinho", "name": "Carrinho", "parent": "api", "kind": "service", "responsibility": "Itens do carrinho e cálculo de frete.", "sources": [{ "path": "apps/api/src/cart/router.ts", "line": 1 }], "confidence": "verified" },
+    { "id": "pedidos", "name": "Pedidos", "parent": "api", "kind": "service", "responsibility": "Criação de pedidos, histórico de estados e publicação de eventos.", "sources": [{ "path": "apps/api/src/orders/router.ts", "line": 1 }], "confidence": "verified" },
+    { "id": "pagamentos", "name": "Pagamentos", "parent": "api", "kind": "service", "responsibility": "Cria intenções de pagamento e recebe webhooks do Stripe.", "sources": [{ "path": "apps/api/src/payments/stripe.ts", "line": 8 }], "confidence": "verified" }
+  ],
+  "relations": [
+    { "from": "cliente", "to": "web", "label": "Navega e compra", "protocol": "HTTPS", "confidence": "verified" },
+    { "from": "operador", "to": "admin", "label": "Administra a loja", "protocol": "HTTPS", "confidence": "verified" },
+    { "from": "web", "to": "auth", "label": "Login", "protocol": "REST/JSON", "confidence": "verified" },
+    { "from": "web", "to": "catalogo", "label": "Consulta produtos", "protocol": "REST/JSON", "confidence": "verified" },
+    { "from": "web", "to": "carrinho", "label": "Gerencia carrinho", "protocol": "REST/JSON", "confidence": "verified" },
+    { "from": "web", "to": "pedidos", "label": "Finaliza pedido", "protocol": "REST/JSON", "confidence": "verified" },
+    { "from": "admin", "to": "catalogo", "label": "Cadastra produtos", "protocol": "REST/JSON", "confidence": "verified" },
+    { "from": "admin", "to": "pedidos", "label": "Acompanha pedidos", "protocol": "REST/JSON", "confidence": "verified" },
+    { "from": "auth", "to": "cache", "label": "Sessões", "protocol": "RESP", "confidence": "verified" },
+    { "from": "catalogo", "to": "cache", "label": "Cache de catálogo", "protocol": "RESP", "confidence": "verified" },
+    { "from": "catalogo", "to": "db", "label": "Lê/grava produtos", "protocol": "SQL", "confidence": "verified" },
+    { "from": "carrinho", "to": "correios", "label": "Calcula frete", "protocol": "SOAP", "confidence": "inferred" },
+    { "from": "carrinho", "to": "catalogo", "label": "Preço e estoque", "confidence": "verified" },
+    { "from": "pedidos", "to": "db", "label": "Grava pedidos", "protocol": "SQL", "confidence": "verified" },
+    { "from": "pedidos", "to": "pagamentos", "label": "Inicia pagamento", "confidence": "verified" },
+    { "from": "pedidos", "to": "mq", "label": "Publica eventos", "protocol": "AMQP", "async": true, "confidence": "verified" },
+    { "from": "pagamentos", "to": "stripe", "label": "Cobra cartão/Pix", "protocol": "HTTPS", "confidence": "verified" },
+    { "from": "stripe", "to": "pagamentos", "label": "Webhook de pagamento", "protocol": "HTTPS", "confidence": "verified" },
+    { "from": "mq", "to": "worker", "label": "Entrega eventos", "protocol": "AMQP", "async": true, "confidence": "verified" },
+    { "from": "worker", "to": "db", "label": "Atualiza estado", "protocol": "SQL", "confidence": "verified" },
+    { "from": "worker", "to": "sendgrid", "label": "E-mails ao cliente", "protocol": "HTTPS", "confidence": "verified" },
+    { "from": "worker", "to": "sefaz", "label": "Emite NF-e", "protocol": "SOAP", "confidence": "unconfirmed" },
+    { "from": "worker", "to": "correios", "label": "Agenda coleta", "protocol": "SOAP", "confidence": "inferred" }
+  ],
+  "flows": [
+    { "id": "checkout", "name": "Checkout com cartão", "description": "Do clique em finalizar até a confirmação ao cliente.", "confidence": "verified", "steps": [
+      { "from": "cliente", "to": "web", "label": "Finaliza compra" },
+      { "from": "web", "to": "pedidos", "label": "POST /orders" },
+      { "from": "pedidos", "to": "db", "label": "INSERT pedido (pendente)" },
+      { "from": "pedidos", "to": "pagamentos", "label": "Cria intenção de pagamento" },
+      { "from": "pagamentos", "to": "stripe", "label": "PaymentIntent" },
+      { "from": "stripe", "to": "pagamentos", "label": "Webhook: pago", "async": true },
+      { "from": "pagamentos", "to": "mq", "label": "Evento pedido.pago", "async": true },
+      { "from": "mq", "to": "worker", "label": "Consome evento", "async": true },
+      { "from": "worker", "to": "sendgrid", "label": "E-mail de confirmação" }
+    ] }
+  ],
+  "deployment": [
+    { "id": "local", "environment": "Desenvolvimento local", "description": "docker compose up sobe toda a stack.", "confidence": "verified", "nodes": [
+      { "id": "compose", "name": "Docker Compose", "kind": "container runtime", "hosts": ["api", "worker", "db", "cache", "mq"] },
+      { "id": "vite", "name": "Vite dev server", "kind": "processo local", "hosts": ["web", "admin"] }
+    ] }
+  ],
+  "data": [
+    { "id": "produto", "name": "Produto", "store": "db", "fields": ["id", "nome", "preco", "estoque", "categoria"], "confidence": "verified" },
+    { "id": "pedido", "name": "Pedido", "store": "db", "fields": ["id", "cliente_id", "status", "total", "criado_em"], "confidence": "verified" }
+  ],
+  "constraints": [
+    { "kind": "regulatory", "text": "Emissão de NF-e obrigatória para todas as vendas.", "confidence": "inferred" },
+    { "kind": "technical", "text": "Monorepo com workspaces npm; Node.js 22.", "confidence": "verified" }
+  ],
+  "decisions": [
+    { "id": "adr-1", "title": "Processamento assíncrono de pedidos via RabbitMQ", "context": "Integrações lentas (NF-e, Correios) não podem bloquear o checkout.", "decision": "Publicar eventos de domínio e processá-los em um worker separado.", "consequences": "Maior resiliência; exige monitorar a fila e tratar reprocessamento.", "confidence": "inferred" },
+    { "id": "adr-2", "title": "Sessões em Redis", "context": "API precisa escalar horizontalmente.", "decision": "Armazenar sessões e cache de catálogo no Redis.", "confidence": "verified" }
+  ],
+  "risks": [
+    { "id": "r-nfe", "title": "Integração de NF-e sem evidência de retentativa", "component": "worker", "impact": 3, "likelihood": 2, "evidence": "Nenhum tratamento de erro encontrado na chamada à SEFAZ.", "recommendation": "Adicionar retentativa com backoff e fila de mensagens mortas.", "confidence": "unconfirmed" },
+    { "id": "r-db", "title": "Banco único sem réplica", "component": "db", "impact": 3, "likelihood": 1, "evidence": "docker-compose define uma única instância.", "recommendation": "Planejar réplica de leitura e backups automáticos.", "confidence": "inferred" },
+    { "id": "r-tests", "title": "Painel e worker sem testes", "component": "worker", "impact": 2, "likelihood": 3, "evidence": "Nenhum arquivo de teste em apps/worker e apps/admin.", "recommendation": "Cobrir o processamento de eventos com testes de integração.", "confidence": "verified" }
+  ],
+  "inventory": {
+    "languages": [{ "name": "TypeScript", "share": 86 }, { "name": "SQL", "share": 6 }, { "name": "CSS", "share": 8 }],
+    "frameworks": ["Express 4", "React 19", "Vite 6", "pino", "amqplib", "ioredis"],
+    "dependencies": [
+      { "name": "express", "version": "4.21.2", "pinned": true, "license": "MIT", "scope": "runtime", "source": "apps/api/package.json" },
+      { "name": "stripe", "version": "^17.0.0", "pinned": false, "license": "MIT", "scope": "runtime", "source": "apps/api/package.json" },
+      { "name": "react", "version": "19.0.0", "pinned": true, "license": "MIT", "scope": "runtime", "source": "apps/web/package.json" }
+    ]
+  },
+  "glossary": [
+    { "term": "NF-e", "definition": "Nota fiscal eletrônica emitida junto à SEFAZ." },
+    { "term": "PaymentIntent", "definition": "Objeto do Stripe que representa uma tentativa de cobrança." }
+  ],
+  "openQuestions": ["A emissão de NF-e é feita pelo worker ou por um sistema externo de ERP?"]
+}

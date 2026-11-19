@@ -1,0 +1,271 @@
+{
+  "$id": "arqt/model.schema.json",
+  "title": "arqT model v1",
+  "type": "object",
+  "required": ["meta", "system", "components"],
+  "additionalProperties": false,
+  "properties": {
+    "meta": {
+      "type": "object",
+      "required": ["schemaVersion"],
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": { "const": 1 },
+        "language": { "enum": ["pt-BR", "en"] },
+        "scope": { "type": "string", "maxLength": 300 },
+        "generatedAt": { "type": "string" },
+        "arqtVersion": { "type": "string" },
+        "commit": { "type": "string" },
+        "branch": { "type": "string" },
+        "analyzedFiles": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "system": {
+      "type": "object",
+      "required": ["name", "purpose"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "$ref": "#/$defs/name" },
+        "purpose": { "$ref": "#/$defs/text" },
+        "summary": { "$ref": "#/$defs/longText" },
+        "businessCapabilities": { "type": "array", "maxItems": 30, "items": { "$ref": "#/$defs/name" } },
+        "stack": { "type": "array", "maxItems": 40, "items": { "$ref": "#/$defs/name" } },
+        "qualityGoals": {
+          "type": "array", "maxItems": 12,
+          "items": {
+            "type": "object", "required": ["name", "description"], "additionalProperties": false,
+            "properties": { "name": { "$ref": "#/$defs/name" }, "description": { "$ref": "#/$defs/text" }, "confidence": { "$ref": "#/$defs/confidence" } }
+          }
+        }
+      }
+    },
+    "actors": {
+      "type": "array", "maxItems": 60,
+      "items": {
+        "type": "object", "required": ["id", "name", "kind"], "additionalProperties": false,
+        "properties": {
+          "id": { "$ref": "#/$defs/id" },
+          "name": { "$ref": "#/$defs/name" },
+          "kind": { "enum": ["person", "external-system"] },
+          "description": { "$ref": "#/$defs/text" },
+          "tech": { "$ref": "#/$defs/name" },
+          "sources": { "$ref": "#/$defs/sources" },
+          "confidence": { "$ref": "#/$defs/confidence" }
+        }
+      }
+    },
+    "boundaries": {
+      "type": "array", "maxItems": 40,
+      "items": {
+        "type": "object", "required": ["id", "name"], "additionalProperties": false,
+        "properties": {
+          "id": { "$ref": "#/$defs/id" },
+          "name": { "$ref": "#/$defs/name" },
+          "kind": { "enum": ["system", "network", "environment", "domain", "layer"] },
+          "description": { "$ref": "#/$defs/text" }
+        }
+      }
+    },
+    "components": {
+      "type": "array", "minItems": 1, "maxItems": 400,
+      "items": {
+        "type": "object", "required": ["id", "name", "kind", "responsibility"], "additionalProperties": false,
+        "properties": {
+          "id": { "$ref": "#/$defs/id" },
+          "name": { "$ref": "#/$defs/name" },
+          "level": { "enum": ["container", "component"] },
+          "parent": { "$ref": "#/$defs/id" },
+          "kind": { "enum": ["service", "ui", "db", "queue", "job", "lib", "cache", "storage", "gateway", "function", "external"] },
+          "boundary": { "$ref": "#/$defs/id" },
+          "responsibility": { "$ref": "#/$defs/text" },
+          "tech": { "$ref": "#/$defs/name" },
+          "sources": { "$ref": "#/$defs/sources" },
+          "ops": {
+            "type": "object", "additionalProperties": false,
+            "properties": {
+              "start": { "$ref": "#/$defs/text" },
+              "build": { "$ref": "#/$defs/text" },
+              "test": { "$ref": "#/$defs/text" },
+              "config": { "type": "array", "maxItems": 80, "items": { "type": "string", "pattern": "^[A-Za-z_][A-Za-z0-9_.]*$", "maxLength": 80 } },
+              "ports": { "type": "array", "maxItems": 20, "items": { "type": ["integer", "string"] } },
+              "logs": { "$ref": "#/$defs/text" },
+              "health": { "$ref": "#/$defs/text" },
+              "schedule": { "$ref": "#/$defs/text" },
+              "tests": { "enum": ["detected", "absent", "unknown"] },
+              "failureModes": {
+                "type": "array", "maxItems": 15,
+                "items": {
+                  "type": "object", "required": ["symptom", "action"], "additionalProperties": false,
+                  "properties": { "symptom": { "$ref": "#/$defs/text" }, "probableCause": { "$ref": "#/$defs/text" }, "action": { "$ref": "#/$defs/text" } }
+                }
+              }
+            }
+          },
+          "tags": { "type": "array", "maxItems": 10, "items": { "$ref": "#/$defs/name" } },
+          "confidence": { "$ref": "#/$defs/confidence" }
+        }
+      }
+    },
+    "relations": {
+      "type": "array", "maxItems": 1500,
+      "items": {
+        "type": "object", "required": ["from", "to"], "additionalProperties": false,
+        "properties": {
+          "id": { "$ref": "#/$defs/id" },
+          "from": { "$ref": "#/$defs/id" },
+          "to": { "$ref": "#/$defs/id" },
+          "label": { "$ref": "#/$defs/name" },
+          "protocol": { "$ref": "#/$defs/name" },
+          "async": { "type": "boolean" },
+          "sources": { "$ref": "#/$defs/sources" },
+          "confidence": { "$ref": "#/$defs/confidence" }
+        }
+      }
+    },
+    "flows": {
+      "type": "array", "maxItems": 12,
+      "items": {
+        "type": "object", "required": ["id", "name", "steps"], "additionalProperties": false,
+        "properties": {
+          "id": { "$ref": "#/$defs/id" },
+          "name": { "$ref": "#/$defs/name" },
+          "description": { "$ref": "#/$defs/text" },
+          "steps": {
+            "type": "array", "minItems": 1, "maxItems": 40,
+            "items": {
+              "type": "object", "required": ["from", "to", "label"], "additionalProperties": false,
+              "properties": {
+                "from": { "$ref": "#/$defs/id" }, "to": { "$ref": "#/$defs/id" },
+                "label": { "$ref": "#/$defs/name" }, "async": { "type": "boolean" }, "reply": { "type": "boolean" },
+                "note": { "$ref": "#/$defs/text" }
+              }
+            }
+          },
+          "sources": { "$ref": "#/$defs/sources" },
+          "confidence": { "$ref": "#/$defs/confidence" }
+        }
+      }
+    },
+    "deployment": {
+      "type": "array", "maxItems": 10,
+      "items": {
+        "type": "object", "required": ["id", "environment", "nodes"], "additionalProperties": false,
+        "properties": {
+          "id": { "$ref": "#/$defs/id" },
+          "environment": { "$ref": "#/$defs/name" },
+          "description": { "$ref": "#/$defs/text" },
+          "nodes": {
+            "type": "array", "maxItems": 40,
+            "items": {
+              "type": "object", "required": ["id", "name"], "additionalProperties": false,
+              "properties": {
+                "id": { "$ref": "#/$defs/id" }, "name": { "$ref": "#/$defs/name" },
+                "kind": { "$ref": "#/$defs/name" }, "hosts": { "type": "array", "items": { "$ref": "#/$defs/id" } }
+              }
+            }
+          },
+          "sources": { "$ref": "#/$defs/sources" },
+          "confidence": { "$ref": "#/$defs/confidence" }
+        }
+      }
+    },
+    "data": {
+      "type": "array", "maxItems": 80,
+      "items": {
+        "type": "object", "required": ["id", "name"], "additionalProperties": false,
+        "properties": {
+          "id": { "$ref": "#/$defs/id" }, "name": { "$ref": "#/$defs/name" },
+          "store": { "$ref": "#/$defs/id" }, "description": { "$ref": "#/$defs/text" },
+          "fields": { "type": "array", "maxItems": 60, "items": { "$ref": "#/$defs/name" } },
+          "sources": { "$ref": "#/$defs/sources" }, "confidence": { "$ref": "#/$defs/confidence" }
+        }
+      }
+    },
+    "constraints": {
+      "type": "array", "maxItems": 30,
+      "items": {
+        "type": "object", "required": ["text"], "additionalProperties": false,
+        "properties": {
+          "id": { "$ref": "#/$defs/id" }, "kind": { "enum": ["technical", "organizational", "regulatory"] },
+          "text": { "$ref": "#/$defs/text" }, "sources": { "$ref": "#/$defs/sources" }, "confidence": { "$ref": "#/$defs/confidence" }
+        }
+      }
+    },
+    "decisions": {
+      "type": "array", "maxItems": 30,
+      "items": {
+        "type": "object", "required": ["id", "title", "decision"], "additionalProperties": false,
+        "properties": {
+          "id": { "$ref": "#/$defs/id" }, "title": { "$ref": "#/$defs/name" },
+          "context": { "$ref": "#/$defs/text" }, "decision": { "$ref": "#/$defs/text" },
+          "consequences": { "$ref": "#/$defs/text" }, "evidence": { "$ref": "#/$defs/text" },
+          "sources": { "$ref": "#/$defs/sources" }, "confidence": { "$ref": "#/$defs/confidence" }
+        }
+      }
+    },
+    "risks": {
+      "type": "array", "maxItems": 40,
+      "items": {
+        "type": "object", "required": ["id", "title", "impact", "likelihood"], "additionalProperties": false,
+        "properties": {
+          "id": { "$ref": "#/$defs/id" }, "title": { "$ref": "#/$defs/name" },
+          "component": { "$ref": "#/$defs/id" },
+          "impact": { "type": "integer", "minimum": 1, "maximum": 3 },
+          "likelihood": { "type": "integer", "minimum": 1, "maximum": 3 },
+          "evidence": { "$ref": "#/$defs/text" }, "recommendation": { "$ref": "#/$defs/text" },
+          "sources": { "$ref": "#/$defs/sources" }, "confidence": { "$ref": "#/$defs/confidence" }
+        }
+      }
+    },
+    "inventory": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "languages": { "type": "array", "maxItems": 30, "items": { "$ref": "#/$defs/languageEntry" } },
+        "frameworks": { "type": "array", "maxItems": 60, "items": { "$ref": "#/$defs/name" } },
+        "dependencies": {
+          "type": "array", "maxItems": 600,
+          "items": {
+            "type": "object", "required": ["name"], "additionalProperties": false,
+            "properties": {
+              "name": { "$ref": "#/$defs/name" }, "version": { "type": "string", "maxLength": 80 },
+              "pinned": { "type": "boolean" }, "license": { "type": "string", "maxLength": 80 },
+              "scope": { "enum": ["runtime", "dev", "build", "test", "peer", "optional"] },
+              "source": { "type": "string", "maxLength": 300 }
+            }
+          }
+        }
+      }
+    },
+    "glossary": {
+      "type": "array", "maxItems": 80,
+      "items": {
+        "type": "object", "required": ["term", "definition"], "additionalProperties": false,
+        "properties": { "term": { "$ref": "#/$defs/name" }, "definition": { "$ref": "#/$defs/text" } }
+      }
+    },
+    "openQuestions": { "type": "array", "maxItems": 40, "items": { "$ref": "#/$defs/text" } }
+  },
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,63}$" },
+    "name": { "type": "string", "minLength": 1, "maxLength": 120 },
+    "text": { "type": "string", "maxLength": 1200 },
+    "longText": { "type": "string", "maxLength": 4000 },
+    "confidence": { "enum": ["verified", "inferred", "unconfirmed"] },
+    "languageEntry": {
+      "type": ["string", "object"],
+      "properties": { "name": { "$ref": "#/$defs/name" }, "share": { "type": "number", "minimum": 0, "maximum": 100 }, "files": { "type": "integer", "minimum": 0 } },
+      "required": ["name"],
+      "additionalProperties": false
+    },
+    "sources": {
+      "type": "array", "maxItems": 20,
+      "items": {
+        "type": "object", "required": ["path"], "additionalProperties": false,
+        "properties": {
+          "path": { "type": "string", "minLength": 1, "maxLength": 400 },
+          "line": { "type": "integer", "minimum": 1 }
+        }
+      }
+    }
+  }
+}

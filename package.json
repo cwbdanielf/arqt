@@ -1,0 +1,13 @@
+{
+  "name": "arqt",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Skill do Claude Code que gera a planta arquitetural interativa e a documentação do projeto.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "test": "node --test tests/",
+    "checksums": "node tools/checksums.mjs"
+  }
+}

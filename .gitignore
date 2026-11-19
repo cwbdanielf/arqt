@@ -1,0 +1,4 @@
+.arqt/
+node_modules/
+*.log
+.preview/

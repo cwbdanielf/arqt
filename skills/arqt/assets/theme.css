@@ -1,0 +1,121 @@
+/* arqT — design tokens e estilos de diagrama (compartilhado por planta e documentos) */
+:root {
+  color-scheme: light;
+  --font: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, "SF Pro Text", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-display: "Segoe UI Variable Display", "Segoe UI", system-ui, -apple-system, "SF Pro Display", Roboto, Arial, sans-serif;
+  --mono: "Cascadia Code", "JetBrains Mono", "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
+
+  --bg: #f4f5f8;
+  --bg-2: #eceef3;
+  --surface: #ffffff;
+  --surface-2: #f8f9fb;
+  --card: #ffffff;
+  --line: #e2e5ec;
+  --line-2: #cfd4de;
+  --text: #151a26;
+  --text-2: #4b5466;
+  --text-3: #7a8396;
+  --brand: #3b5bdb;
+  --brand-2: #2f4ac0;
+  --brand-soft: #e9edff;
+  --ok: #138a52;
+  --ok-soft: #e3f5ec;
+  --warn: #b7791f;
+  --warn-soft: #fdf3e1;
+  --bad: #c92a3a;
+  --bad-soft: #fde8ea;
+  --muted-soft: #eef0f4;
+  --shadow-1: 0 1px 2px rgba(16, 24, 40, .06), 0 1px 3px rgba(16, 24, 40, .08);
+  --shadow-2: 0 6px 16px -4px rgba(16, 24, 40, .12), 0 2px 6px -2px rgba(16, 24, 40, .08);
+  --shadow-3: 0 18px 40px -12px rgba(16, 24, 40, .25);
+  --radius: 12px;
+  --edge: #9aa3b5;
+  --edge-hot: var(--brand);
+  --band-bg: rgba(59, 91, 219, .035);
+  --band-line: #c9d1ea;
+  --grid-dot: #d9dde6;
+
+  --k-service: #2f6fe4; --k-ui: #7b4ddb; --k-db: #c77a12; --k-queue: #cf3c82; --k-job: #0f8f84;
+  --k-lib: #56627a; --k-cache: #d0453b; --k-storage: #a88412; --k-gateway: #0e8aa8; --k-function: #dc6a1c;
+  --k-external: #6f7889; --k-person: #4c55d6; --k-system: #3b5bdb;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #0e1118; --bg-2: #131722; --surface: #161b26; --surface-2: #1b2130; --card: #1a2030;
+    --line: #262d3d; --line-2: #343d52; --text: #e8ebf2; --text-2: #aab2c3; --text-3: #7d879b;
+    --brand: #7b93ff; --brand-2: #96a9ff; --brand-soft: #1e2645;
+    --ok: #4cc38a; --ok-soft: #12291f; --warn: #e3a64a; --warn-soft: #2d2314; --bad: #f06a77; --bad-soft: #321a1e; --muted-soft: #202634;
+    --shadow-1: 0 1px 2px rgba(0, 0, 0, .4); --shadow-2: 0 8px 20px -6px rgba(0, 0, 0, .55); --shadow-3: 0 22px 50px -12px rgba(0, 0, 0, .7);
+    --edge: #5d6780; --band-bg: rgba(123, 147, 255, .05); --band-line: #313b58; --grid-dot: #222938;
+    --k-service: #5b93ff; --k-ui: #a383ff; --k-db: #f0a541; --k-queue: #f06aa8; --k-job: #3cc7b8;
+    --k-lib: #8d99b3; --k-cache: #ff7a6e; --k-storage: #d8b43c; --k-gateway: #43c0de; --k-function: #ff9a52;
+    --k-external: #97a1b5; --k-person: #8b93ff; --k-system: #7b93ff;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0e1118; --bg-2: #131722; --surface: #161b26; --surface-2: #1b2130; --card: #1a2030;
+  --line: #262d3d; --line-2: #343d52; --text: #e8ebf2; --text-2: #aab2c3; --text-3: #7d879b;
+  --brand: #7b93ff; --brand-2: #96a9ff; --brand-soft: #1e2645;
+  --ok: #4cc38a; --ok-soft: #12291f; --warn: #e3a64a; --warn-soft: #2d2314; --bad: #f06a77; --bad-soft: #321a1e; --muted-soft: #202634;
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, .4); --shadow-2: 0 8px 20px -6px rgba(0, 0, 0, .55); --shadow-3: 0 22px 50px -12px rgba(0, 0, 0, .7);
+  --edge: #5d6780; --band-bg: rgba(123, 147, 255, .05); --band-line: #313b58; --grid-dot: #222938;
+  --k-service: #5b93ff; --k-ui: #a383ff; --k-db: #f0a541; --k-queue: #f06aa8; --k-job: #3cc7b8;
+  --k-lib: #8d99b3; --k-cache: #ff7a6e; --k-storage: #d8b43c; --k-gateway: #43c0de; --k-function: #ff9a52;
+  --k-external: #97a1b5; --k-person: #8b93ff; --k-system: #7b93ff;
+}
+
+.ic { fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ---------- diagramas ---------- */
+.diagram { font-family: var(--font); overflow: visible; }
+.diagram text { fill: var(--text); }
+.k-service { --k: var(--k-service); } .k-ui { --k: var(--k-ui); } .k-db { --k: var(--k-db); }
+.k-queue { --k: var(--k-queue); } .k-job { --k: var(--k-job); } .k-lib { --k: var(--k-lib); }
+.k-cache { --k: var(--k-cache); } .k-storage { --k: var(--k-storage); } .k-gateway { --k: var(--k-gateway); }
+.k-function { --k: var(--k-function); } .k-external { --k: var(--k-external); } .k-person { --k: var(--k-person); }
+.k-system { --k: var(--k-system); }
+
+.band rect { fill: var(--band-bg); stroke: var(--band-line); stroke-width: 1.2; stroke-dasharray: 5 4; }
+.band.b-container rect { stroke-dasharray: none; fill: color-mix(in srgb, var(--brand) 4%, transparent); }
+.band-label { font-size: 11.5px; font-weight: 650; letter-spacing: .06em; text-transform: uppercase; fill: var(--text-3) !important; }
+
+.node { cursor: pointer; outline: none; }
+.node .card { fill: var(--card); stroke: var(--line-2); stroke-width: 1; filter: drop-shadow(0 1px 1.5px rgba(16, 24, 40, .07)) drop-shadow(0 3px 8px rgba(16, 24, 40, .06)); transition: stroke .15s, stroke-width .15s; }
+.node .stack { fill: var(--card); stroke: var(--line-2); stroke-width: 1; opacity: .9; }
+.node .accent { fill: var(--k); }
+.node .tile { fill: color-mix(in srgb, var(--k) 13%, var(--card)); }
+.node .ic { color: var(--k); stroke-width: 1.8; }
+.node .kind { font-size: 9.6px; font-weight: 700; letter-spacing: .08em; fill: color-mix(in srgb, var(--k) 80%, var(--text-2)) !important; }
+.node .name { font-size: 14px; font-weight: 640; font-family: var(--font-display); }
+.node .tech { font-size: 11.5px; fill: var(--text-3) !important; }
+.node .badge circle { stroke: var(--card); stroke-width: 2; }
+.node .badge path { fill: none; stroke: #fff; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.node.c-verified .badge circle { fill: var(--ok); }
+.node.c-inferred .badge circle { fill: var(--warn); }
+.node.c-unconfirmed .badge circle { fill: var(--text-3); }
+.node.c-unconfirmed .card { stroke-dasharray: 5 4; stroke: var(--text-3); }
+.node .drill path { fill: none; stroke: var(--text-3); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.node.k-external .card { fill: color-mix(in srgb, var(--k-external) 6%, var(--card)); }
+.node.k-system .card { stroke: color-mix(in srgb, var(--k-system) 55%, var(--line-2)); stroke-width: 1.6; }
+.node.ghost { opacity: .78; }
+.node.ghost .card { fill: var(--surface-2); }
+
+.edge .line { fill: none; stroke: var(--edge); stroke-width: 1.6; transition: stroke .15s, opacity .15s; }
+.edge .hit { fill: none; stroke: transparent; stroke-width: 14; }
+.edge.async .line { stroke-dasharray: 7 5; }
+.edge.c-unconfirmed .line { stroke-dasharray: 2 4; }
+.elabel rect { fill: var(--surface); stroke: var(--line); stroke-width: 1; }
+.elabel text { font-size: 11px; text-anchor: middle; fill: var(--text-2) !important; font-weight: 500; }
+
+/* sequência */
+.seq .lifeline { stroke: var(--line-2); stroke-width: 1.2; stroke-dasharray: 4 5; }
+.seq .msg .line { fill: none; stroke: var(--text-3); stroke-width: 1.6; }
+.seq .msg.async .line { stroke-dasharray: 7 5; }
+.seq .msg.reply .line { stroke-dasharray: 3 4; }
+.seq .msg-label { font-size: 12px; fill: var(--text-2) !important; }
+.seq .seq-head .name { font-size: 13px; font-weight: 620; }
+.seq .seq-head .card { fill: color-mix(in srgb, var(--k) 8%, var(--card)); stroke: color-mix(in srgb, var(--k) 45%, var(--line)); }
+.seq .seq-head .ic { color: var(--k); }

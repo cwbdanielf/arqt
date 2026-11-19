@@ -1,0 +1,12 @@
+{
+  "name": "arqt",
+  "owner": { "name": "arqt" },
+  "plugins": [
+    {
+      "name": "arqt",
+      "source": "./",
+      "description": "Planta arquitetural interativa e documentação padronizada, offline e sem dependências.",
+      "version": "1.0.0"
+    }
+  ]
+}
