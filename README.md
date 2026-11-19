@@ -69,6 +69,12 @@ O arqT foi criado do zero com um contrato de segurança explícito (detalhes em 
 
 `.arqt/` recebe um `.gitignore` próprio: nada é versionado por acidente.
 
+## Demonstração
+
+[`docs/demo/`](docs/demo/) traz a planta e os documentos gerados para o projeto open source dotnet/eShop.
+Baixe a pasta e abra `eshop/planta.html` no navegador; os documentos em Markdown aparecem direto no GitHub
+([resumo executivo](docs/demo/eshop/docs/executivo.md), [arquitetura](docs/demo/eshop/docs/arquitetura.md)).
+
 ## Desenvolvimento
 
 ```bash
@@ -80,7 +86,7 @@ node tools/checksums.mjs
 ```
 
 - `skills/arqt/` — o skill (SKILL.md, schema, gerador, templates, ícones).
-- `tests/` — testes `node:test` e o projeto de exemplo `tests/projects/loja`.
+- `tests/` — testes `node:test`, o projeto de exemplo `tests/projects/loja` e modelos de projetos open source em `tests/models/`.
 - `tools/` — utilitários de desenvolvimento (checksums, prévia local).
 - `docs/BACKLOG.md` — estado atual, como desenvolver e backlog priorizado.
 

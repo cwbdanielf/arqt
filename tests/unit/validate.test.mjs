@@ -56,3 +56,13 @@ test('normalize aplica padrões sem alterar o original', () => {
   assert.equal(m.components[0].confidence, undefined);
   assert.equal(w.length, 1);
 });
+
+// modelos de exemplo de projetos open source (licença MIT) analisados na frente de qualidade
+const exemplos = ['eshop', 'create-t3-turbo'].map((n) => [n, JSON.parse(fs.readFileSync(path.join(SKILL, '..', '..', 'tests', 'models', `${n}.json`), 'utf8'))]);
+
+test('modelos de exemplo open source são válidos', () => {
+  for (const [n, m] of exemplos) {
+    assert.deepEqual(validateSchema(schema, m), [], n);
+    assert.deepEqual(checkSemantics(m).errors, [], n);
+  }
+});
