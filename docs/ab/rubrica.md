@@ -23,7 +23,8 @@ Os três têm licença permissiva, stacks diferentes e foram analisados na frent
 - Compara-se **o documento de arquitetura em Markdown** dos dois lados, para o formato não denunciar a origem.
   A planta interativa fica fora do teste cego (é avaliada à parte, sem anonimato).
 - `node tools/ab-pacotes.mjs <pasta-A> <pasta-B> <saída>` remove assinaturas de ferramenta, sorteia a ordem e grava
-  `Doc 1.md`/`Doc 2.md` por repositório. A chave do sorteio (`chave.json`) fica só com quem organiza o teste.
+  `Doc 1.md`/`Doc 2.md` por repositório, além de `instrucoes.md` (só o roteiro e a rúbrica, sem esta seção). A chave do
+  sorteio (`chave.json`) fica só com quem organiza o teste. Envie aos avaliadores apenas `instrucoes.md`, `notas.csv` e as pastas dos repositórios.
 - Limitação conhecida: o estilo do arqT (marcas ✓ ~ ?, "Itens a confirmar") pode ser reconhecido por quem já o conhece.
   Prefira avaliadores que não usaram o arqT; registre na ficha se o avaliador acha que sabe qual é qual.
 
