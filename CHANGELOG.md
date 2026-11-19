@@ -2,6 +2,7 @@
 
 ## Não lançado
 
+- `/arqt pptx`: apresentação com capa, resumo executivo, um slide por vista (diagramas em formas nativas editáveis) e mapa de riscos.
 - `/arqt docx`: resumo executivo, arquitetura e sustentação em Word, gerados por OOXML próprio (zip com `node:zlib`, sem dependências), determinísticos; `publicar` copia os .docx quando existirem.
 - Layout: em vistas com faixas em colunas, cada faixa usa só as próprias arestas para definir colunas (diagramas bem mais estreitos em microsserviços com barramento de eventos).
 - Planta: diagramas largos abrem com zoom mínimo legível (60%), alinhados pelo início; "Ajustar à tela" (F) continua mostrando tudo.
