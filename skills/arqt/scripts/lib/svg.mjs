@@ -154,8 +154,12 @@ export function renderSequence(flow, nameOf, kindOf, t, { idPrefix = '' } = {}) 
       lx = (x1 + x2) / 2;
     }
     const label = `${i + 1}. ${s.label}`;
+    // cada passo ocupa sua própria linha: o texto pode passar das linhas de vida vizinhas sem colidir
+    const maxChars = Math.floor((Math.max(Math.abs(x2 - x1), colW) + colW * 0.7) / 6.6);
+    const shown = clip(label, maxChars);
+    if (anchor === 'middle') { const half = shown.length * 3.3; lx = Math.min(Math.max(lx, half + 8), width - half - 8); }
     out.push(`<g class="${cls.join(' ')}" data-step="${i}"><path class="line" d="${d}" marker-end="url(#ah-${e(id)})"/>`
-      + `<text class="msg-label" x="${r1(lx)}" y="${y - 8}" text-anchor="${anchor}">${e(clip(label, Math.floor((Math.abs(x2 - x1) || 240) / 6.6)))}</text>`
+      + `<text class="msg-label" x="${r1(lx)}" y="${y - 8}" text-anchor="${anchor}">${e(shown)}</text>`
       + `<title>${e(label + (s.note ? ' — ' + s.note : ''))}</title></g>`);
   });
   out.push('</svg>');

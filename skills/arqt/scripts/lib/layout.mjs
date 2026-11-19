@@ -339,12 +339,23 @@ function layoutCore(graph, options = {}) {
   // e aparece inteiro no painel/tooltip). Arestas entre colunas distantes já têm trechos longos.
   const labelNeed = new Array(C + 1).fill(0);
   const lw = (r) => (r.e.label ? Math.min(o.labelMax, o.labelCharW * r.e.label.length + o.labelPad) : 0);
+  // várias setas rotuladas saindo do mesmo nó pelo mesmo vão ficam empilhadas a poucos pixels:
+  // nesse caso o vão comporta dois rótulos lado a lado, alternando esquerda/direita.
+  const fan = new Map();
+  for (const r of routes) {
+    if (!lw(r) || !(r.type === 'lout' || r.type === 'lin' || !r.segs.length)) continue;
+    const g = r.segs.length ? r.vgap : r.t.c;
+    const k = g + '|' + r.e.from;
+    fan.set(k, (fan.get(k) || 0) + 1);
+  }
   for (const r of routes) {
     const w = lw(r);
     if (!w) continue;
-    if (!r.segs.length) { if (r.t.c === r.s.c + 1) labelNeed[r.t.c] = Math.max(labelNeed[r.t.c], w + 28); }
+    const g = r.segs.length ? r.vgap : r.t.c;
+    const two = (fan.get(g + '|' + r.e.from) || 0) > 1;
+    if (!r.segs.length) { if (r.t.c === r.s.c + 1) labelNeed[r.t.c] = Math.max(labelNeed[r.t.c], two ? 2 * w + 40 : w + 28); }
     else if (r.type === 'lout' || r.type === 'lin') {
-      labelNeed[r.vgap] = Math.max(labelNeed[r.vgap], w + 34);
+      labelNeed[r.vgap] = Math.max(labelNeed[r.vgap], two ? 2 * w + 46 : w + 34);
     }
   }
   const gapW = gapLanes.map((L, g) => (g === 0 || g === C
@@ -474,8 +485,9 @@ export function placeLabels(lay, labels, { charW = 6.4, padX = 8, h = 18 } = {})
     for (const s of segs) {
       const w = Math.min(full, s.len - 14);
       if (w < 46) continue;
-      for (const f of [0.5, 0.32, 0.68, 0.2, 0.8]) {
-        const cx = s.x1 + s.len * f;
+      const left = s.x1 + 8 + w / 2; const right = s.x2 - 8 - w / 2;
+      const cands = [left, right, s.x1 + s.len * 0.5, s.x1 + s.len * 0.32, s.x1 + s.len * 0.68];
+      for (const cx of cands) {
         const b = [cx - w / 2, s.y - h / 2, cx + w / 2, s.y + h / 2];
         if (b[0] < s.x1 + 6 || b[2] > s.x2 - 6) continue;
         if (!hit(b)) { placed = { x: cx, y: s.y, w, truncated: w < full }; boxes.push(b); break; }

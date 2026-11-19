@@ -12,8 +12,16 @@ function nodeFrom(ix, id, extra = {}) {
   return { id, ref: id, name: c.name, kind: c.kind, tech: c.tech || '', confidence: c.confidence, rank: 1, zone: c.kind === 'external' ? 'tail' : null, children: (ix.children.get(id) || []).length, ...extra };
 }
 
+// Rótulo de uma aresta agregada: 1 relação → seu rótulo; 2 curtas → as duas; mais → quantidade + protocolo.
+function edgeLabel(labels, protocols, t) {
+  if (!labels.length) return protocols[0] || '';
+  if (labels.length === 1) return labels[0];
+  if (labels.length === 2 && labels.join(' · ').length <= 26) return labels.join(' · ');
+  return `${labels.length} ${t.ui.relationsCount}${protocols.length === 1 ? ' · ' + protocols[0] : ''}`;
+}
+
 // Agrega relações (já "elevadas") em arestas únicas por par de nós, detectando bidirecionais.
-function mergeEdges(pairs) {
+function mergeEdges(pairs, t) {
   const map = new Map();
   for (const p of pairs) {
     if (p.from === p.to) continue;
@@ -35,7 +43,7 @@ function mergeEdges(pairs) {
       async: rels.every((r) => r.async),
       confidence: weakest(rels.map((r) => r.confidence)),
       relIds: rels.map((r) => r.id),
-      label: labels.length ? labels[0] + (labels.length > 1 ? ` (+${labels.length - 1})` : '') : (protocols[0] || ''),
+      label: edgeLabel(labels, protocols, t),
       labels, protocols,
     };
   });
@@ -71,7 +79,7 @@ export function buildViews(m, t) {
       { id: SYS, ref: null, name: m.system.name, kind: 'system', tech: (m.system.stack || []).slice(0, 3).join(' · '), confidence: 'verified', rank: 1, children: internalContainers.length },
       ...externalsOf().map((id) => nodeFrom(ix, id)),
     ].filter((n) => n.id === SYS || ids.includes(n.id));
-    views.push(finish({ id: 'context', kind: 'context', title: t.tab.context, nodes, edges: mergeEdges(pairs), bands: [] }));
+    views.push(finish({ id: 'context', kind: 'context', title: t.tab.context, nodes, edges: mergeEdges(pairs, t), bands: [] }));
   }
 
   // ---- Contêineres ----
@@ -85,7 +93,7 @@ export function buildViews(m, t) {
     ];
     const usedBands = new Set(internalContainers.map((c) => c.boundary).filter(Boolean));
     const bands = m.boundaries.filter((b) => usedBands.has(b.id)).map((b) => ({ id: b.id, label: b.name, kind: b.kind }));
-    views.push(finish({ id: 'containers', kind: 'containers', title: t.tab.containers, nodes, edges: mergeEdges(pairs), bands }));
+    views.push(finish({ id: 'containers', kind: 'containers', title: t.tab.containers, nodes, edges: mergeEdges(pairs, t), bands }));
   }
 
   // ---- Componentes de cada contêiner ----
@@ -107,7 +115,7 @@ export function buildViews(m, t) {
       ...tail.map((id) => nodeFrom(ix, id, { ghost: true, zone: 'tail' })),
     ];
     views.push(finish({
-      id: `comp-${c.id}`, kind: 'components', parent: c.id, title: c.name, nodes, edges: mergeEdges(pairs),
+      id: `comp-${c.id}`, kind: 'components', parent: c.id, title: c.name, nodes, edges: mergeEdges(pairs, t),
       bands: [{ id: c.id, label: `${c.name}${c.tech ? ' · ' + c.tech : ''}`, kind: 'container' }],
     }));
   }
