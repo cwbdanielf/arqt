@@ -196,7 +196,8 @@ function main() {
   const containers = m.components.filter((c) => !c.parent && c.kind !== 'external').length;
   const unconfirmed = Object.values(metrics.conf).reduce((a, b) => a + b, 0) - metrics.conf.verified - metrics.conf.inferred;
   line(`✓ arqT ${VERSION}: planta e documentos gerados para "${m.system.name}"`);
-  line(`  ${containers} contêineres · ${m.components.length - containers} outros componentes · ${m.relations.length} relações · ${m.flows.length} fluxos · ${m.risks.length} riscos`);
+  const n = (k, one, many) => `${k} ${k === 1 ? one : many}`;
+  line(`  ${n(containers, 'contêiner', 'contêineres')} · ${n(m.components.length - containers, 'outro componente', 'outros componentes')} · ${n(m.relations.length, 'relação', 'relações')} · ${n(m.flows.length, 'fluxo', 'fluxos')} · ${n(m.risks.length, 'risco', 'riscos')}`);
   line(`  confiança: ${metrics.conf.verified} verificadas · ${metrics.conf.inferred} inferidas · ${unconfirmed} a confirmar · evidências válidas ${ev.valid}/${ev.total}`);
   line(`  layout: ${views.map((v) => `${v.id} ${v.layout.width}×${v.layout.height}`).join(' · ')}`);
   if (diff) line(`  mudanças desde a última execução: ${diff.empty ? 'nenhuma estrutural' : `+${diff.added.length + diff.relAdded.length} −${diff.removed.length + diff.relRemoved.length} ~${diff.changed.length + diff.relChanged.length}`}`);

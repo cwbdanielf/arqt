@@ -58,7 +58,7 @@ test('normalize aplica padrões sem alterar o original', () => {
 });
 
 // modelos de exemplo de projetos open source (licença MIT) analisados na frente de qualidade
-const exemplos = ['eshop', 'create-t3-turbo'].map((n) => [n, JSON.parse(fs.readFileSync(path.join(SKILL, '..', '..', 'tests', 'models', `${n}.json`), 'utf8'))]);
+const exemplos = ['eshop', 'create-t3-turbo', 'spring-petclinic'].map((n) => [n, JSON.parse(fs.readFileSync(path.join(SKILL, '..', '..', 'tests', 'models', `${n}.json`), 'utf8'))]);
 
 test('modelos de exemplo open source são válidos', () => {
   for (const [n, m] of exemplos) {

@@ -103,7 +103,7 @@ test('faixa sem arestas internas ocupa uma coluna só, mesmo com cadeia longa em
 test('modelos de exemplo open source: garantias de layout, rótulos inteiros e largura contida', async () => {
   const fs = await import('node:fs');
   const { REPO } = await import('../helpers.mjs');
-  for (const n of ['eshop', 'create-t3-turbo']) {
+  for (const n of ['eshop', 'create-t3-turbo', 'spring-petclinic']) {
     const m = normalize(JSON.parse(fs.readFileSync(`${REPO}/tests/models/${n}.json`, 'utf8')));
     for (const v of buildViews(m, strings('pt-BR'))) {
       assertInvariants(v.layout, `${n} ${v.id}`);

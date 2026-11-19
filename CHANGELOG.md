@@ -5,9 +5,10 @@
 - Layout: em vistas com faixas em colunas, cada faixa usa só as próprias arestas para definir colunas (diagramas bem mais estreitos em microsserviços com barramento de eventos).
 - Planta: diagramas largos abrem com zoom mínimo legível (60%), alinhados pelo início; "Ajustar à tela" (F) continua mostrando tudo.
 - Rótulos das setas: não são mais abreviados quando cabem (setas em corredor e rótulos disputando o mesmo trecho).
-- Textos: contagens no singular quando há 1 item.
+- Textos: contagens no singular quando há 1 item (planta, resumo executivo e saída do build).
+- Teste A/B: rúbrica, roteiro do avaliador, planilha e `tools/ab-pacotes.mjs` para montar pacotes anônimos.
 - Manual de sustentação: bibliotecas sem dados de operação não aparecem mais (monorepos).
-- Demonstração em `docs/demo/` (dotnet/eShop) e modelos de exemplo open source em `tests/models/`, cobertos pelos testes.
+- Demonstração em `docs/demo/` (dotnet/eShop) e modelos de exemplo open source em `tests/models/` (eShop, create-t3-turbo, spring-petclinic), cobertos pelos testes.
 - Playbook: .NET Aspire, `.slnx`, versões centralizadas do NuGet e monorepo TypeScript (tRPC, Drizzle, catálogo do pnpm).
 
 ## 1.0.0 — 2026-11-19
