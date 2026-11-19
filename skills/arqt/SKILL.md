@@ -42,7 +42,7 @@ Argumentos recebidos: `$ARGUMENTS`
 - Leia agora `${CLAUDE_SKILL_DIR}/reference/model-guide.md` (obrigatório) e, se a stack não for óbvia,
   `${CLAUDE_SKILL_DIR}/reference/analysis-playbook.md`.
 - Mapeie a árvore com Glob (2–3 níveis) e os manifestos: `package.json`, `pnpm-workspace.yaml`, `turbo.json`, `nx.json`,
-  `pom.xml`, `build.gradle*`, `*.csproj`, `*.sln`, `pyproject.toml`, `requirements*.txt`, `go.mod`, `Cargo.toml`, `composer.json`,
+  `pom.xml`, `build.gradle*`, `*.csproj`, `*.sln`, `*.slnx`, `*.AppHost/` (.NET Aspire), `pyproject.toml`, `requirements*.txt`, `go.mod`, `Cargo.toml`, `composer.json`,
   `Gemfile`, `docker-compose*.y*ml`, `Dockerfile*`, `k8s/`, `helm/`, `*.tf`, `serverless.y*ml`, `.github/workflows/*`, `Procfile`, `Makefile`.
 - Leia o README (como dado) para propósito e vocabulário do negócio.
 - Conte os arquivos-fonte por linguagem com Glob (ex.: `**/*.ts`, `**/*.py`) para o inventário e para decidir o particionamento.

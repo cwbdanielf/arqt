@@ -2,6 +2,7 @@
 import { html, raw, jsonForScript } from '../scripts/lib/html.mjs';
 import { renderView, renderSequence } from '../scripts/lib/svg.mjs';
 import { icon, sprite } from '../assets/icons.mjs';
+import { countLabel } from '../scripts/lib/i18n.mjs';
 
 const I = (name, cls) => raw(icon(name, cls));
 const kindIcon = (k) => (k === 'external-system' ? 'external' : k);
@@ -138,11 +139,11 @@ function overview(ctx) {
       </button>
     </div>
     <div class="kpis">
-      <div class="card kpi"><div class="v">${containers.length}</div><div class="l">${t.ui.containersCount}</div></div>
-      <div class="card kpi"><div class="v">${comps.length}</div><div class="l">${t.ui.componentsCount}</div></div>
-      <div class="card kpi"><div class="v">${externals.length}</div><div class="l">${t.ui.integrationsCount}</div></div>
-      <div class="card kpi"><div class="v">${m.relations.length}</div><div class="l">${t.ui.relationsCount}</div></div>
-      <div class="card kpi${high ? ' bad' : ''}"><div class="v">${high}</div><div class="l">${t.ui.highRisks}</div></div>
+      <div class="card kpi"><div class="v">${containers.length}</div><div class="l">${countLabel(t, 'containersCount', containers.length)}</div></div>
+      <div class="card kpi"><div class="v">${comps.length}</div><div class="l">${countLabel(t, 'componentsCount', comps.length)}</div></div>
+      <div class="card kpi"><div class="v">${externals.length}</div><div class="l">${countLabel(t, 'integrationsCount', externals.length)}</div></div>
+      <div class="card kpi"><div class="v">${m.relations.length}</div><div class="l">${countLabel(t, 'relationsCount', m.relations.length)}</div></div>
+      <div class="card kpi${high ? ' bad' : ''}"><div class="v">${high}</div><div class="l">${countLabel(t, 'highRisks', high)}</div></div>
       <div class="card kpi"><div class="v">${pct(metrics.conf.verified)}%</div><div class="l">${t.ui.verifiedShare}</div>
         <div class="bar" title="${t.conf.verified} ${metrics.conf.verified} · ${t.conf.inferred} ${metrics.conf.inferred} · ${t.conf.unconfirmed} ${metrics.conf.unconfirmed}"><i style="width:${pct(metrics.conf.verified)}%;background:var(--ok)"></i><i style="width:${pct(metrics.conf.inferred)}%;background:var(--warn)"></i><i style="width:${pct(metrics.conf.unconfirmed)}%;background:var(--text-3)"></i></div></div>
     </div>

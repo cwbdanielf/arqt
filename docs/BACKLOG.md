@@ -47,15 +47,17 @@ Publicado em https://github.com/cwbdanielf/arqt. Pendentes: 1.2 (assinatura), 1.
 
 Rodar o `/arqt` em 5 repositórios open source de stacks diferentes e corrigir o que aparecer em análise, layout e textos.
 
+**Próximo passo:** 2.5 (versionar 1–2 modelos de exemplo; eShop e create-t3-turbo são MIT), depois 2.8 e 2.6.
+
 | # | Item | Pronto quando |
 |---|---|---|
-| 2.1 | Escolher os 5 repositórios (ex.: Python/Django, Go, Java/Spring, .NET, monorepo TypeScript), fixando o commit de cada um | lista com URL + SHA neste arquivo |
-| 2.2 | Rodar a análise em cada um seguindo o `SKILL.md`; registrar problemas por categoria (análise, layout, texto, desempenho) | lista de problemas por repo |
-| 2.3 | Corrigir os problemas, com teste de regressão para cada defeito de layout/validação | testes novos passando |
-| 2.4 | Ampliar o playbook por stack no `SKILL.md`/`reference/` com o que faltou | stacks cobertas no guia |
+| 2.1 | ~~Escolher os 5 repositórios (ex.: Python/Django, Go, Java/Spring, .NET, monorepo TypeScript), fixando o commit de cada um~~ (feito) | lista com URL + SHA neste arquivo |
+| 2.2 | ~~Rodar a análise em cada um seguindo o `SKILL.md`; registrar problemas por categoria (análise, layout, texto, desempenho)~~ (feito nos 5) | lista de problemas por repo |
+| 2.3 | ~~Corrigir os problemas, com teste de regressão para cada defeito de layout/validação~~ (feito) | testes novos passando |
+| 2.4 | ~~Ampliar o playbook por stack no `SKILL.md`/`reference/` com o que faltou~~ (feito: Java, Python, Go, .NET/Aspire, monorepo TS) | stacks cobertas no guia |
 | 2.5 | Versionar 1–2 modelos de exemplo (licença permissiva) em `tests/models/` e gerar uma planta de demonstração | demo citada no README |
 | 2.6 | Incorporar o feedback dos colegas (issues da 1.6) | issues triadas e fechadas ou adiadas |
-| 2.7 | Diagramas com cadeias longas ficam largos e abrem com zoom baixo (ex.: componentes do Go a ~35%); avaliar quebra em duas linhas ou zoom inicial mínimo | vista de componentes legível sem zoom manual |
+| 2.7 | ~~Diagramas com cadeias longas ficam largos e abrem com zoom baixo~~ (feito: colunas por faixa contam só arestas internas; diagramas abrem com zoom mínimo de 60%, alinhados à esquerda; "Ajustar à tela" mostra tudo) | vista de componentes legível sem zoom manual |
 | 2.8 | Caso isolado: rótulo de seta longa entre colunas distantes ainda abreviado em 2 letras | nenhum rótulo ≤ 24 caracteres abreviado |
 
 **Repositórios de teste (2.1)** — cópias rasas, só leitura, fora do repo (pasta temporária da sessão; baixar de novo se sumir):
@@ -65,8 +67,8 @@ Rodar o `/arqt` em 5 repositórios open source de stacks diferentes e corrigir o
 | Java/Spring | spring-projects/spring-petclinic | `500158f7` | analisado |
 | Python/Django | wagtail/bakerydemo | `890285b9` | analisado |
 | Go | go-shiori/shiori | `aebb4021` | analisado |
-| .NET | dotnet/eShop | `134625b2` | próximo |
-| Monorepo TS | t3-oss/create-t3-turbo | `8f945b7b` | próximo |
+| .NET | dotnet/eShop | `134625b2` | analisado |
+| Monorepo TS | t3-oss/create-t3-turbo | `8f945b7b` | analisado |
 
 **Problemas encontrados e corrigidos (2.2/2.3)**
 - Guia do modelo sem o formato de `qualityGoals`, `failureModes`, `config` (só nomes) e `sources` em fluxos → o agente errava no 1º build. Guia corrigido.
@@ -74,6 +76,18 @@ Rodar o `/arqt` em 5 repositórios open source de stacks diferentes e corrigir o
 - Rótulos sumindo quando várias setas saem do mesmo bloco → portas mais espaçadas e dois rótulos lado a lado quando necessário.
 - Setas agregadas com rótulo enganoso ("Grava páginas (+7)") → "8 relações · SQL".
 - Passos dos fluxos abreviados → usam a largura da linha inteira.
+- eShop (.NET/Aspire): vista de contêineres com 10 colunas (4232 px, abria a 23%) porque a cadeia global, com ciclos pelo
+  barramento de eventos, espalhava cada faixa em colunas quase vazias → dentro de cada faixa só as arestas internas definem
+  a coluna (7 colunas, 3089 px) e o visualizador abre com zoom mínimo legível.
+- Contagens no plural com 1 item ("1 integrações", "1 riscos altos") → singular na planta e no resumo executivo.
+- Playbook sem .NET Aspire (AppHost, `WithReference`, assinaturas do barramento), `.slnx` e `Directory.Packages.props` → incluídos.
+- Decisão: o eShop (~640 arquivos-fonte) foi analisado sem subagentes porque o AppHost do Aspire já descreve contêineres e
+  dependências; o roteiro do SKILL.md continua recomendando subagentes acima de ~300 arquivos.
+- create-t3-turbo (monorepo TS): manual de sustentação listava pacotes sem nada para subir (ui, validators) com seção
+  "Como subir" vazia → bibliotecas sem dados de operação ficam fora do manual.
+- create-t3-turbo: cadeia real app → api → auth → db → banco gera vista de contêineres larga (8 colunas, 2 linhas); a quebra em
+  linhas não compensou (modo em faixas ficou com zoom parecido e mais cruzamentos) → resolvido pelo zoom mínimo legível da 2.7.
+- Playbook sem monorepo TS (apps × pacotes × tooling, catálogo do pnpm, tRPC montado dentro do app, Drizzle) → incluído.
 
 ### 3. Teste A/B formal — rúbrica cega (v1.2)
 

@@ -1,5 +1,13 @@
 # Changelog
 
+## Não lançado
+
+- Layout: em vistas com faixas em colunas, cada faixa usa só as próprias arestas para definir colunas (diagramas bem mais estreitos em microsserviços com barramento de eventos).
+- Planta: diagramas largos abrem com zoom mínimo legível (60%), alinhados pelo início; "Ajustar à tela" (F) continua mostrando tudo.
+- Textos: contagens no singular quando há 1 item.
+- Manual de sustentação: bibliotecas sem dados de operação não aparecem mais (monorepos).
+- Playbook: .NET Aspire, `.slnx`, versões centralizadas do NuGet e monorepo TypeScript (tRPC, Drizzle, catálogo do pnpm).
+
 ## 1.0.0 — 2026-11-19
 
 Primeira versão.

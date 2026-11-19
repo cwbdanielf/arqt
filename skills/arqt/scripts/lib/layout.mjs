@@ -162,17 +162,35 @@ function layoutCore(graph, options = {}) {
     for (const g of gOrder) {
       const mem = groups.get(g);
       const squash = g === '_lead' || g === '_tail';
-      const con = mem.filter((id) => nb(id).length);
-      const iso = mem.filter((id) => !nb(id).length);
-      const distinct = [...new Set(con.map((id) => rank.get(id)))].sort((x, y) => x - y);
+      // dentro do grupo, só as arestas internas definem a coluna: a cadeia global (que atravessa outros grupos
+      // e ciclos com filas) não deve espalhar o grupo em colunas quase vazias. Nós sem arestas internas
+      // preenchem as colunas menos ocupadas, como os isolados.
+      const inGroup = new Set(mem);
+      const ipred = (id) => dagIn.get(id).filter((u) => inGroup.has(u));
+      const isucc = (id) => dagOut.get(id).filter((w) => inGroup.has(w));
+      const linked = mem.filter((id) => ipred(id).length || isucc(id).length);
+      const loose = mem.filter((id) => !ipred(id).length && !isucc(id).length);
+      const lr = new Map();
+      for (const v of [...linked].sort((a, b) => rank.get(a) - rank.get(b) || order.get(a) - order.get(b))) {
+        lr.set(v, Math.max(0, ...ipred(v).map((u) => lr.get(u) + 1)));
+      }
+      for (const v of [...linked].sort((a, b) => rank.get(b) - rank.get(a) || order.get(a) - order.get(b))) {
+        if (!ipred(v).length) lr.set(v, Math.max(0, Math.min(...isucc(v).map((w) => lr.get(w))) - 1));
+      }
+      const distinct = [...new Set(linked.map((id) => lr.get(id)))].sort((x, y) => x - y);
       const loc = new Map(distinct.map((r, i) => [r, i]));
-      let span = squash ? Math.max(1, Math.ceil(mem.length / 8)) : distinct.length || Math.min(5, Math.max(1, Math.ceil(Math.sqrt(iso.length * 1.6))));
+      const looseLinked = loose.filter((id) => nb(id).length).length;
+      const gridSpan = (n) => Math.min(5, Math.max(1, Math.ceil(Math.sqrt(n * 1.6))));
+      let span = squash ? Math.max(1, Math.ceil(mem.length / 8))
+        : distinct.length || (looseLinked ? Math.max(1, Math.ceil(loose.length / 5)) : gridSpan(loose.length));
       const loadc = new Array(span).fill(0);
-      const put = (id, lr) => { loadc[lr]++; rank.set(id, start + lr); };
+      const put = (id, c) => { loadc[c]++; rank.set(id, start + c); };
       if (squash) mem.forEach((id, i) => put(id, Math.min(span - 1, Math.floor(i / 8))));
       else {
-        con.forEach((id) => put(id, loc.get(rank.get(id))));
-        iso.forEach((id) => { let best = 0; for (let i = 1; i < span; i++) if (loadc[i] < loadc[best]) best = i; put(id, best); });
+        linked.forEach((id) => put(id, loc.get(lr.get(id))));
+        // sem arestas internas: conectados antes dos isolados, na ordem do caminho global
+        const rest = [...loose].sort((a, b) => (nb(b).length > 0) - (nb(a).length > 0) || rank.get(a) - rank.get(b) || order.get(a) - order.get(b));
+        rest.forEach((id) => { let best = 0; for (let i = 1; i < span; i++) if (loadc[i] < loadc[best]) best = i; put(id, best); });
       }
       start += span;
     }

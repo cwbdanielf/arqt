@@ -130,3 +130,32 @@ test('--check informa ambiente pronto', () => {
   assert.equal(r.code, 0, r.out);
   assert.match(r.out, /pronto/);
 });
+
+test('contagens no singular quando há exatamente 1 item', async () => {
+  const { strings, countLabel } = await import('../../skills/arqt/scripts/lib/i18n.mjs');
+  const pt = strings('pt-BR'); const en = strings('en');
+  assert.equal(countLabel(pt, 'integrationsCount', 1), 'integração');
+  assert.equal(countLabel(pt, 'integrationsCount', 2), 'integrações');
+  assert.equal(countLabel(pt, 'highRisks', 1), 'risco alto');
+  assert.equal(countLabel(pt, 'highRisks', 0), 'riscos altos');
+  assert.equal(countLabel(en, 'containersCount', 1), 'container');
+});
+
+test('manual de sustentação omite bibliotecas sem nada de operação', () => {
+  const m = loja();
+  const web = m.components.find((c) => !c.parent && c.kind === 'ui');
+  m.components.push(
+    { id: 'pacote-ui', name: 'Pacote de interface', kind: 'lib', boundary: web.boundary, responsibility: 'Botões compartilhados.', confidence: 'inferred' },
+    { id: 'pacote-auth', name: 'Pacote de login', kind: 'lib', boundary: web.boundary, responsibility: 'Configura o login.', ops: { config: ['AUTH_SECRET'] }, confidence: 'inferred' },
+  );
+  m.relations.push(
+    { from: web.id, to: 'pacote-ui', label: 'Usa componentes', confidence: 'inferred' },
+    { from: web.id, to: 'pacote-auth', label: 'Usa login', confidence: 'inferred' },
+  );
+  const dir = lojaProject(m);
+  const r = run(dir, '--now', NOW, '--no-history');
+  assert.equal(r.code, 0, r.out);
+  const doc = read(dir, 'docs/sustentacao.md');
+  assert.ok(!doc.includes('**Pacote de interface**') && !doc.includes('### Pacote de interface'), 'biblioteca sem operação não tem linha nem seção');
+  assert.ok(doc.includes('### Pacote de login'), 'biblioteca com variáveis de configuração tem seção');
+});

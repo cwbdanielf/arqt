@@ -6,6 +6,7 @@
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
   const SVGNS = 'http://www.w3.org/2000/svg';
+  const READABLE = 0.6; // zoom mínimo ao abrir um diagrama largo (textos dos cartões legíveis)
   const store = {
     get(k) { try { return window.localStorage.getItem('arqt:' + k); } catch (e) { return null; } },
     set(k, v) { try { window.localStorage.setItem('arqt:' + k, v); } catch (e) { /* armazenamento indisponível */ } },
@@ -73,13 +74,16 @@
       const z = $('[data-zoomv]', this.page); if (z) z.textContent = Math.round(this.k * 100) + '%';
     }
     size() { return [Number(this.svg.getAttribute('width')), Number(this.svg.getAttribute('height'))]; }
-    fit() {
+    // all = true (botão/tecla F): mostra o diagrama inteiro. Ao abrir, diagramas largos não ficam abaixo de
+    // READABLE: começam legíveis, alinhados pelo início do fluxo (esquerda), e o resto se vê arrastando.
+    fit(all) {
       const r = this.el.getBoundingClientRect();
       if (!r.width) return;
       const [w, h] = this.size();
       const seq = this.svg.classList.contains('seq');
       let k = Math.max(0.12, Math.min((r.width - 64) / w, (r.height - 120) / h, 1.15));
       if (seq) k = Math.min(1.1, Math.max(k, Math.min(0.72, (r.width - 64) / w * 1.6)));
+      else if (!all && k < READABLE) k = Math.max(k, Math.min(READABLE, Math.max(READABLE * 0.75, (r.height - 120) / h)));
       this.k = k; this.x = Math.max(32, (r.width - w * k) / 2); this.y = seq ? 60 : Math.max(56, (r.height - h * k) / 2);
       this.fitted = true; this.apply();
     }
@@ -148,7 +152,7 @@
       });
       $$('.toolbar [data-act]', this.page).forEach((b) => b.addEventListener('click', () => {
         const a = b.dataset.act;
-        if (a === 'zoom-in') this.zoomAt(1.25); else if (a === 'zoom-out') this.zoomAt(0.8); else if (a === 'fit') this.fit();
+        if (a === 'zoom-in') this.zoomAt(1.25); else if (a === 'zoom-out') this.zoomAt(0.8); else if (a === 'fit') this.fit(true);
         else if (a === 'legend') toggleLegend(this); else if (a === 'export-svg') exportSvg(this.svg); else if (a === 'export-png') exportPng(this.svg);
       }));
     }
@@ -541,7 +545,7 @@
     const cv = currentCanvas();
     if (e.key === '/') { e.preventDefault(); q.focus(); q.select(); }
     else if (e.key === 'Escape') { results.classList.remove('open'); if (panelOpen()) { closePanel(); if (cv) clearSelection(cv); } else if (cv) clearSelection(cv); $$('[data-legend].open').forEach((l) => l.classList.remove('open')); }
-    else if ((e.key === 'f' || e.key === 'F') && cv) cv.fit();
+    else if ((e.key === 'f' || e.key === 'F') && cv) cv.fit(true);
     else if ((e.key === '+' || e.key === '=') && cv) cv.zoomAt(1.2);
     else if (e.key === '-' && cv) cv.zoomAt(1 / 1.2);
     else if (e.key === 't' || e.key === 'T') toggleTheme();
