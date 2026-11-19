@@ -18,7 +18,7 @@ O arqT é um skill para o Claude Code. Ele lê o projeto aberto, descreve a arqu
 
 Pré-requisito: [Node.js](https://nodejs.org) 20 ou superior.
 
-1. Baixe ou clone este repositório.
+1. Baixe ou clone este repositório: `git clone https://github.com/cwbdanielf/arqt.git`.
 2. Rode o instalador (apenas copia a pasta do skill e confere a integridade):
 
 ```powershell
@@ -32,7 +32,7 @@ sh install/install.sh
 Isso instala para todos os projetos (`~/.claude/skills/arqt`). Para instalar só num projeto, passe o caminho dele:
 `.\install\install.ps1 -Projeto C:\caminho\do\projeto` ou `sh install/install.sh /caminho/do/projeto`.
 
-> Alternativa: como plugin. No Claude Code, `/plugin marketplace add <caminho ou URL deste repositório>` e
+> Alternativa: como plugin. No Claude Code, `/plugin marketplace add cwbdanielf/arqt` e
 > `/plugin install arqt@arqt`. Instalado como plugin, o comando pode aparecer como `/arqt:arqt`.
 
 ## Uso
