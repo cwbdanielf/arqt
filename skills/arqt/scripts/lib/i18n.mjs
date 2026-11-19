@@ -1,5 +1,6 @@
 // Textos fixos da interface e dos documentos (pt-BR e en).
 const pt = {
+  one: { containersCount: 'contêiner', componentsCount: 'componente', integrationsCount: 'integração', relationsCount: 'relação', highRisks: 'risco alto' },
   kind: { service: 'Serviço', ui: 'Interface', db: 'Banco de dados', queue: 'Fila / mensageria', job: 'Job / worker', lib: 'Biblioteca', cache: 'Cache', storage: 'Armazenamento', gateway: 'Gateway', function: 'Função', external: 'Sistema externo', person: 'Pessoa', system: 'Sistema', 'external-system': 'Sistema externo' },
   conf: { verified: 'Verificado', inferred: 'Inferido', unconfirmed: 'A confirmar' },
   confHint: { verified: 'Confirmado por evidência no código (arquivo:linha).', inferred: 'Deduzido a partir de indícios no código; revisar.', unconfirmed: 'Sem evidência direta; precisa de confirmação humana.' },
@@ -26,6 +27,7 @@ const pt = {
 };
 
 const en = {
+  one: { containersCount: 'container', componentsCount: 'component', integrationsCount: 'integration', relationsCount: 'relation', highRisks: 'high risk' },
   kind: { service: 'Service', ui: 'User interface', db: 'Database', queue: 'Queue / messaging', job: 'Job / worker', lib: 'Library', cache: 'Cache', storage: 'Storage', gateway: 'Gateway', function: 'Function', external: 'External system', person: 'Person', system: 'System', 'external-system': 'External system' },
   conf: { verified: 'Verified', inferred: 'Inferred', unconfirmed: 'To confirm' },
   confHint: { verified: 'Confirmed by evidence in the code (file:line).', inferred: 'Deduced from hints in the code; review.', unconfirmed: 'No direct evidence; needs human confirmation.' },
@@ -52,3 +54,6 @@ const en = {
 };
 
 export const strings = (lang) => (lang === 'en' ? en : pt);
+
+// rótulo de contagem no singular quando n === 1 ("1 integração", não "1 integrações")
+export const countLabel = (t, key, n) => (n === 1 && t.one[key]) || t.ui[key];

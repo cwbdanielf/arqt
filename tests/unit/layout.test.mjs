@@ -80,3 +80,22 @@ test('rótulos de até ~20 caracteres cabem inteiros entre colunas vizinhas', as
     assert.equal(placed[e.id].truncated, false, `${e.id}: rótulo abreviado`);
   }
 });
+
+test('faixa sem arestas internas ocupa uma coluna só, mesmo com cadeia longa em outra faixa', () => {
+  // serviços em cadeia (s0 → s1 → s2 → s3), cada um usando um recurso diferente da faixa de dados;
+  // a fila conversa nos dois sentidos com os serviços (ciclos), como num barramento de eventos.
+  const nodes = [
+    { id: 'p', rank: 0 },
+    ...[0, 1, 2, 3].map((i) => ({ id: `s${i}`, band: 'app' })),
+    ...['db', 'cache', 'fila'].map((id) => ({ id, band: 'dados' })),
+  ];
+  const edges = [
+    { id: 'e0', from: 'p', to: 's0' }, { id: 'e1', from: 's0', to: 's1' }, { id: 'e2', from: 's1', to: 's2' }, { id: 'e3', from: 's2', to: 's3' },
+    { id: 'e4', from: 's0', to: 'db' }, { id: 'e5', from: 's3', to: 'cache' }, { id: 'e6', from: 's1', to: 'fila' }, { id: 'e7', from: 'fila', to: 's2' },
+  ];
+  const lay = layoutGraph({ nodes, edges, bands: [{ id: 'app', label: 'App' }, { id: 'dados', label: 'Dados' }] }, { mode: 'columns' });
+  assertInvariants(lay, 'faixas');
+  const col = (id) => lay.nodes[id].col;
+  assert.equal(new Set(['db', 'cache', 'fila'].map(col)).size, 1, 'recursos sem relação entre si ficam na mesma coluna');
+  assert.equal(lay.cols, 1 + 4 + 1, 'pessoa + cadeia de 4 serviços + 1 coluna de dados');
+});

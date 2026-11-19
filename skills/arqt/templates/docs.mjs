@@ -2,6 +2,7 @@
 import { html, raw, md, mermaidLabel } from '../scripts/lib/html.mjs';
 import { renderView, renderSequence } from '../scripts/lib/svg.mjs';
 import { icon, sprite } from '../assets/icons.mjs';
+import { countLabel } from '../scripts/lib/i18n.mjs';
 
 const I = (n) => raw(icon(n));
 const LVL = { pt: ['Baixo', 'Médio', 'Alto'], en: ['Low', 'Medium', 'High'] };
@@ -161,11 +162,11 @@ function executivo(ctx) {
     sections: [
       { title: t.doc.purpose,
         html: html`<p class="lead">${m.system.purpose}</p>${m.system.summary ? html`<p>${m.system.summary}</p>` : ''}
-          <div class="kpis"><div class="kpi"><b>${containers.length}</b><span>${t.ui.containersCount}</span></div><div class="kpi"><b>${externals.length}</b><span>${t.ui.integrationsCount}</span></div><div class="kpi"><b>${m.risks.filter((r) => r.impact * r.likelihood >= 6).length}</b><span>${t.ui.highRisks}</span></div><div class="kpi"><b>${Math.round((metrics.conf.verified / Math.max(1, metrics.totalClaims)) * 100)}%</b><span>${t.ui.verifiedShare}</span></div></div>
+          <div class="kpis"><div class="kpi"><b>${containers.length}</b><span>${countLabel(t, 'containersCount', containers.length)}</span></div><div class="kpi"><b>${externals.length}</b><span>${countLabel(t, 'integrationsCount', externals.length)}</span></div><div class="kpi"><b>${m.risks.filter((r) => r.impact * r.likelihood >= 6).length}</b><span>${countLabel(t, 'highRisks', m.risks.filter((r) => r.impact * r.likelihood >= 6).length)}</span></div><div class="kpi"><b>${Math.round((metrics.conf.verified / Math.max(1, metrics.totalClaims)) * 100)}%</b><span>${t.ui.verifiedShare}</span></div></div>
           ${m.system.businessCapabilities.length ? html`<h3>${t.ui.capabilities}</h3><div class="chips">${m.system.businessCapabilities.map((c) => html`<span class="chip">${c}</span>`)}</div>` : ''}
           ${m.system.stack.length ? html`<h3>${t.ui.stack}</h3><div class="chips">${m.system.stack.map((c) => html`<span class="chip">${c}</span>`)}</div>` : ''}`,
         md: [md(m.system.purpose), '', m.system.summary ? md(m.system.summary) : '', '',
-          `**${containers.length}** ${t.ui.containersCount} · **${externals.length}** ${t.ui.integrationsCount} · **${m.risks.filter((r) => r.impact * r.likelihood >= 6).length}** ${t.ui.highRisks}`, '',
+          `**${containers.length}** ${countLabel(t, 'containersCount', containers.length)} · **${externals.length}** ${countLabel(t, 'integrationsCount', externals.length)} · **${m.risks.filter((r) => r.impact * r.likelihood >= 6).length}** ${countLabel(t, 'highRisks', m.risks.filter((r) => r.impact * r.likelihood >= 6).length)}`, '',
           m.system.businessCapabilities.length ? `**${t.ui.capabilities}:** ${m.system.businessCapabilities.map(md).join(', ')}` : '', '',
           m.system.stack.length ? `**${t.ui.stack}:** ${m.system.stack.map(md).join(', ')}` : ''].join('\n') },
       { title: t.doc.contextScope,
@@ -250,7 +251,9 @@ function arquitetura(ctx) {
 function sustentacao(ctx) {
   const { m, t, ix, metrics } = ctx;
   const nameOf = (id) => ix.node(id)?.name || id;
-  const ops = m.components.filter((c) => !c.parent && c.kind !== 'external');
+  // bibliotecas sem nada de operação (monorepos: ui, validators…) não sobem sozinhas: ficam fora do manual
+  const hasOps = (c) => ['start', 'build', 'test', 'logs', 'health', 'schedule'].some((k) => c.ops[k]) || (c.ops.config || []).length || (c.ops.ports || []).length || (c.ops.failureModes || []).length;
+  const ops = m.components.filter((c) => !c.parent && c.kind !== 'external' && (c.kind !== 'lib' || hasOps(c)));
   const envAll = [...new Set(ops.flatMap((c) => c.ops.config || []))].sort();
   const usedBy = (v) => ops.filter((c) => (c.ops.config || []).includes(v)).map((c) => c.name).join(', ');
   const deps = (c) => {
