@@ -17,7 +17,9 @@ function edgeLabel(labels, protocols, t) {
   if (!labels.length) return protocols[0] || '';
   if (labels.length === 1) return labels[0];
   if (labels.length === 2 && labels.join(' · ').length <= 26) return labels.join(' · ');
-  return `${labels.length} ${t.ui.relationsCount}${protocols.length === 1 ? ' · ' + protocols[0] : ''}`;
+  const base = `${labels.length} ${t.ui.relationsCount}`;
+  const withProto = protocols.length === 1 ? `${base} · ${protocols[0]}` : base;
+  return withProto.length <= 22 ? withProto : base;
 }
 
 // Agrega relações (já "elevadas") em arestas únicas por par de nós, detectando bidirecionais.

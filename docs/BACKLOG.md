@@ -55,6 +55,25 @@ Rodar o `/arqt` em 5 repositórios open source de stacks diferentes e corrigir o
 | 2.4 | Ampliar o playbook por stack no `SKILL.md`/`reference/` com o que faltou | stacks cobertas no guia |
 | 2.5 | Versionar 1–2 modelos de exemplo (licença permissiva) em `tests/models/` e gerar uma planta de demonstração | demo citada no README |
 | 2.6 | Incorporar o feedback dos colegas (issues da 1.6) | issues triadas e fechadas ou adiadas |
+| 2.7 | Diagramas com cadeias longas ficam largos e abrem com zoom baixo (ex.: componentes do Go a ~35%); avaliar quebra em duas linhas ou zoom inicial mínimo | vista de componentes legível sem zoom manual |
+| 2.8 | Caso isolado: rótulo de seta longa entre colunas distantes ainda abreviado em 2 letras | nenhum rótulo ≤ 24 caracteres abreviado |
+
+**Repositórios de teste (2.1)** — cópias rasas, só leitura, fora do repo (pasta temporária da sessão; baixar de novo se sumir):
+
+| Stack | Repositório | Commit | Estado |
+|---|---|---|---|
+| Java/Spring | spring-projects/spring-petclinic | `500158f7` | analisado |
+| Python/Django | wagtail/bakerydemo | `890285b9` | analisado |
+| Go | go-shiori/shiori | `aebb4021` | analisado |
+| .NET | dotnet/eShop | `134625b2` | próximo |
+| Monorepo TS | t3-oss/create-t3-turbo | `8f945b7b` | próximo |
+
+**Problemas encontrados e corrigidos (2.2/2.3)**
+- Guia do modelo sem o formato de `qualityGoals`, `failureModes`, `config` (só nomes) e `sources` em fluxos → o agente errava no 1º build. Guia corrigido.
+- Rótulos das setas cortados ("Cada…") → layout reserva espaço no vão para o maior rótulo (até ~24 caracteres).
+- Rótulos sumindo quando várias setas saem do mesmo bloco → portas mais espaçadas e dois rótulos lado a lado quando necessário.
+- Setas agregadas com rótulo enganoso ("Grava páginas (+7)") → "8 relações · SQL".
+- Passos dos fluxos abreviados → usam a largura da linha inteira.
 
 ### 3. Teste A/B formal — rúbrica cega (v1.2)
 

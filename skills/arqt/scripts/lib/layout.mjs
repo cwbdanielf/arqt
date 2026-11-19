@@ -9,7 +9,7 @@ const DEFAULTS = {
   minGap: 132, outerGap: 28, laneSp: 12, laneMargin: 18,
   rowGap: 34, bandPadTop: 38, bandPadBottom: 18, bandPadX: 18, bandGap: 30,
   margin: 24,
-  labelMax: 150, labelCharW: 6.4, labelPad: 16,
+  labelMax: 172, labelCharW: 6.4, labelPad: 16, portSp: 22,
 };
 
 const mean = (a) => a.reduce((s, x) => s + x, 0) / a.length;
@@ -296,7 +296,7 @@ function layoutCore(graph, options = {}) {
   const spread = (list, side) => {
     list.sort((a, b) => a.key - b.key || a.tie - b.tie || (a.r.e.id < b.r.e.id ? -1 : 1));
     const n = list.length;
-    const step = n > 1 ? Math.min(14, (H * 0.68) / (n - 1)) : 0;
+    const step = n > 1 ? Math.min(o.portSp, (H * 0.68) / (n - 1)) : 0;
     list.forEach((p, i) => { p.r[side] = (i - (n - 1) / 2) * step; });
   };
   for (const id of ids) { spread(outPorts.get(id), 'po'); spread(inPorts.get(id), 'pi'); }
@@ -339,7 +339,7 @@ function layoutCore(graph, options = {}) {
   // e aparece inteiro no painel/tooltip). Arestas entre colunas distantes já têm trechos longos.
   const labelNeed = new Array(C + 1).fill(0);
   const lw = (r) => (r.e.label ? Math.min(o.labelMax, o.labelCharW * r.e.label.length + o.labelPad) : 0);
-  // várias setas rotuladas saindo do mesmo nó pelo mesmo vão ficam empilhadas a poucos pixels:
+  // muitas setas rotuladas saindo do mesmo nó pelo mesmo vão ficam a menos de um rótulo de distância:
   // nesse caso o vão comporta dois rótulos lado a lado, alternando esquerda/direita.
   const fan = new Map();
   for (const r of routes) {
@@ -352,7 +352,8 @@ function layoutCore(graph, options = {}) {
     const w = lw(r);
     if (!w) continue;
     const g = r.segs.length ? r.vgap : r.t.c;
-    const two = (fan.get(g + '|' + r.e.from) || 0) > 1;
+    const nf = fan.get(g + '|' + r.e.from) || 0;
+    const two = nf > 1 && (H * 0.68) / (nf - 1) < 20; // portas próximas demais: rótulos empilhados colidiriam
     if (!r.segs.length) { if (r.t.c === r.s.c + 1) labelNeed[r.t.c] = Math.max(labelNeed[r.t.c], two ? 2 * w + 40 : w + 28); }
     else if (r.type === 'lout' || r.type === 'lin') {
       labelNeed[r.vgap] = Math.max(labelNeed[r.vgap], two ? 2 * w + 46 : w + 34);
