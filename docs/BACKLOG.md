@@ -31,14 +31,14 @@ Ordem de execução: **1 → 2 → 3 → 4**. Cada frente termina com testes pas
 
 ### 1. Publicação (v1.0.0)
 
-Bloqueio atual: o `gh` está logado em outra conta; o push só acontece logado como `cwbdanielf`. Não há chave SSH na máquina.
+Publicado em https://github.com/cwbdanielf/arqt. Pendentes: 1.2 (assinatura), 1.5 (teste em máquina limpa) e compartilhar com os colegas.
 
 | # | Item | Pronto quando |
 |---|---|---|
-| 1.1 | Confirmar o e-mail noreply com id (`<id>+cwbdanielf@users.noreply.github.com`) e ajustar o autor do commit inicial antes do push | autor do commit = noreply com id |
-| 1.2 | Configurar chave SSH de assinatura no git (`gpg.format ssh`, `user.signingkey`) e registrá-la no GitHub como *signing key* | `git tag -v` verifica |
-| 1.3 | Criar `cwbdanielf/arqt` público e fazer o primeiro push de `main` | repositório visível |
-| 1.4 | Tag assinada `v1.0.0` e release no GitHub com o CHANGELOG | release publicada; CI verde |
+| 1.1 | ~~E-mail noreply com id no autor dos commits~~ (feito) | autor do commit = noreply com id |
+| 1.2 | Gerar chave SSH de assinatura, autorizar o escopo `admin:ssh_signing_key` no `gh` (aprovação no navegador), configurar de assinatura no git (`gpg.format ssh`, `user.signingkey`) e registrá-la como *signing key*; assinar as próximas tags | `git tag -v` verifica |
+| 1.3 | ~~Repositório público e primeiro push~~ (feito) | repositório visível |
+| 1.4 | ~~Tag `v1.0.0` (sem assinatura) e release com o CHANGELOG~~ (feito) | release publicada; CI verde |
 | 1.5 | ~~README com a URL real~~ (feito); testar `/plugin marketplace add cwbdanielf/arqt` numa máquina limpa | instalação em 2 passos funciona |
 | 1.6 | ~~Modelo de issue para feedback~~ (feito: `.github/ISSUE_TEMPLATE/feedback.md`); compartilhar com colegas após o push | colegas com acesso |
 
