@@ -17,7 +17,12 @@ $versao = [int]((& node -p 'process.versions.node.split(".")[0]').Trim())
 if ($versao -lt 20) { throw "Node $versao é antigo; instale o Node 20 ou superior." }
 
 if ($Projeto) {
-  $Base = (Resolve-Path $Projeto).Path
+  # tolera o que costuma vir junto ao copiar do terminal: o ">" do prompt, aspas e espaços
+  $Projeto = $Projeto.Trim().Trim('"', "'").TrimEnd('>').Trim()
+  if (-not (Test-Path -LiteralPath $Projeto -PathType Container)) {
+    throw "Pasta do projeto não encontrada: '$Projeto'. Confira o caminho (sem o '>' do prompt) ou use -Projeto . na pasta do projeto."
+  }
+  $Base = (Resolve-Path -LiteralPath $Projeto).Path
   $Destino = Join-Path $Base '.claude\skills\arqt'
 } else {
   $Destino = Join-Path $HOME '.claude\skills\arqt'

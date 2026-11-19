@@ -170,8 +170,9 @@ git clone https://github.com/cwbdanielf/arqt.git; .\arqt\install\install.ps1
 git clone https://github.com/cwbdanielf/arqt.git && sh arqt/install/install.sh
 ```
 
-O instalador só copia a pasta do skill para `~/.claude/skills/arqt` e confere a integridade. Para um projeto só:
-`install.ps1 -Projeto C:\caminho` ou `install.sh /caminho`. Como plugin: `/plugin marketplace add cwbdanielf/arqt` e
+O instalador só copia a pasta do skill para `~/.claude/skills/arqt` e confere a integridade. Para um projeto só,
+rode na pasta do projeto `.\arqt\install\install.ps1 -Projeto .` (ou `sh arqt/install/install.sh .`); depois pode
+apagar a pasta `arqt/` clonada. Como plugin: `/plugin marketplace add cwbdanielf/arqt` e
 `/plugin install arqt@arqt` (o comando pode aparecer como `/arqt:arqt`).
 
 ## Perguntas rápidas

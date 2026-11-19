@@ -15,6 +15,7 @@ VERSAO="$(node -p 'process.versions.node.split(".")[0]')"
 [ "$VERSAO" -ge 20 ] || { echo "Node $VERSAO é antigo; instale o Node 20 ou superior." >&2; exit 1; }
 
 if [ "${1:-}" ]; then
+  [ -d "$1" ] || { echo "Pasta do projeto não encontrada: '$1'. Confira o caminho ou rode na pasta do projeto com: sh install/install.sh ." >&2; exit 1; }
   DESTINO="$(cd "$1" && pwd)/.claude/skills/arqt"
 else
   DESTINO="$HOME/.claude/skills/arqt"
